@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use App\Models\FinancialAssistance;
 use App\Models\FamilyDetails;
+use App\Models\EducationDetails;
 use Illuminate\Support\Str;
 
 class FinancialAssistanceController extends Controller
@@ -55,6 +56,36 @@ class FinancialAssistanceController extends Controller
             'existingData' => $existingData,
             'submissionId' => $submissionId,
             'personalDetails' => $personalDetails
+        ]);
+    }
+
+    public function educationDetails(Request $request)
+    {
+        // Get submission ID from session or URL parameter
+        $submissionId = $request->get('submission_id') ?? Session::get('submission_id');
+
+        if (!$submissionId) {
+            return redirect()->route('financial-assistance')
+                ->with('error', 'Please complete previous steps first.');
+        }
+
+        // Check if family details step is completed
+        $personalDetails = FinancialAssistance::bySubmissionId($submissionId)->first();
+        $familyDetails = FamilyDetails::bySubmissionId($submissionId)->first();
+
+        if (!$personalDetails || $personalDetails->current_step < 2) {
+            return redirect()->route('family-details', ['submission_id' => $submissionId])
+                ->with('error', 'Please complete family details first.');
+        }
+
+        // Get existing education details if any
+        $existingData = EducationDetails::bySubmissionId($submissionId)->first();
+
+        return view('education-details', [
+            'existingData' => $existingData,
+            'submissionId' => $submissionId,
+            'personalDetails' => $personalDetails,
+            'familyDetails' => $familyDetails
         ]);
     }
 
@@ -421,7 +452,7 @@ class FinancialAssistanceController extends Controller
                     'step' => 3,
                     'next_step' => 'education-details',
                     'completion_percentage' => 42.9, // 3/7 steps
-                    'redirect_url' => route('family-details', ['submission_id' => $submissionId]) . '?saved=true'
+                    'redirect_url' => route('education-details', ['submission_id' => $submissionId])
                 ]
             ], 200);
 
@@ -435,6 +466,126 @@ class FinancialAssistanceController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'An error occurred while processing family details. Please try again.',
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+            ], 500);
+        }
+    }
+
+    public function storeEducationDetails(Request $request)
+    {
+        try {
+            // Get submission ID from session or request
+            $submissionId = $request->get('submission_id') ?? Session::get('submission_id');
+
+            if (!$submissionId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Session expired. Please start from the beginning.',
+                    'redirect_url' => route('financial-assistance')
+                ], 400);
+            }
+
+            // Validate education details
+            $validator = Validator::make($request->all(), [
+                // Previous Education Details (dynamic table)
+                'previous_education' => 'nullable|array',
+                'previous_education.*.exam_name' => 'nullable|string|max:255',
+                'previous_education.*.course_name' => 'nullable|string|max:255',
+                'previous_education.*.exam_month' => 'nullable|string|max:50',
+                'previous_education.*.exam_year' => 'nullable|integer|min:1950|max:' . date('Y'),
+                'previous_education.*.out_of_marks' => 'nullable|numeric|min:0',
+                'previous_education.*.marks_obtained' => 'nullable|numeric|min:0',
+                'previous_education.*.percentage' => 'nullable|numeric|min:0|max:100',
+
+                // Work Experience and Activities
+                'extracurricular_activities' => 'nullable|string',
+                'research_projects' => 'nullable|string',
+                'work_experience_years' => 'nullable|numeric|min:0',
+                'company_name' => 'nullable|string|max:255',
+                'remuneration' => 'nullable|numeric|min:0',
+                'ctc_yearly' => 'nullable|numeric|min:0',
+                'work_profile' => 'nullable|string',
+
+                // Current Education Details
+                'course_name_current' => 'nullable|string|max:255',
+                'pursuing_education' => 'nullable|string|max:255',
+                'university_college_name' => 'nullable|string|max:255',
+                'commencement_month_year' => 'nullable|string|max:50',
+                'completion_month_year' => 'nullable|string|max:50',
+                'city' => 'nullable|string|max:255',
+                'country' => 'nullable|string|max:255',
+                'qs_ranking_foreign' => 'nullable|string|max:255',
+                'nirf_ranking_domestic' => 'nullable|string|max:255',
+            ], [
+                'previous_education.*.exam_year.integer' => 'Exam year must be a valid year.',
+                'previous_education.*.exam_year.min' => 'Exam year must be 1950 or later.',
+                'previous_education.*.exam_year.max' => 'Exam year cannot be in the future.',
+                'previous_education.*.out_of_marks.numeric' => 'Out of marks must be a number.',
+                'previous_education.*.marks_obtained.numeric' => 'Marks obtained must be a number.',
+                'previous_education.*.percentage.numeric' => 'Percentage must be a number.',
+                'work_experience_years.numeric' => 'Work experience must be a number.',
+                'remuneration.numeric' => 'Remuneration must be a number.',
+                'ctc_yearly.numeric' => 'CTC must be a number.',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Please check the form for errors.',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            $validatedData = $validator->validated();
+            $validatedData['submission_id'] = $submissionId;
+            $validatedData['form_status'] = 'completed';
+
+            // Check if education details already exist for this submission
+            $existingEducationDetails = EducationDetails::bySubmissionId($submissionId)->first();
+
+            if ($existingEducationDetails) {
+                // Update existing record
+                $existingEducationDetails->update($validatedData);
+                $educationDetails = $existingEducationDetails;
+            } else {
+                // Create new record
+                $educationDetails = EducationDetails::create($validatedData);
+            }
+
+            // Update the main application step
+            $application = FinancialAssistance::bySubmissionId($submissionId)->first();
+            if ($application && $application->current_step < 4) {
+                $application->update(['current_step' => 4]);
+            }
+
+            Log::info('Education details saved', [
+                'submission_id' => $submissionId,
+                'education_details_id' => $educationDetails->id,
+                'course_name_current' => $validatedData['course_name_current'] ?? 'Not specified'
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Education details saved successfully!',
+                'data' => [
+                    'submission_id' => $submissionId,
+                    'step' => 4,
+                    'next_step' => 'funding-details',
+                    'completion_percentage' => 57.1, // 4/7 steps
+                    'redirect_url' => route('funding-details', ['submission_id' => $submissionId])
+                ]
+            ], 200);
+
+        } catch (\Exception $e) {
+            Log::error('Error processing education details', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'request_data' => $request->except(['_token'])
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while processing education details. Please try again.',
                 'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
             ], 500);
         }
@@ -472,9 +623,10 @@ class FinancialAssistanceController extends Controller
             $nextUrls = [
                 1 => route('financial-assistance', ['submission_id' => $submissionId]),
                 2 => route('family-details', ['submission_id' => $submissionId]),
+                3 => route('education-details', ['submission_id' => $submissionId]),
+                4 => route('funding-details', ['submission_id' => $submissionId]),
                 // Add more steps as needed
-                // 3 => route('education-details', ['submission_id' => $submissionId]),
-                // 4 => route('funding-details', ['submission_id' => $submissionId]),
+                // 5 => route('guarantor-details', ['submission_id' => $submissionId]),
                 // etc.
             ];
 

@@ -174,6 +174,14 @@ class FinancialAssistance extends Model
     }
 
     /**
+     * Get the education details associated with this financial assistance.
+     */
+    public function educationDetails(): HasOne
+    {
+        return $this->hasOne(EducationDetails::class, 'submission_id', 'submission_id');
+    }
+
+    /**
      * Scope for filtering by submission_id
      */
     public function scopeBySubmissionId($query, $submissionId)
