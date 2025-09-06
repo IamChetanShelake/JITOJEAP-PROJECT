@@ -37,31 +37,31 @@
             </a>
             <span>/ New</span>
         </div>
-        
+
         <!-- Logo and Navigation Icons -->
         <div class="flex items-center space-x-4" style="display: flex;flex-direction: column;row-gap: 20px;">
             <!-- JITO JEAP Logo -->
-            <img alt="JITO JEAP Education Assistance Program logo" 
-                 class="w-[100px] h-[40px] object-contain" 
-                 height="40" 
-                 src="{{ asset('assets/images/logo.png') }}" 
+            <img alt="JITO JEAP Education Assistance Program logo"
+                 class="w-[100px] h-[40px] object-contain"
+                 height="40"
+                 src="{{ asset('assets/images/logo.png') }}"
                  width="100"/>
-            
+
             <!-- Navigation Icons -->
             <div class="flex items-center space-x-4 text-gray-700 text-lg" style="    display: flex
                     ;
                 /* justify-content: space-evenly; */
                 column-gap: 18px;">
                 <!-- Messages Icon -->
-                <i class="far fa-comment-alt cursor-pointer hover:text-blue-600 transition-colors" 
+                <i class="far fa-comment-alt cursor-pointer hover:text-blue-600 transition-colors"
                    title="Messages"></i>
-                
+
                 <!-- Notifications Icon -->
-                <i class="far fa-bell cursor-pointer hover:text-blue-600 transition-colors" 
+                <i class="far fa-bell cursor-pointer hover:text-blue-600 transition-colors"
                    title="Notifications"></i>
-                
+
                 <!-- Profile Icon -->
-                <i class="far fa-user-circle cursor-pointer hover:text-blue-600 transition-colors" 
+                <i class="far fa-user-circle cursor-pointer hover:text-blue-600 transition-colors"
                    title="Profile"></i>
             </div>
         </div>
@@ -70,7 +70,7 @@
     <!-- Action Buttons Section -->
     <section class="max-w-[1200px] mx-auto px-6">
         <div class="flex flex-wrap gap-3 mb-4">
-          
+
             <button class="flex items-center gap-2 bg-project-primary hover:bg-project-primary text-white text-sm font-semibold px-4 py-2 rounded transition-colors">
                 <i class="fas fa-print"></i>
                 Print
@@ -82,6 +82,9 @@
             <button class="bg-gray-300 hover:bg-gray-400 text-gray-900 text-sm font-normal px-4 py-2 rounded transition-colors">
                 Save to Draft
             </button>
+            <button onclick="clearSession()" class="bg-red-500 hover:bg-red-600 text-white text-sm font-normal px-4 py-2 rounded transition-colors">
+                Clear Session
+            </button>
         </div>
     </section>
 
@@ -90,10 +93,31 @@
         *NOTE:- STUDENT HAS TO FILL ALL THE DETAILS IN 7 PAGES AND IN SUBMIT SECTION PLEASE CLICK
     </section>
 
+    @if(isset($submissionId))
+    <!-- Session Info -->
+    <section class="max-w-[1200px] mx-auto px-6 mb-4">
+        <div class="bg-blue-50 border border-blue-200 rounded-md p-3 text-sm">
+            <div class="flex items-center justify-between">
+                <span class="text-blue-800">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    Session ID: <strong>{{ substr($submissionId, 0, 8) }}...</strong>
+                </span>
+                <span class="text-blue-600 font-semibold">
+                    Step 1/7 - Personal Details
+                </span>
+            </div>
+        </div>
+    </section>
+    @endif
+
     <!-- Main Form Section -->
     <form method="POST" action="{{ route('financial-assistance.store') }}" class="max-w-[1200px] mx-auto px-6">
         @csrf
-        
+
+        @if(isset($submissionId))
+            <input type="hidden" name="submission_id" value="{{ $submissionId }}">
+        @endif
+
         <!-- Basic Information Section -->
         <section class="mb-8">
             <div class="bg-white border border-gray-200 rounded-md shadow-md p-6 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
@@ -101,10 +125,11 @@
                     <label class="block text-xs text-gray-600 mb-1" for="name">
                         Name <span class="text-red-500">*</span>
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                           id="name" 
-                           name="name" 
-                           type="text" 
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
+                           id="name"
+                           name="name"
+                           type="text"
+                           value="{{ old('name', $existingData->name ?? '') }}"
                            required/>
                 </div>
                 <div></div>
@@ -112,88 +137,94 @@
                     <label class="block text-xs text-gray-600 mb-1" for="applicant">
                         Applicant <span class="text-red-500">*</span>
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                           id="applicant" 
-                           name="applicant" 
-                           type="text" 
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
+                           id="applicant"
+                           name="applicant"
+                           type="text"
+                           value="{{ old('applicant', $existingData->applicant ?? '') }}"
                            required/>
                 </div>
                 <div>
                     <label class="block text-xs text-gray-600 mb-1" for="request_date">
                         Request Date <span class="text-red-500">*</span>
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                           id="request_date" 
-                           name="request_date" 
-                           type="date" 
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
+                           id="request_date"
+                           name="request_date"
+                           type="date"
+                           value="{{ old('request_date', $existingData->request_date ? $existingData->request_date->format('Y-m-d') : '') }}"
                            required/>
                 </div>
                 <div>
                     <label class="block text-xs text-gray-600 mb-1" for="financial_asst_type">
                         Financial Asst Type <span class="text-red-500">*</span>
                     </label>
-                    <select class="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                            id="financial_asst_type" 
-                            name="financial_asst_type" 
+                    <select class="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
+                            id="financial_asst_type"
+                            name="financial_asst_type"
                             required>
                         <option value="">Select Type</option>
-                        <option value="education">Education</option>
-                        <option value="medical">Medical</option>
-                        <option value="emergency">Emergency</option>
-                        <option value="business">Business</option>
+                        <option value="education" {{ old('financial_asst_type', $existingData->financial_asst_type ?? '') == 'education' ? 'selected' : '' }}>Education</option>
+                        <option value="medical" {{ old('financial_asst_type', $existingData->financial_asst_type ?? '') == 'medical' ? 'selected' : '' }}>Medical</option>
+                        <option value="emergency" {{ old('financial_asst_type', $existingData->financial_asst_type ?? '') == 'emergency' ? 'selected' : '' }}>Emergency</option>
+                        <option value="business" {{ old('financial_asst_type', $existingData->financial_asst_type ?? '') == 'business' ? 'selected' : '' }}>Business</option>
                     </select>
                 </div>
                 <div>
                     <label class="block text-xs text-gray-600 mb-1" for="financial_asst_for">
                         Financial Asst For <span class="text-red-500">*</span>
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                           id="financial_asst_for" 
-                           name="financial_asst_for" 
-                           type="text" 
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
+                           id="financial_asst_for"
+                           name="financial_asst_for"
+                           type="text"
+                           value="{{ old('financial_asst_for', $existingData->financial_asst_for ?? '') }}"
                            required/>
                 </div>
                 <div>
                     <label class="block text-xs text-gray-600 mb-1" for="paid_amount">
                         Paid Amount
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                           id="paid_amount" 
-                           name="paid_amount" 
-                           type="number" 
-                           step="0.01"/>
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
+                           id="paid_amount"
+                           name="paid_amount"
+                           type="number"
+                           step="0.01"
+                           value="{{ old('paid_amount', $existingData->paid_amount ?? '') }}"/>
                 </div>
                 <div>
                     <label class="block text-xs text-gray-600 mb-1" for="approve_date">
                         Approve Date
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                           id="approve_date" 
-                           name="approve_date" 
-                           type="date"/>
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
+                           id="approve_date"
+                           name="approve_date"
+                           type="date"
+                           value="{{ old('approve_date', $existingData->approve_date ? $existingData->approve_date->format('Y-m-d') : '') }}"/>
                 </div>
                 <div>
                     <label class="block text-xs text-gray-600 mb-1" for="outstanding_amount">
                         Outstanding Amount
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                           id="outstanding_amount" 
-                           name="outstanding_amount" 
-                           type="number" 
-                           step="0.01"/>
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
+                           id="outstanding_amount"
+                           name="outstanding_amount"
+                           type="number"
+                           step="0.01"
+                           value="{{ old('outstanding_amount', $existingData->outstanding_amount ?? '') }}"/>
                 </div>
                 <div>
                     <label class="block text-xs text-gray-600 mb-1" for="form_status">
                         Form Status
                     </label>
-                    <select class="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                            id="form_status" 
+                    <select class="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
+                            id="form_status"
                             name="form_status">
-                        <option value="draft">Draft</option>
-                        <option value="submitted">Submitted</option>
-                        <option value="under_review">Under Review</option>
-                        <option value="approved">Approved</option>
-                        <option value="rejected">Rejected</option>
+                        <option value="draft" {{ old('form_status', $existingData->form_status ?? '') == 'draft' ? 'selected' : '' }}>Draft</option>
+                        <option value="submitted" {{ old('form_status', $existingData->form_status ?? '') == 'submitted' ? 'selected' : '' }}>Submitted</option>
+                        <option value="under_review" {{ old('form_status', $existingData->form_status ?? '') == 'under_review' ? 'selected' : '' }}>Under Review</option>
+                        <option value="approved" {{ old('form_status', $existingData->form_status ?? '') == 'approved' ? 'selected' : '' }}>Approved</option>
+                        <option value="rejected" {{ old('form_status', $existingData->form_status ?? '') == 'rejected' ? 'selected' : '' }}>Rejected</option>
                     </select>
                 </div>
             </div>
@@ -250,194 +281,206 @@
                     <label class="block mb-1" for="aadhar_number">
                         Aadhar Number <span class="text-red-500">*</span>
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                           id="aadhar_number" 
-                           name="aadhar_number" 
-                           type="text" 
-                           maxlength="12" 
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                           id="aadhar_number"
+                           name="aadhar_number"
+                           type="text"
+                           maxlength="12"
+                           value="{{ old('aadhar_number', $existingData->aadhar_number ?? '') }}"
                            required/>
                 </div>
                 <div>
                     <label class="block mb-1" for="date_of_birth">
                         Date Of Birth <span class="text-red-500">*</span>
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                           id="date_of_birth" 
-                           name="date_of_birth" 
-                           type="date" 
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                           id="date_of_birth"
+                           name="date_of_birth"
+                           type="date"
+                           value="{{ old('date_of_birth', $existingData->date_of_birth ? $existingData->date_of_birth->format('Y-m-d') : '') }}"
                            required/>
                 </div>
                 <div>
                     <label class="block mb-1" for="birth_place">
                         Birth Place <span class="text-red-500">*</span>
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                           id="birth_place" 
-                           name="birth_place" 
-                           type="text" 
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                           id="birth_place"
+                           name="birth_place"
+                           type="text"
+                           value="{{ old('birth_place', $existingData->birth_place ?? '') }}"
                            required/>
                 </div>
                 <div>
                     <label class="block mb-1" for="student_first_name">
                         Student First Name <span class="text-red-500">*</span>
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                           id="student_first_name" 
-                           name="student_first_name" 
-                           type="text" 
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                           id="student_first_name"
+                           name="student_first_name"
+                           type="text"
+                           value="{{ old('student_first_name', $existingData->student_first_name ?? '') }}"
                            required/>
                 </div>
                 <div>
                     <label class="block mb-1" for="middle_name">
                         Middle Name
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                           id="middle_name" 
-                           name="middle_name" 
-                           type="text"/>
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                           id="middle_name"
+                           name="middle_name"
+                           type="text"
+                           value="{{ old('middle_name', $existingData->middle_name ?? '') }}"/>
                 </div>
                 <div>
                     <label class="block mb-1" for="last_name">
                         Last Name <span class="text-red-500">*</span>
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                           id="last_name" 
-                           name="last_name" 
-                           type="text" 
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                           id="last_name"
+                           name="last_name"
+                           type="text"
+                           value="{{ old('last_name', $existingData->last_name ?? '') }}"
                            required/>
                 </div>
                 <div>
                     <label class="block mb-1" for="marital_status">
                         Marital Status <span class="text-red-500">*</span>
                     </label>
-                    <select class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                            id="marital_status" 
-                            name="marital_status" 
+                    <select class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                            id="marital_status"
+                            name="marital_status"
                             required>
                         <option value="">Select Status</option>
-                        <option value="single">Single</option>
-                        <option value="married">Married</option>
-                        <option value="divorced">Divorced</option>
-                        <option value="widowed">Widowed</option>
+                        <option value="single" {{ old('marital_status', $existingData->marital_status ?? '') == 'single' ? 'selected' : '' }}>Single</option>
+                        <option value="married" {{ old('marital_status', $existingData->marital_status ?? '') == 'married' ? 'selected' : '' }}>Married</option>
+                        <option value="divorced" {{ old('marital_status', $existingData->marital_status ?? '') == 'divorced' ? 'selected' : '' }}>Divorced</option>
+                        <option value="widowed" {{ old('marital_status', $existingData->marital_status ?? '') == 'widowed' ? 'selected' : '' }}>Widowed</option>
                     </select>
                 </div>
                 <div>
                     <label class="block mb-1" for="native_place">
                         Native Place <span class="text-red-500">*</span>
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                           id="native_place" 
-                           name="native_place" 
-                           type="text" 
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                           id="native_place"
+                           name="native_place"
+                           type="text"
+                           value="{{ old('native_place', $existingData->native_place ?? '') }}"
                            required/>
                 </div>
                 <div>
                     <label class="block mb-1" for="age">
                         Age <span class="text-red-500">*</span>
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                           id="age" 
-                           name="age" 
-                           type="number" 
-                           min="1" 
-                           max="120" 
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                           id="age"
+                           name="age"
+                           type="number"
+                           min="1"
+                           max="120"
+                           value="{{ old('age', $existingData->age ?? '') }}"
                            required/>
                 </div>
                 <div>
                     <label class="block mb-1" for="gender">
                         Gender <span class="text-red-500">*</span>
                     </label>
-                    <select class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                            id="gender" 
-                            name="gender" 
+                    <select class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                            id="gender"
+                            name="gender"
                             required>
                         <option value="">Select Gender</option>
-                        <option value="male">Male</option>
-                        <option value="female">Female</option>
-                        <option value="other">Other</option>
+                        <option value="male" {{ old('gender', $existingData->gender ?? '') == 'male' ? 'selected' : '' }}>Male</option>
+                        <option value="female" {{ old('gender', $existingData->gender ?? '') == 'female' ? 'selected' : '' }}>Female</option>
+                        <option value="other" {{ old('gender', $existingData->gender ?? '') == 'other' ? 'selected' : '' }}>Other</option>
                     </select>
                 </div>
                 <div>
                     <label class="block mb-1" for="student_mobile">
                         Student Mobile Number <span class="text-red-500">*</span>
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                           id="student_mobile" 
-                           name="student_mobile" 
-                           type="tel" 
-                           maxlength="10" 
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                           id="student_mobile"
+                           name="student_mobile"
+                           type="tel"
+                           maxlength="10"
+                           value="{{ old('student_mobile', $existingData->student_mobile ?? '') }}"
                            required/>
                 </div>
                 <div>
                     <label class="block mb-1" for="religion">
                         Religion <span class="text-red-500">*</span>
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                           id="religion" 
-                           name="religion" 
-                           type="text" 
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                           id="religion"
+                           name="religion"
+                           type="text"
+                           value="{{ old('religion', $existingData->religion ?? '') }}"
                            required/>
                 </div>
                 <div>
                     <label class="block mb-1" for="nationality">
                         Nationality
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                           id="nationality" 
-                           name="nationality" 
-                           type="text" 
-                           value="Indian" 
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                           id="nationality"
+                           name="nationality"
+                           type="text"
+                           value="{{ old('nationality', $existingData->nationality ?? 'Indian') }}"
                            readonly/>
                 </div>
                 <div>
                     <label class="block mb-1" for="blood_group">
                         Blood Group
                     </label>
-                    <select class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                            id="blood_group" 
+                    <select class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                            id="blood_group"
                             name="blood_group">
                         <option value="">Select Blood Group</option>
-                        <option value="A+">A+</option>
-                        <option value="A-">A-</option>
-                        <option value="B+">B+</option>
-                        <option value="B-">B-</option>
-                        <option value="AB+">AB+</option>
-                        <option value="AB-">AB-</option>
-                        <option value="O+">O+</option>
-                        <option value="O-">O-</option>
+                        <option value="A+" {{ old('blood_group', $existingData->blood_group ?? '') == 'A+' ? 'selected' : '' }}>A+</option>
+                        <option value="A-" {{ old('blood_group', $existingData->blood_group ?? '') == 'A-' ? 'selected' : '' }}>A-</option>
+                        <option value="B+" {{ old('blood_group', $existingData->blood_group ?? '') == 'B+' ? 'selected' : '' }}>B+</option>
+                        <option value="B-" {{ old('blood_group', $existingData->blood_group ?? '') == 'B-' ? 'selected' : '' }}>B-</option>
+                        <option value="AB+" {{ old('blood_group', $existingData->blood_group ?? '') == 'AB+' ? 'selected' : '' }}>AB+</option>
+                        <option value="AB-" {{ old('blood_group', $existingData->blood_group ?? '') == 'AB-' ? 'selected' : '' }}>AB-</option>
+                        <option value="O+" {{ old('blood_group', $existingData->blood_group ?? '') == 'O+' ? 'selected' : '' }}>O+</option>
+                        <option value="O-" {{ old('blood_group', $existingData->blood_group ?? '') == 'O-' ? 'selected' : '' }}>O-</option>
                     </select>
                 </div>
                 <div>
                     <label class="block mb-1" for="student_email">
                         Student E-Mail <span class="text-red-500">*</span>
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                           id="student_email" 
-                           name="student_email" 
-                           type="email" 
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                           id="student_email"
+                           name="student_email"
+                           type="email"
+                           value="{{ old('student_email', $existingData->student_email ?? '') }}"
                            required/>
                 </div>
                 <div>
                     <label class="block mb-1" for="specially_abled">
                         Specially Abled <span class="text-red-500">*</span>
                     </label>
-                    <select class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                            id="specially_abled" 
-                            name="specially_abled" 
+                    <select class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                            id="specially_abled"
+                            name="specially_abled"
                             required>
-                        <option value="no">No</option>
-                        <option value="yes">Yes</option>
+                        <option value="no" {{ old('specially_abled', $existingData->specially_abled ?? 'no') == 'no' ? 'selected' : '' }}>No</option>
+                        <option value="yes" {{ old('specially_abled', $existingData->specially_abled ?? 'no') == 'yes' ? 'selected' : '' }}>Yes</option>
                     </select>
                 </div>
                 <div>
                     <label class="block mb-1" for="pan_no">
                         PAN No
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                           id="pan_no" 
-                           name="pan_no" 
-                           type="text" 
-                           maxlength="10"/>
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                           id="pan_no"
+                           name="pan_no"
+                           type="text"
+                           maxlength="10"
+                           value="{{ old('pan_no', $existingData->pan_no ?? '') }}"/>
                 </div>
             </div>
         </section>
@@ -450,147 +493,161 @@
                     <label class="block mb-1" for="flat_no">
                         Flat No <span class="text-red-500">*</span>
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                           id="flat_no" 
-                           name="flat_no" 
-                           type="text" 
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                           id="flat_no"
+                           name="flat_no"
+                           type="text"
+                           value="{{ old('flat_no', $existingData->flat_no ?? '') }}"
                            required/>
                 </div>
                 <div>
                     <label class="block mb-1" for="floor">
                         Floor
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                           id="floor" 
-                           name="floor" 
-                           type="text"/>
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                           id="floor"
+                           name="floor"
+                           type="text"
+                           value="{{ old('floor', $existingData->floor ?? '') }}"/>
                 </div>
                 <div>
                     <label class="block mb-1" for="name_of_building">
                         Name of building <span class="text-red-500">*</span>
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                           id="name_of_building" 
-                           name="name_of_building" 
-                           type="text" 
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                           id="name_of_building"
+                           name="name_of_building"
+                           type="text"
+                           value="{{ old('name_of_building', $existingData->name_of_building ?? '') }}"
                            required/>
                 </div>
                 <div>
                     <label class="block mb-1" for="area">
                         Area <span class="text-red-500">*</span>
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                           id="area" 
-                           name="area" 
-                           type="text" 
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                           id="area"
+                           name="area"
+                           type="text"
+                           value="{{ old('area', $existingData->area ?? '') }}"
                            required/>
                 </div>
                 <div>
                     <label class="block mb-1" for="lane">
                         Lane
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                           id="lane" 
-                           name="lane" 
-                           type="text"/>
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                           id="lane"
+                           name="lane"
+                           type="text"
+                           value="{{ old('lane', $existingData->lane ?? '') }}"/>
                 </div>
                 <div>
                     <label class="block mb-1" for="landmark">
                         Landmark
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                           id="landmark" 
-                           name="landmark" 
-                           type="text"/>
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                           id="landmark"
+                           name="landmark"
+                           type="text"
+                           value="{{ old('landmark', $existingData->landmark ?? '') }}"/>
                 </div>
                 <div>
                     <label class="block mb-1" for="pincode">
                         Pincode <span class="text-red-500">*</span>
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                           id="pincode" 
-                           name="pincode" 
-                           type="text" 
-                           maxlength="6" 
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                           id="pincode"
+                           name="pincode"
+                           type="text"
+                           maxlength="6"
+                           value="{{ old('pincode', $existingData->pincode ?? '') }}"
                            required/>
                 </div>
                 <div>
                     <label class="block mb-1" for="status">
                         Status <span class="text-red-500">*</span>
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                           id="status" 
-                           name="status" 
-                           type="text" 
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                           id="status"
+                           name="status"
+                           type="text"
+                           value="{{ old('status', $existingData->status ?? '') }}"
                            required/>
                 </div>
                 <div>
                     <label class="block mb-1" for="city">
                         City <span class="text-red-500">*</span>
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                           id="city" 
-                           name="city" 
-                           type="text" 
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                           id="city"
+                           name="city"
+                           type="text"
+                           value="{{ old('city', $existingData->city ?? '') }}"
                            required/>
                 </div>
                 <div>
                     <label class="block mb-1 text-[9px]" for="chapter">
                         Chapter (Please select the nearest chapter according to your residentail mail) <span class="text-red-500">*</span>
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                           id="chapter" 
-                           name="chapter" 
-                           type="text" 
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                           id="chapter"
+                           name="chapter"
+                           type="text"
+                           value="{{ old('chapter', $existingData->chapter ?? '') }}"
                            required/>
                 </div>
                 <div>
                     <label class="block mb-1" for="new_zone">
                         New Zone
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                           id="new_zone" 
-                           name="new_zone" 
-                           type="text"/>
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                           id="new_zone"
+                           name="new_zone"
+                           type="text"
+                           value="{{ old('new_zone', $existingData->new_zone ?? '') }}"/>
                 </div>
                 <div>
                     <label class="block mb-1" for="district">
                         District <span class="text-red-500">*</span>
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                           id="district" 
-                           name="district" 
-                           type="text" 
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                           id="district"
+                           name="district"
+                           type="text"
+                           value="{{ old('district', $existingData->district ?? '') }}"
                            required/>
                 </div>
                 <div class="md:col-span-3">
                     <label class="block mb-1" for="postal_address">
                         Postal Address <span class="text-red-500">*</span>
                     </label>
-                    <textarea class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                              id="postal_address" 
-                              name="postal_address" 
-                              rows="2" 
-                              required></textarea>
+                    <textarea class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                              id="postal_address"
+                              name="postal_address"
+                              rows="2"
+                              required>{{ old('postal_address', $existingData->postal_address ?? '') }}</textarea>
                 </div>
                 <div>
                     <label class="block mb-1" for="alternate_mail_id">
                         Alternate Mail Id
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                           id="alternate_mail_id" 
-                           name="alternate_mail_id" 
-                           type="email"/>
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                           id="alternate_mail_id"
+                           name="alternate_mail_id"
+                           type="email"
+                           value="{{ old('alternate_mail_id', $existingData->alternate_mail_id ?? '') }}"/>
                 </div>
                 <div>
                     <label class="block mb-1" for="alternate_mobile">
                         Alternate Mobile Number
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                           id="alternate_mobile" 
-                           name="alternate_mobile" 
-                           type="tel" 
-                           maxlength="10"/>
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                           id="alternate_mobile"
+                           name="alternate_mobile"
+                           type="tel"
+                           maxlength="10"
+                           value="{{ old('alternate_mobile', $existingData->alternate_mobile ?? '') }}"/>
                 </div>
             </div>
         </section>
@@ -600,11 +657,12 @@
             <h3 class="text-sm font-semibold mb-4 text-project-secondary">Correspondence Address</h3>
             <div class="text-xs text-gray-700">
                 <label class="inline-flex items-center mb-3 cursor-pointer">
-                    <input class="form-checkbox border border-gray-300 rounded text-blue-600 focus:ring-0" 
-                           type="checkbox" 
-                           id="same_as_permanent" 
-                           name="same_as_permanent" 
-                           value="1"/>
+                    <input class="form-checkbox border border-gray-300 rounded text-blue-600 focus:ring-0"
+                           type="checkbox"
+                           id="same_as_permanent"
+                           name="same_as_permanent"
+                           value="1"
+                           {{ old('same_as_permanent', $existingData->same_as_permanent ?? false) ? 'checked' : '' }}/>
                     <span class="ml-2 text-xs select-none">
                         Same as Permanent Address
                     </span>
@@ -614,138 +672,152 @@
                         <label class="block mb-1" for="corr_flat_no">
                             Flat No
                         </label>
-                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                               id="corr_flat_no" 
-                               name="corr_flat_no" 
-                               type="text"/>
+                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                               id="corr_flat_no"
+                               name="corr_flat_no"
+                               type="text"
+                               value="{{ old('corr_flat_no', $existingData->corr_flat_no ?? '') }}"/>
                     </div>
                     <div>
                         <label class="block mb-1" for="corr_floor">
                             Floor
                         </label>
-                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                               id="corr_floor" 
-                               name="corr_floor" 
-                               type="text"/>
+                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                               id="corr_floor"
+                               name="corr_floor"
+                               type="text"
+                               value="{{ old('corr_floor', $existingData->corr_floor ?? '') }}"/>
                     </div>
                     <div>
                         <label class="block mb-1" for="corr_name_of_building">
                             Name of building
                         </label>
-                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                               id="corr_name_of_building" 
-                               name="corr_name_of_building" 
-                               type="text"/>
+                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                               id="corr_name_of_building"
+                               name="corr_name_of_building"
+                               type="text"
+                               value="{{ old('corr_name_of_building', $existingData->corr_name_of_building ?? '') }}"/>
                     </div>
                     <div>
                         <label class="block mb-1" for="corr_area">
                             Area
                         </label>
-                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                               id="corr_area" 
-                               name="corr_area" 
-                               type="text"/>
+                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                               id="corr_area"
+                               name="corr_area"
+                               type="text"
+                               value="{{ old('corr_area', $existingData->corr_area ?? '') }}"/>
                     </div>
                     <div>
                         <label class="block mb-1" for="corr_lane">
                             Lane
                         </label>
-                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                               id="corr_lane" 
-                               name="corr_lane" 
-                               type="text"/>
+                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                               id="corr_lane"
+                               name="corr_lane"
+                               type="text"
+                               value="{{ old('corr_lane', $existingData->corr_lane ?? '') }}"/>
                     </div>
                     <div>
                         <label class="block mb-1" for="corr_landmark">
                             Landmark
                         </label>
-                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                               id="corr_landmark" 
-                               name="corr_landmark" 
-                               type="text"/>
+                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                               id="corr_landmark"
+                               name="corr_landmark"
+                               type="text"
+                               value="{{ old('corr_landmark', $existingData->corr_landmark ?? '') }}"/>
                     </div>
                     <div>
                         <label class="block mb-1" for="corr_pincode">
                             Pincode
                         </label>
-                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                               id="corr_pincode" 
-                               name="corr_pincode" 
-                               type="text" 
-                               maxlength="6"/>
+                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                               id="corr_pincode"
+                               name="corr_pincode"
+                               type="text"
+                               maxlength="6"
+                               value="{{ old('corr_pincode', $existingData->corr_pincode ?? '') }}"/>
                     </div>
                     <div>
                         <label class="block mb-1" for="corr_status">
                             Status
                         </label>
-                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                               id="corr_status" 
-                               name="corr_status" 
-                               type="text"/>
+                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                               id="corr_status"
+                               name="corr_status"
+                               type="text"
+                               value="{{ old('corr_status', $existingData->corr_status ?? '') }}"/>
                     </div>
                     <div>
                         <label class="block mb-1" for="corr_city">
                             City
                         </label>
-                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                               id="corr_city" 
-                               name="corr_city" 
-                               type="text"/>
+                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                               id="corr_city"
+                               name="corr_city"
+                               type="text"
+                               value="{{ old('corr_city', $existingData->corr_city ?? '') }}"/>
                     </div>
                     <div>
                         <label class="block mb-1 text-[9px]" for="corr_chapter">
                             Chapter (Please select the nearest chapter according to your residentail mail)
                         </label>
-                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                               id="corr_chapter" 
-                               name="corr_chapter" 
-                               type="text"/>
+                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                               id="corr_chapter"
+                               name="corr_chapter"
+                               type="text"
+                               value="{{ old('corr_chapter', $existingData->corr_chapter ?? '') }}"/>
                     </div>
                     <div>
                         <label class="block mb-1" for="corr_new_zone">
                             New Zone
                         </label>
-                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                               id="corr_new_zone" 
-                               name="corr_new_zone" 
-                               type="text"/>
+                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                               id="corr_new_zone"
+                               name="corr_new_zone"
+                               type="text"
+                               value="{{ old('corr_new_zone', $existingData->corr_new_zone ?? '') }}"/>
                     </div>
                     <div>
                         <label class="block mb-1" for="corr_district">
                             District
                         </label>
-                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                               id="corr_district" 
-                               name="corr_district" 
-                               type="text"/>
+                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                               id="corr_district"
+                               name="corr_district"
+                               type="text"
+                               value="{{ old('corr_district', $existingData->corr_district ?? '') }}"/>
                     </div>
                     <div class="md:col-span-3">
                         <label class="block mb-1" for="corr_postal_address">
                             Postal Address
                         </label>
-                        <textarea class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                                  id="corr_postal_address" 
-                                  name="corr_postal_address" 
-                                  rows="2"></textarea>
+                        <textarea class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                                  id="corr_postal_address"
+                                  name="corr_postal_address"
+                                  rows="2">{{ old('corr_postal_address', $existingData->corr_postal_address ?? '') }}</textarea>
                     </div>
                     <div>
                         <label class="block mb-1" for="corr_alternate_mail_id">
                             Alternate Mail Id
                         </label>
-                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                               id="corr_alternate_mail_id" 
-                               name="corr_alternate_mail_id" 
-                               type="email"/>
+                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                               id="corr_alternate_mail_id"
+                               name="corr_alternate_mail_id"
+                               type="email"
+                               value="{{ old('corr_alternate_mail_id', $existingData->corr_alternate_mail_id ?? '') }}"/>
                     </div>
                     <div>
                         <label class="block mb-1" for="corr_alternate_mobile">
                             Alternate Mobile Number
                         </label>
-                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" 
-                               id="corr_alternate_mobile" 
-                               name="corr_alternate_mobile" 
-                               type="tel" 
-                               maxlength="10"/>
+                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                               id="corr_alternate_mobile"
+                               name="corr_alternate_mobile"
+                               type="tel"
+                               maxlength="10"
+                               value="{{ old('corr_alternate_mobile', $existingData->corr_alternate_mobile ?? '') }}"/>
                     </div>
                 </div>
             </div>
@@ -763,11 +835,282 @@
 
         <!-- Submit Button Section -->
         <section class="max-w-[1200px] mx-auto px-6 mb-12 text-center">
-            <button class="bg-project-primary hover:bg-project-primary text-white text-xs font-semibold rounded px-6 py-2 transition-colors" 
+            <button id="submit-btn" class="bg-project-primary hover:bg-project-primary text-white text-xs font-semibold rounded px-6 py-2 transition-colors"
                     type="submit">
-                Save Personal Details 1/7
+                <span id="submit-text">Save Personal Details 1/7</span>
+                <span id="loading-text" class="hidden">Saving...</span>
             </button>
         </section>
     </form>
+
+    <!-- Success/Error Messages -->
+    <div id="message-container" class="fixed top-4 right-4 z-50"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            const submitBtn = document.getElementById('submit-btn');
+            const submitText = document.getElementById('submit-text');
+            const loadingText = document.getElementById('loading-text');
+            const messageContainer = document.getElementById('message-container');
+            const sameAsPermCheckbox = document.getElementById('same_as_permanent');
+
+            // Check for existing submission_id in localStorage on page load
+            checkExistingSession();
+
+            function checkExistingSession() {
+                const existingSubmissionId = localStorage.getItem('jito_submission_id');
+                const currentSubmissionId = document.querySelector('input[name="submission_id"]')?.value;
+
+                if (existingSubmissionId && !currentSubmissionId) {
+                    // User has an existing session, fetch and resume
+                    showMessage('Found existing session. Loading your data...', 'info');
+
+                    fetch('/api/resume-session', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify({ submission_id: existingSubmissionId })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success && data.data) {
+                            // Add hidden input for submission_id
+                            if (!document.querySelector('input[name="submission_id"]')) {
+                                const hiddenInput = document.createElement('input');
+                                hiddenInput.type = 'hidden';
+                                hiddenInput.name = 'submission_id';
+                                hiddenInput.value = existingSubmissionId;
+                                form.appendChild(hiddenInput);
+                            }
+
+                            // Populate form with existing data
+                            populateFormData(data.data);
+
+                            // Redirect to appropriate step if not on step 1
+                            if (data.current_step > 1) {
+                                showMessage('Redirecting to your last step...', 'success');
+                                setTimeout(() => {
+                                    window.location.href = data.next_url;
+                                }, 1500);
+                            } else {
+                                showMessage('Session resumed. You can continue from where you left off.', 'success');
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Session recovery error:', error);
+                        // Clear invalid session
+                        localStorage.removeItem('jito_submission_id');
+                    });
+                }
+            }
+
+            function populateFormData(data) {
+                // Populate all form fields with existing data
+                Object.keys(data).forEach(fieldName => {
+                    const field = document.getElementById(fieldName) || document.querySelector(`[name="${fieldName}"]`);
+                    if (field && data[fieldName]) {
+                        if (field.type === 'checkbox') {
+                            field.checked = data[fieldName] === '1' || data[fieldName] === true;
+                        } else if (field.type === 'radio') {
+                            if (field.value === data[fieldName]) {
+                                field.checked = true;
+                            }
+                        } else {
+                            field.value = data[fieldName];
+                        }
+                    }
+                });
+            }
+
+            // Function to clear all validation errors
+            function clearValidationErrors() {
+                document.querySelectorAll('.error-message').forEach(el => el.remove());
+                document.querySelectorAll('.border-red-500').forEach(el => {
+                    el.classList.remove('border-red-500', 'border-red-400');
+                    el.classList.add('border-gray-300');
+                });
+            }
+
+            // Function to display validation errors
+            function displayValidationErrors(errors) {
+                clearValidationErrors();
+
+                Object.keys(errors).forEach(fieldName => {
+                    const field = document.getElementById(fieldName);
+                    if (field) {
+                        field.classList.remove('border-gray-300');
+                        field.classList.add('border-red-500');
+
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'error-message text-red-500 text-xs mt-1';
+                        errorDiv.textContent = errors[fieldName][0];
+
+                        field.parentNode.insertBefore(errorDiv, field.nextSibling);
+
+                        if (Object.keys(errors)[0] === fieldName) {
+                            field.focus();
+                            field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    }
+                });
+            }
+
+            // Handle "Same as Permanent Address" checkbox
+            if (sameAsPermCheckbox) {
+                sameAsPermCheckbox.addEventListener('change', function() {
+                    const permanentFields = {
+                        'flat_no': 'corr_flat_no',
+                        'floor': 'corr_floor',
+                        'name_of_building': 'corr_name_of_building',
+                        'area': 'corr_area',
+                        'lane': 'corr_lane',
+                        'landmark': 'corr_landmark',
+                        'pincode': 'corr_pincode',
+                        'status': 'corr_status',
+                        'city': 'corr_city',
+                        'postal_address': 'corr_postal_address',
+                        'new_zone': 'corr_new_zone',
+                        'district': 'corr_district',
+                        'chapter': 'corr_chapter'
+                    };
+
+                    if (this.checked) {
+                        Object.keys(permanentFields).forEach(permField => {
+                            const permInput = document.getElementById(permField);
+                            const corrInput = document.getElementById(permanentFields[permField]);
+                            if (permInput && corrInput) {
+                                corrInput.value = permInput.value;
+                                corrInput.disabled = true;
+                            }
+                        });
+                    } else {
+                        Object.values(permanentFields).forEach(corrField => {
+                            const corrInput = document.getElementById(corrField);
+                            if (corrInput) {
+                                corrInput.disabled = false;
+                                corrInput.value = '';
+                            }
+                        });
+                    }
+                });
+            }
+
+            // Form submission
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                clearValidationErrors();
+
+                submitBtn.disabled = true;
+                submitText.classList.add('hidden');
+                loadingText.classList.remove('hidden');
+
+                const formData = new FormData(form);
+
+                fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        clearValidationErrors();
+
+                        // Store submission_id in localStorage
+                        if (data.data.submission_id) {
+                            localStorage.setItem('jito_submission_id', data.data.submission_id);
+                            localStorage.setItem('jito_current_step', data.data.step);
+                            localStorage.setItem('jito_last_saved', new Date().toISOString());
+                        }
+
+                        showMessage('Personal details saved successfully!', 'success');
+
+                        setTimeout(() => {
+                            window.location.href = data.data.redirect_url || '/family-details?submission_id=' + data.data.submission_id;
+                        }, 1500);
+                    } else {
+                        if (data.errors) {
+                            displayValidationErrors(data.errors);
+                            showMessage('Please correct the errors below and try again.', 'error');
+                        } else {
+                            showMessage(data.message || 'Error saving details', 'error');
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    clearValidationErrors();
+                    showMessage('An error occurred. Please try again.', 'error');
+                })
+                .finally(() => {
+                    submitBtn.disabled = false;
+                    submitText.classList.remove('hidden');
+                    loadingText.classList.add('hidden');
+                });
+            });
+
+            function showMessage(message, type) {
+                const messageDiv = document.createElement('div');
+                const bgColor = type === 'success' ? 'bg-green-100 border-green-400 text-green-700' :
+                              type === 'info' ? 'bg-blue-100 border-blue-400 text-blue-700' :
+                              'bg-red-100 border-red-400 text-red-700';
+
+                messageDiv.className = `px-4 py-3 rounded mb-4 border ${bgColor}`;
+                messageDiv.innerHTML = `
+                    <div class="flex">
+                        <div class="flex-1">
+                            <p class="text-sm">${message}</p>
+                        </div>
+                        <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-lg font-bold">&times;</button>
+                    </div>
+                `;
+
+                messageContainer.appendChild(messageDiv);
+
+                setTimeout(() => {
+                    if (messageDiv.parentNode) {
+                        messageDiv.remove();
+                    }
+                }, 5000);
+            }
+        });
+
+        // Global function to clear session (for testing)
+        window.clearSession = function() {
+            if (confirm('Are you sure you want to clear your session? This will delete all saved data.')) {
+                localStorage.removeItem('jito_submission_id');
+                localStorage.removeItem('jito_current_step');
+                localStorage.removeItem('jito_last_saved');
+
+                fetch('/api/clear-session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                })
+                .then(() => {
+                    showMessage('Session cleared successfully!', 'success');
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                })
+                .catch(error => {
+                    console.error('Error clearing session:', error);
+                    showMessage('Session cleared from browser', 'info');
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                });
+            }
+        };
+    </script>
 </body>
 </html>

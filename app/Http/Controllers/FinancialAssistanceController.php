@@ -5,23 +5,69 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Session;
 use App\Models\FinancialAssistance;
+use App\Models\FamilyDetails;
+use Illuminate\Support\Str;
 
 class FinancialAssistanceController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return view('financial-assistance');
+        // Check if there's an existing submission in progress
+        $submissionId = $request->get('submission_id') ?? Session::get('submission_id');
+        $existingData = null;
+
+        if ($submissionId) {
+            $existingData = FinancialAssistance::bySubmissionId($submissionId)->first();
+            if ($existingData) {
+                Session::put('submission_id', $submissionId);
+            }
+        }
+
+        return view('financial-assistance', [
+            'existingData' => $existingData,
+            'submissionId' => $submissionId
+        ]);
     }
 
-    public function familyDetails()
+    public function familyDetails(Request $request)
     {
-        return view('family-details');
+        // Get submission ID from session or URL parameter
+        $submissionId = $request->get('submission_id') ?? Session::get('submission_id');
+
+        if (!$submissionId) {
+            return redirect()->route('financial-assistance')
+                ->with('error', 'Please complete personal details first.');
+        }
+
+        // Check if personal details step is completed
+        $personalDetails = FinancialAssistance::bySubmissionId($submissionId)->first();
+        if (!$personalDetails || $personalDetails->current_step < 1) {
+            return redirect()->route('financial-assistance')
+                ->with('error', 'Please complete personal details first.');
+        }
+
+        // Get existing family details if any
+        $existingData = FamilyDetails::bySubmissionId($submissionId)->first();
+
+        return view('family-details', [
+            'existingData' => $existingData,
+            'submissionId' => $submissionId,
+            'personalDetails' => $personalDetails
+        ]);
     }
 
     public function store(Request $request)
     {
         try {
+            // Get or create submission ID
+            $submissionId = $request->get('submission_id') ?? Session::get('submission_id');
+
+            if (!$submissionId) {
+                $submissionId = FinancialAssistance::generateSubmissionId();
+                Session::put('submission_id', $submissionId);
+            }
             // Validation rules as per Figma form requirements
             $validator = Validator::make($request->all(), [
                 // Basic Information
@@ -30,7 +76,7 @@ class FinancialAssistanceController extends Controller
                 'request_date' => 'required|date',
                 'financial_asst_type' => 'required|string',
                 'financial_asst_for' => 'required|string|max:255',
-                
+
                 // Personal Details
                 'aadhar_number' => 'required|string|size:12|regex:/^[0-9]{12}$/',
                 'date_of_birth' => 'required|date|before:today',
@@ -49,7 +95,7 @@ class FinancialAssistanceController extends Controller
                 'student_email' => 'required|email|max:255',
                 'student_mobile' => 'required|string|regex:/^[0-9]{10}$/',
                 'pan_no' => 'nullable|string|regex:/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/',
-                
+
                 // Permanent Address
                 'flat_no' => 'required|string|max:50',
                 'floor' => 'required|string|max:50',
@@ -64,7 +110,7 @@ class FinancialAssistanceController extends Controller
                 'new_zone' => 'nullable|string|max:100',
                 'district' => 'required|string|max:100',
                 'chapter' => 'required|string',
-                
+
                 // Correspondence Address
                 'same_as_permanent' => 'nullable|boolean',
                 'corr_flat_no' => 'nullable|string|max:50',
@@ -82,7 +128,7 @@ class FinancialAssistanceController extends Controller
                 'corr_chapter' => 'nullable|string',
                 'alternate_mail_id' => 'nullable|email|max:255',
                 'alternate_mobile' => 'nullable|string|regex:/^[0-9]{10}$/',
-                
+
                 // Financial Details
                 'paid_amount' => 'nullable|numeric|min:0',
                 'outstanding_amount' => 'nullable|numeric|min:0',
@@ -105,8 +151,17 @@ class FinancialAssistanceController extends Controller
 
             $validatedData = $validator->validated();
 
+            // Set default values
+            $validatedData['submission_id'] = $submissionId;
+            $validatedData['current_step'] = 1;
+            $validatedData['nationality'] = $validatedData['nationality'] ?? 'Indian';
+            $validatedData['form_status'] = $validatedData['form_status'] ?? 'draft';
+            $validatedData['specially_abled'] = $validatedData['specially_abled'] ?? 'no';
+
+            // Convert checkbox value
+            $validatedData['same_as_permanent'] = isset($validatedData['same_as_permanent']) ? true : false;
             // If same_as_permanent is checked, copy permanent address to correspondence address
-            if (isset($validatedData['same_as_permanent']) && $validatedData['same_as_permanent']) {
+            if ($validatedData['same_as_permanent']) {
                 $addressFields = [
                     'flat_no' => 'corr_flat_no',
                     'floor' => 'corr_floor',
@@ -130,31 +185,41 @@ class FinancialAssistanceController extends Controller
                 }
             }
 
-            // Add timestamps
-            $validatedData['created_at'] = now();
-            $validatedData['updated_at'] = now();
+            // Check if this is an update or new submission
+            $existingApplication = FinancialAssistance::bySubmissionId($submissionId)->first();
 
-            // Save to database
-            $application = FinancialAssistance::create($validatedData);
+            if ($existingApplication) {
+                // Update existing record
+                $existingApplication->update($validatedData);
+                $application = $existingApplication;
+            } else {
+                // Create new record
+                $application = FinancialAssistance::create($validatedData);
+            }
+
+            // Store submission ID in session
+            Session::put('submission_id', $submissionId);
 
             Log::info('Financial assistance application saved', [
                 'id' => $application->id,
+                'submission_id' => $submissionId,
                 'applicant' => $validatedData['applicant'],
                 'student_name' => $validatedData['student_first_name'] . ' ' . $validatedData['last_name'],
                 'request_date' => $validatedData['request_date']
             ]);
 
-            // return response()->json([
-            //     'success' => true,
-            //     'message' => 'Personal details saved successfully!',
-            //     'data' => [
-            //         'id' => $application->id,
-            //         'step' => 1,
-            //         'next_step' => 'family-details',
-            //         'completion_percentage' => 14.3 // 1/7 steps
-            //     ]
-            // ], 200);
-            return view('family-details');
+            return response()->json([
+                'success' => true,
+                'message' => 'Personal details saved successfully!',
+                'data' => [
+                    'id' => $application->id,
+                    'submission_id' => $submissionId,
+                    'step' => 2,
+                    'next_step' => 'family-details',
+                    'completion_percentage' => 28.6, // 2/7 steps
+                    'redirect_url' => route('family-details', ['submission_id' => $submissionId])
+                ]
+            ], 200);
 
         } catch (\Exception $e) {
             Log::error('Error processing financial assistance application', [
@@ -176,7 +241,7 @@ class FinancialAssistanceController extends Controller
         // Handle editing existing application
         try {
             $application = FinancialAssistance::findOrFail($id);
-            
+
             return view('financial-assistance', [
                 'mode' => 'edit',
                 'application_id' => $id,
@@ -197,7 +262,7 @@ class FinancialAssistanceController extends Controller
         // Handle printing application
         try {
             $application = FinancialAssistance::findOrFail($id);
-            
+
             return view('financial-assistance-print', [
                 'application_id' => $id,
                 'data' => $application
@@ -249,6 +314,212 @@ class FinancialAssistanceController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Error saving draft. Please try again.'
+            ], 500);
+        }
+    }
+
+    public function storeFamilyDetails(Request $request)
+    {
+        try {
+            // Get submission ID from session or request
+            $submissionId = $request->get('submission_id') ?? Session::get('submission_id');
+
+            if (!$submissionId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Session expired. Please start from the beginning.',
+                    'redirect_url' => route('financial-assistance')
+                ], 400);
+            }
+
+            // Validate family details
+            $validator = Validator::make($request->all(), [
+                'family_member_count' => 'nullable|integer|min:0',
+                'total_family_members' => 'nullable|integer|min:0',
+                'relation_student' => 'required|string|max:255',
+                'family_name' => 'required|string|max:255',
+                'family_age' => 'required|integer|min:0|max:120',
+                'marital_status' => 'required|in:single,married,divorced,widowed',
+                'qualification' => 'nullable|string|max:255',
+                'occupation' => 'nullable|string|max:255',
+                'mobile_number' => 'nullable|string|regex:/^[0-9]{10}$/',
+                'email_id' => 'nullable|email',
+                'yearly_gross_income' => 'nullable|numeric|min:0',
+                'insurance_coverage' => 'nullable|numeric|min:0',
+                'premium_paid' => 'nullable|numeric|min:0',
+                'total_student' => 'nullable|integer|min:0',
+                'total_family_income' => 'nullable|numeric|min:0',
+                'family_member_diksha' => 'nullable|string|max:255',
+                'total_insurance_coverage' => 'nullable|numeric|min:0',
+                'total_premium_paid' => 'nullable|numeric|min:0',
+
+                // Family contact validation
+                'parental_uncle_name' => 'nullable|string|max:255',
+                'parental_uncle_mobile' => 'nullable|string|regex:/^[0-9]{10}$/',
+                'parental_uncle_email' => 'nullable|email',
+                'maternal_uncle_name' => 'nullable|string|max:255',
+                'maternal_uncle_mobile' => 'nullable|string|regex:/^[0-9]{10}$/',
+                'maternal_uncle_email' => 'nullable|email',
+                'parental_aunty_name' => 'nullable|string|max:255',
+                'parental_aunty_mobile' => 'nullable|string|regex:/^[0-9]{10}$/',
+                'parental_aunty_email' => 'nullable|email',
+                'maternal_aunty_name' => 'nullable|string|max:255',
+                'maternal_aunty_mobile' => 'nullable|string|regex:/^[0-9]{10}$/',
+                'maternal_aunty_email' => 'nullable|email',
+            ], [
+                'relation_student.required' => 'Relation with student is required.',
+                'family_name.required' => 'Family member name is required.',
+                'family_age.required' => 'Family member age is required.',
+                'family_age.min' => 'Age must be at least 0.',
+                'family_age.max' => 'Age cannot be more than 120.',
+                'marital_status.required' => 'Marital status is required.',
+                'mobile_number.regex' => 'Mobile number must be exactly 10 digits.',
+                'email_id.email' => 'Please enter a valid email address.',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Please check the form for errors.',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            $validatedData = $validator->validated();
+            $validatedData['submission_id'] = $submissionId;
+            $validatedData['form_status'] = 'completed';
+
+            // Check if family details already exist for this submission
+            $existingFamilyDetails = FamilyDetails::bySubmissionId($submissionId)->first();
+
+            if ($existingFamilyDetails) {
+                // Update existing record
+                $existingFamilyDetails->update($validatedData);
+                $familyDetails = $existingFamilyDetails;
+            } else {
+                // Create new record
+                $familyDetails = FamilyDetails::create($validatedData);
+            }
+
+            // Update the main application step
+            $application = FinancialAssistance::bySubmissionId($submissionId)->first();
+            if ($application && $application->current_step < 3) {
+                $application->update(['current_step' => 3]);
+            }
+
+            Log::info('Family details saved', [
+                'submission_id' => $submissionId,
+                'family_details_id' => $familyDetails->id,
+                'family_name' => $validatedData['family_name']
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Family details saved successfully!',
+                'data' => [
+                    'submission_id' => $submissionId,
+                    'step' => 3,
+                    'next_step' => 'education-details',
+                    'completion_percentage' => 42.9, // 3/7 steps
+                    'redirect_url' => route('family-details', ['submission_id' => $submissionId]) . '?saved=true'
+                ]
+            ], 200);
+
+        } catch (\Exception $e) {
+            Log::error('Error processing family details', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'request_data' => $request->except(['_token'])
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while processing family details. Please try again.',
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+            ], 500);
+        }
+    }
+
+    /**
+     * Resume session API endpoint for browser-side session recovery
+     */
+    public function resumeSession(Request $request)
+    {
+        try {
+            $submissionId = $request->input('submission_id');
+
+            if (!$submissionId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No submission ID provided'
+                ], 400);
+            }
+
+            // Find the main application record
+            $application = FinancialAssistance::bySubmissionId($submissionId)->first();
+
+            if (!$application) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Session not found'
+                ], 404);
+            }
+
+            // Store in Laravel session
+            Session::put('submission_id', $submissionId);
+
+            // Determine next URL based on current step
+            $nextUrls = [
+                1 => route('financial-assistance', ['submission_id' => $submissionId]),
+                2 => route('family-details', ['submission_id' => $submissionId]),
+                // Add more steps as needed
+                // 3 => route('education-details', ['submission_id' => $submissionId]),
+                // 4 => route('funding-details', ['submission_id' => $submissionId]),
+                // etc.
+            ];
+
+            $currentStep = $application->current_step;
+            $nextUrl = $nextUrls[$currentStep] ?? $nextUrls[1];
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Session resumed successfully',
+                'data' => $application->toArray(),
+                'current_step' => $currentStep,
+                'next_url' => $nextUrl,
+                'submission_id' => $submissionId
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error resuming session', [
+                'error' => $e->getMessage(),
+                'submission_id' => $request->input('submission_id')
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error resuming session'
+            ], 500);
+        }
+    }
+
+    /**
+     * Clear session data (useful for starting fresh)
+     */
+    public function clearSession(Request $request)
+    {
+        try {
+            // Clear Laravel session
+            Session::forget('submission_id');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Session cleared successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error clearing session'
             ], 500);
         }
     }

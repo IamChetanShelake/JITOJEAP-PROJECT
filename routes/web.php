@@ -25,6 +25,7 @@ Route::post('/demo/submit', [DemoController::class, 'submit'])->name('demo.submi
 Route::get('/financial-assistance', [FinancialAssistanceController::class, 'index'])->name('financial-assistance');
 Route::get('/family-details', [FinancialAssistanceController::class, 'familyDetails'])->name('family-details');
 Route::post('/financial-assistance', [FinancialAssistanceController::class, 'store'])->name('financial-assistance.store');
+Route::post('/family-details', [FinancialAssistanceController::class, 'storeFamilyDetails'])->name('family-details.store');
 Route::get('/financial-assistance/{id}/edit', [FinancialAssistanceController::class, 'edit'])->name('financial-assistance.edit');
 Route::get('/financial-assistance/{id}/print', [FinancialAssistanceController::class, 'print'])->name('financial-assistance.print');
 Route::post('/financial-assistance/draft', [FinancialAssistanceController::class, 'saveDraft'])->name('financial-assistance.draft');
@@ -32,4 +33,6 @@ Route::post('/financial-assistance/draft', [FinancialAssistanceController::class
 // API Routes for Demo Form
 Route::prefix('api')->group(function () {
     Route::post('/demo/submit', [DemoController::class, 'apiSubmit'])->name('api.demo.submit');
+    Route::post('/resume-session', [FinancialAssistanceController::class, 'resumeSession'])->name('api.resume-session');
+    Route::post('/clear-session', [FinancialAssistanceController::class, 'clearSession'])->name('api.clear-session');
 });
