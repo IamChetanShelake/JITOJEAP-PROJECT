@@ -144,16 +144,17 @@ class FinancialAssistanceController extends Controller
                 'request_date' => $validatedData['request_date']
             ]);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Personal details saved successfully!',
-                'data' => [
-                    'id' => $application->id,
-                    'step' => 1,
-                    'next_step' => 'family-details',
-                    'completion_percentage' => 14.3 // 1/7 steps
-                ]
-            ], 200);
+            // return response()->json([
+            //     'success' => true,
+            //     'message' => 'Personal details saved successfully!',
+            //     'data' => [
+            //         'id' => $application->id,
+            //         'step' => 1,
+            //         'next_step' => 'family-details',
+            //         'completion_percentage' => 14.3 // 1/7 steps
+            //     ]
+            // ], 200);
+            return view('family-details');
 
         } catch (\Exception $e) {
             Log::error('Error processing financial assistance application', [
