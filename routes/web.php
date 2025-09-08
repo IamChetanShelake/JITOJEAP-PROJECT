@@ -4,8 +4,11 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DemoController;
 use App\Http\Controllers\EducationDetailsController;
 use App\Http\Controllers\FundingDetailsController;
+use App\Http\Controllers\GuarantorDetailsController;
 use App\Http\Controllers\FinancialAssistanceController;
 use App\Http\Controllers\MainController;
+use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\FinalSubmissionController;
 
 // Main Page Route
 Route::get('/', [MainController::class, 'index'])->name('main');
@@ -36,6 +39,16 @@ Route::get('/funding-details', [FundingDetailsController::class, 'index'])->name
 Route::post('/funding-details', [FundingDetailsController::class, 'store'])->name('funding-details.store');
 Route::get('/funding-details/{submissionId}/edit', [FundingDetailsController::class, 'edit'])->name('funding-details.edit');
 Route::delete('/funding-details/{submissionId}', [FundingDetailsController::class, 'destroy'])->name('funding-details.destroy');
+Route::get('/guarantor-details', [GuarantorDetailsController::class, 'index'])->name('guarantor-details');
+Route::post('/guarantor-details', [GuarantorDetailsController::class, 'store'])->name('guarantor-details.store');
+Route::get('/guarantor-details/{submissionId}/edit', [GuarantorDetailsController::class, 'edit'])->name('guarantor-details.edit');
+Route::delete('/guarantor-details/{submissionId}', [GuarantorDetailsController::class, 'destroy'])->name('guarantor-details.destroy');
+Route::get('/documents', [DocumentController::class, 'index'])->name('documents');
+Route::post('/documents', [DocumentController::class, 'store'])->name('documents.store');
+Route::get('/documents/{submissionId}/edit', [DocumentController::class, 'edit'])->name('documents.edit');
+Route::delete('/documents/{submissionId}', [DocumentController::class, 'destroy'])->name('documents.destroy');
+Route::get('/final-submission', [FinalSubmissionController::class, 'index'])->name('final-submission');
+Route::post('/final-submission', [FinalSubmissionController::class, 'store'])->name('final-submission.store');
 Route::get('/financial-assistance/{id}/edit', [FinancialAssistanceController::class, 'edit'])->name('financial-assistance.edit');
 Route::get('/financial-assistance/{id}/print', [FinancialAssistanceController::class, 'print'])->name('financial-assistance.print');
 Route::post('/financial-assistance/draft', [FinancialAssistanceController::class, 'saveDraft'])->name('financial-assistance.draft');
@@ -46,3 +59,9 @@ Route::prefix('api')->group(function () {
     Route::post('/resume-session', [FinancialAssistanceController::class, 'resumeSession'])->name('api.resume-session');
     Route::post('/clear-session', [FinancialAssistanceController::class, 'clearSession'])->name('api.clear-session');
 });
+
+// Test route for debugging
+Route::get('/test-guarantor', function () {
+    return view('test-guarantor');
+});
+Route::post('/test-guarantor', [App\Http\Controllers\TestController::class, 'testGuarantor']);

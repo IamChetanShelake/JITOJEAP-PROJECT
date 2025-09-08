@@ -420,13 +420,22 @@
     <div id="message-container" class="fixed top-4 right-4 z-50"></div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded');
             const form = document.getElementById('funding-form');
+            console.log('Form element:', form);
+            
+            if (!form) {
+                console.error('Form element not found!');
+                return;
+            }
+            
             const submitBtn = document.getElementById('submit-btn');
             const submitText = document.getElementById('submit-text');
             const loadingText = document.getElementById('loading-text');
             const messageContainer = document.getElementById('message-container');
             // Initialize row count based on existing data
             let fundingRowCount = document.querySelectorAll('.funding-row').length || 7;
+            console.log('Initialized funding row count:', fundingRowCount);
 
             // Function to calculate total amount
             function calculateTotal() {
@@ -554,40 +563,132 @@
 
             // Form submission and other functions
             form.addEventListener('submit', function(e) {
+                console.log('Form submit event triggered');
                 e.preventDefault();
+                console.log('Default prevented');
                 submitBtn.disabled = true;
                 submitText.classList.add('hidden');
                 loadingText.classList.remove('hidden');
 
                 const formData = new FormData(form);
+                console.log('FormData created');
+                
+                // Debug: Log form data
+                console.log('Form data being sent:');
+                const formDataLog = {};
+                for (let [key, value] of formData.entries()) {
+                    if (!formDataLog[key]) {
+                        formDataLog[key] = [];
+                    }
+                    formDataLog[key].push(value);
+                }
+                console.log(formDataLog);
+                
+                // Check if CSRF token is present
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                console.log('CSRF Token:', csrfToken);
+                
+                // Check if required fields are present
+                const requiredFields = ['student_name', 'student_account_number', 'ifsc_code', 'bank_name', 'branch_name', 'bank_address'];
+                for (const field of requiredFields) {
+                    if (!formData.has(field)) {
+                        console.warn(`Required field '${field}' not found in form data`);
+                    }
+                }
+                
+                // Check if funding details table data is present
+                let fundingDetailsFields = [];
+                for (let [key, value] of formData.entries()) {
+                    if (key.startsWith('funding_details_table')) {
+                        fundingDetailsFields.push({key, value});
+                    }
+                }
+                console.log('Funding details table fields:', fundingDetailsFields);
+                
+                // Check if we have enough funding details table data
+                const expectedFieldsPerRow = 6; // particulars, status, trust_institute_name, contact_person_name, contact_number, amount
+                const expectedRows = 7; // Based on the predefined rows in the form
+                const expectedTotalFields = expectedFieldsPerRow * expectedRows;
+                console.log('Expected funding details fields:', expectedTotalFields);
+                console.log('Actual funding details fields:', fundingDetailsFields.length);
+                
+                if (fundingDetailsFields.length < expectedTotalFields) {
+                    console.warn('Funding details table data may be incomplete');
+                }
+                
+                console.log('Making fetch request to:', form.action);
                 fetch(form.action, {
                     method: 'POST',
                     body: formData,
                     headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        'X-CSRF-TOKEN': csrfToken
                     }
                 })
-                .then(response => response.json())
+                .then(response => {
+                    console.log('Response received:', response);
+                    console.log('Response status:', response.status);
+                    // Check if the response is JSON
+                    const contentType = response.headers.get('content-type');
+                    console.log('Content type:', contentType);
+                    if (!contentType || !contentType.includes('application/json')) {
+                        throw new Error('Received non-JSON response from server');
+                    }
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
                 .then(data => {
+                    console.log('Server response:', data);
                     if (data.success) {
                         if (data.data.submission_id) {
                             localStorage.setItem('jito_submission_id', data.data.submission_id);
                             localStorage.setItem('jito_current_step', data.data.step);
                         }
                         showMessage('Funding details saved successfully!', 'success');
-                        setTimeout(() => {
-                            const submissionId = data.data.submission_id || document.querySelector('input[name="submission_id"]')?.value;
+                        // Use the redirect URL from the server response
+                        if (data.data.redirect_url) {
+                            console.log('Redirecting to:', data.data.redirect_url);
+                            // Add a small delay to ensure the message is visible
+                            setTimeout(() => {
+                                window.location.href = data.data.redirect_url;
+                            }, 2000);
+                        } else {
+                            // Fallback redirect
+                            const submissionId = data.data.submission_id;
                             if (submissionId) {
-                                window.location.href = `/guarantor-details?submission_id=${submissionId}`;
+                                const redirectUrl = `/guarantor-details?submission_id=${submissionId}`;
+                                console.log('Fallback redirecting to:', redirectUrl);
+                                setTimeout(() => {
+                                    window.location.href = redirectUrl;
+                                }, 2000);
                             }
-                        }, 1500);
+                        }
                     } else {
-                        showMessage(data.message || 'Error saving details', 'error');
+                        // Display validation errors if any
+                        if (data.errors) {
+                            let errorMessages = '';
+                            for (const field in data.errors) {
+                                errorMessages += `${data.errors[field].join(', ')}\n`;
+                            }
+                            showMessage(errorMessages, 'error');
+                        } else {
+                            showMessage(data.message || 'Error saving details', 'error');
+                        }
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    showMessage('An error occurred. Please try again.', 'error');
+                    // Check if it's a network error or a server error
+                    if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                        showMessage('Network error. Please check your connection and try again.', 'error');
+                    } else if (error.message.includes('HTTP error')) {
+                        showMessage('Server error. Please try again later.', 'error');
+                    } else if (error.message.includes('JSON')) {
+                        showMessage('Invalid response from server. Please try again.', 'error');
+                    } else {
+                        showMessage('An error occurred. Please try again.', 'error');
+                    }
                 })
                 .finally(() => {
                     submitBtn.disabled = false;

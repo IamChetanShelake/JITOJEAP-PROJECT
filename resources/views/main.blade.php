@@ -272,6 +272,11 @@
             color: #4E4E4E;
         }
         
+        .status-submitted {
+            background-color: #E3F2FD;
+            color: #1976D2;
+        }
+        
         .table-title {
             font-family: 'Source Sans 3', sans-serif;
             font-weight: 700;
@@ -778,19 +783,43 @@
             <table style="width: 100%; border-collapse: collapse;">
                 <thead class="table-header">
                     <tr>
-                        <th>Name</th>
+                        <th>Student Name</th>
                         <th>Applicant</th>
-                        <th>Middle Name</th>
-                        <th>Aadhar</th>
+                        <th>Aadhar Number</th>
                         <th>Financial Assistance Type</th>
-                        <th>Financial Assistance Level</th>
-                        <th>Approved Financial Amount</th>
+                        <th>Financial Assistance For</th>
                         <th>Form Status</th>
-                        <th>State</th>
+                        <th>Created Date</th>
                     </tr>
                 </thead>
                 <tbody class="table-body">
-                    <!-- Table rows will be populated dynamically -->
+                    @if(isset($applications) && $applications->count() > 0)
+                        @foreach($applications as $application)
+                        <tr class="table-row">
+                            <td class="table-cell">{{ $application->fullName ?? 'N/A' }}</td>
+                            <td class="table-cell">{{ $application->applicant ?? 'N/A' }}</td>
+                            <td class="table-cell">{{ $application->aadhar_number ?? 'N/A' }}</td>
+                            <td class="table-cell">{{ $application->financial_asst_type ?? 'N/A' }}</td>
+                            <td class="table-cell">{{ $application->financial_asst_for ?? 'N/A' }}</td>
+                            <td class="table-cell">
+                                <span class="status-badge 
+                                    @if($application->form_status == 'draft') status-draft 
+                                    @elseif($application->form_status == 'submitted') status-submitted 
+                                    @elseif($application->form_status == 'approved') status-approved 
+                                    @elseif($application->form_status == 'rejected') status-rejected 
+                                    @else status-pending 
+                                    @endif">
+                                    {{ ucfirst($application->form_status ?? 'pending') }}
+                                </span>
+                            </td>
+                            <td class="table-cell">{{ $application->created_at ? $application->created_at->format('d M Y') : 'N/A' }}</td>
+                        </tr>
+                        @endforeach
+                    @else
+                        <tr class="table-row">
+                            <td class="table-cell text-center" colspan="7">No applications found</td>
+                        </tr>
+                    @endif
                 </tbody>
             </table>
         </div>

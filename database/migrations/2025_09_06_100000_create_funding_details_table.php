@@ -26,7 +26,7 @@ return new class extends Migration
             $table->json('funding_details_table')->nullable();
 
             // Previous Financial Assistance
-            $table->boolean('family_received_assistance')->nullable();
+            $table->string('family_received_assistance')->nullable();
             $table->string('ngo_name')->nullable();
             $table->string('loan_status')->nullable();
             $table->string('applied_year')->nullable();

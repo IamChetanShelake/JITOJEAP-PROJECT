@@ -152,7 +152,7 @@
                            id="request_date"
                            name="request_date"
                            type="date"
-                           value="{{ old('request_date', $existingData->request_date ? $existingData->request_date->format('Y-m-d') : '') }}"
+                           value="{{ old('request_date', $existingData && $existingData->request_date ? $existingData->request_date->format('Y-m-d') : '') }}"
                            required/>
                 </div>
                 <div>
@@ -200,7 +200,7 @@
                            id="approve_date"
                            name="approve_date"
                            type="date"
-                           value="{{ old('approve_date', $existingData->approve_date ? $existingData->approve_date->format('Y-m-d') : '') }}"/>
+                           value="{{ old('approve_date', $existingData && $existingData->approve_date ? $existingData->approve_date->format('Y-m-d') : '') }}"/>
                 </div>
                 <div>
                     <label class="block text-xs text-gray-600 mb-1" for="outstanding_amount">
@@ -297,7 +297,7 @@
                            id="date_of_birth"
                            name="date_of_birth"
                            type="date"
-                           value="{{ old('date_of_birth', $existingData->date_of_birth ? $existingData->date_of_birth->format('Y-m-d') : '') }}"
+                           value="{{ old('date_of_birth', $existingData && $existingData->date_of_birth ? $existingData->date_of_birth->format('Y-m-d') : '') }}"
                            required/>
                 </div>
                 <div>

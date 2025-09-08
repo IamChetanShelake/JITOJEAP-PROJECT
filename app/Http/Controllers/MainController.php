@@ -21,8 +21,9 @@ class MainController extends Controller
     public function index(): View
     {
         // Fetch recent applications for display in table
-        $applications = \App\Models\FinancialAssistance::latest()
-            ->take(10)
+        $applications = \App\Models\FinancialAssistance::with(['familyDetails', 'educationDetails'])
+            ->orderBy('created_at', 'desc')
+            ->take(50)
             ->get();
             
         return view('main', [
@@ -59,12 +60,15 @@ class MainController extends Controller
         // You can expand this to search in other models as needed
         try {
             $results = \App\Models\FinancialAssistance::where(function($query) use ($searchTerm) {
-                $query->where('applicant_name', 'LIKE', "%{$searchTerm}%")
+                $query->where('applicant', 'LIKE', "%{$searchTerm}%")
+                      ->orWhere('student_first_name', 'LIKE', "%{$searchTerm}%")
+                      ->orWhere('middle_name', 'LIKE', "%{$searchTerm}%")
+                      ->orWhere('last_name', 'LIKE', "%{$searchTerm}%")
                       ->orWhere('aadhar_number', 'LIKE', "%{$searchTerm}%")
-                      ->orWhere('email', 'LIKE', "%{$searchTerm}%")
-                      ->orWhere('mobile_number', 'LIKE', "%{$searchTerm}%");
+                      ->orWhere('student_email', 'LIKE', "%{$searchTerm}%")
+                      ->orWhere('student_mobile', 'LIKE', "%{$searchTerm}%");
             })
-            ->select('id', 'applicant_name', 'aadhar_number', 'email', 'mobile_number', 'created_at')
+            ->select('id', 'applicant', 'student_first_name', 'middle_name', 'last_name', 'aadhar_number', 'student_email', 'student_mobile', 'created_at', 'form_status', 'financial_asst_type', 'financial_asst_for')
             ->limit(10)
             ->get();
             
