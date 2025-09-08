@@ -63,7 +63,7 @@
         *NOTE:- STUDENT HAS TO FILL ALL THE DETAILS IN 7 PAGES AND IN SUBMIT SECTION PLEASE CLICK
     </section>
 
-    @if(isset($submissionId))
+    {{-- @if(isset($submissionId))
     <!-- Session Info -->
     <section class="max-w-[1200px] mx-auto px-6 mb-4">
         <div class="bg-blue-50 border border-blue-200 rounded-md p-3 text-sm">
@@ -76,7 +76,7 @@
             </div>
         </div>
     </section>
-    @endif
+    @endif --}}
 
     <main class="max-w-[1200px] mx-auto px-6 py-8">
         <form method="POST" action="{{ route('funding-details.store') }}" id="funding-form">
@@ -349,11 +349,11 @@
                                 <label for="family_received_assistance" class="block mb-1 text-sm">Have your Brother/Sister received Financial assistance from JITO JEAP/JATF/SEED or JITO Chapter?</label>
                                 <input id="family_received_assistance" name="family_received_assistance" type="text" value="{{ old('family_received_assistance', $existingData->family_received_assistance ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" />
                             </div>
-                            <div class="col-lg-4">
+                            <div class="col-lg-4 mt-10">
                                 <label for="ngo_name" class="block mb-1 text-sm">NGO Name</label>
                                 <input id="ngo_name" name="ngo_name" type="text" value="{{ old('ngo_name', $existingData->ngo_name ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" />
                             </div>
-                            <div class="col-lg-4">
+                            <div class="col-lg-4 mt-10">
                                 <label for="loan_status" class="block mb-1 text-sm">Loan Status</label>
                                 <input id="loan_status" name="loan_status" type="text" value="{{ old('loan_status', $existingData->loan_status ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" />
                             </div>
@@ -421,14 +421,33 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             console.log('DOM loaded');
+
+            // Check if this is a new form request and handle accordingly
+            const urlParams = new URLSearchParams(window.location.search);
+            const isNewForm = urlParams.has('new') || urlParams.has('new_form');
+
+            if (isNewForm) {
+                console.log('New form detected on funding details - this should not happen');
+                console.log('Redirecting to start of new form...');
+                // If someone lands on funding details with new form parameter, redirect to start
+                localStorage.removeItem('jito_submission_id');
+                localStorage.removeItem('jito_current_step');
+                localStorage.removeItem('jito_last_saved');
+                showMessage('Redirecting to start new form...', 'info');
+                setTimeout(() => {
+                    window.location.href = '/financial-assistance?new=1';
+                }, 1000);
+                return;
+            }
+
             const form = document.getElementById('funding-form');
             console.log('Form element:', form);
-            
+
             if (!form) {
                 console.error('Form element not found!');
                 return;
             }
-            
+
             const submitBtn = document.getElementById('submit-btn');
             const submitText = document.getElementById('submit-text');
             const loadingText = document.getElementById('loading-text');
@@ -572,7 +591,7 @@
 
                 const formData = new FormData(form);
                 console.log('FormData created');
-                
+
                 // Debug: Log form data
                 console.log('Form data being sent:');
                 const formDataLog = {};
@@ -583,11 +602,11 @@
                     formDataLog[key].push(value);
                 }
                 console.log(formDataLog);
-                
+
                 // Check if CSRF token is present
                 const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
                 console.log('CSRF Token:', csrfToken);
-                
+
                 // Check if required fields are present
                 const requiredFields = ['student_name', 'student_account_number', 'ifsc_code', 'bank_name', 'branch_name', 'bank_address'];
                 for (const field of requiredFields) {
@@ -595,7 +614,7 @@
                         console.warn(`Required field '${field}' not found in form data`);
                     }
                 }
-                
+
                 // Check if funding details table data is present
                 let fundingDetailsFields = [];
                 for (let [key, value] of formData.entries()) {
@@ -604,70 +623,134 @@
                     }
                 }
                 console.log('Funding details table fields:', fundingDetailsFields);
-                
+
                 // Check if we have enough funding details table data
                 const expectedFieldsPerRow = 6; // particulars, status, trust_institute_name, contact_person_name, contact_number, amount
                 const expectedRows = 7; // Based on the predefined rows in the form
                 const expectedTotalFields = expectedFieldsPerRow * expectedRows;
                 console.log('Expected funding details fields:', expectedTotalFields);
                 console.log('Actual funding details fields:', fundingDetailsFields.length);
-                
+
                 if (fundingDetailsFields.length < expectedTotalFields) {
                     console.warn('Funding details table data may be incomplete');
                 }
-                
+
                 console.log('Making fetch request to:', form.action);
                 fetch(form.action, {
                     method: 'POST',
                     body: formData,
                     headers: {
-                        'X-CSRF-TOKEN': csrfToken
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json'
                     }
                 })
                 .then(response => {
                     console.log('Response received:', response);
                     console.log('Response status:', response.status);
-                    // Check if the response is JSON
+                    console.log('Response headers:', response.headers);
+
+                    // Get content type
                     const contentType = response.headers.get('content-type');
                     console.log('Content type:', contentType);
+
+                    // If not JSON, try to get text to see what the server returned
                     if (!contentType || !contentType.includes('application/json')) {
-                        throw new Error('Received non-JSON response from server');
+                        return response.text().then(text => {
+                            console.log('Non-JSON response text:', text);
+                            throw new Error('Received non-JSON response from server. Response: ' + text.substring(0, 200));
+                        });
                     }
+
                     if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
+                        return response.json().then(data => {
+                            console.log('Error response data:', data);
+                            throw new Error(data.message || `HTTP error! status: ${response.status}`);
+                        }).catch(() => {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        });
                     }
+
                     return response.json();
                 })
                 .then(data => {
                     console.log('Server response:', data);
+
                     if (data.success) {
-                        if (data.data.submission_id) {
+                        console.log('Success response received - processing redirect');
+
+                        // Store submission data
+                        if (data.data && data.data.submission_id) {
+                            console.log('Storing submission ID:', data.data.submission_id);
                             localStorage.setItem('jito_submission_id', data.data.submission_id);
-                            localStorage.setItem('jito_current_step', data.data.step);
+                            localStorage.setItem('jito_current_step', data.data.step || '5');
                         }
-                        showMessage('Funding details saved successfully!', 'success');
-                        // Use the redirect URL from the server response
-                        if (data.data.redirect_url) {
-                            console.log('Redirecting to:', data.data.redirect_url);
-                            // Add a small delay to ensure the message is visible
-                            setTimeout(() => {
-                                window.location.href = data.data.redirect_url;
-                            }, 2000);
+
+                        // Show success message with clickable backup
+                        const submissionId = (data.data && data.data.submission_id) || localStorage.getItem('jito_submission_id');
+                        const backupUrl = submissionId ? `/guarantor-details?submission_id=${submissionId}` : '/guarantor-details';
+                        showMessage('Funding details saved successfully! Redirecting...', 'success', true, backupUrl);
+
+                        // Get redirect URL
+                        let redirectUrl = null;
+                        if (data.data && data.data.redirect_url) {
+                            redirectUrl = data.data.redirect_url;
+                            console.log('Using redirect URL from server:', redirectUrl);
                         } else {
-                            // Fallback redirect
-                            const submissionId = data.data.submission_id;
+                            // Fallback redirect URL construction
+                            const submissionId = (data.data && data.data.submission_id) || localStorage.getItem('jito_submission_id');
                             if (submissionId) {
-                                const redirectUrl = `/guarantor-details?submission_id=${submissionId}`;
-                                console.log('Fallback redirecting to:', redirectUrl);
-                                setTimeout(() => {
-                                    window.location.href = redirectUrl;
-                                }, 2000);
+                                redirectUrl = `/guarantor-details?submission_id=${submissionId}`;
+                                console.log('Using fallback redirect URL:', redirectUrl);
                             }
                         }
+
+                        // Perform redirection
+                        if (redirectUrl) {
+                            console.log('Preparing to redirect to:', redirectUrl);
+                            console.log('Current location:', window.location.href);
+
+                            // Try immediate redirect first, then fallback to delayed
+                            const doRedirect = () => {
+                                console.log('Executing redirect NOW to:', redirectUrl);
+                                try {
+                                    // Force redirect using multiple methods for better compatibility
+                                    window.location.href = redirectUrl;
+                                    // Fallback methods in case the first doesn't work
+                                    setTimeout(() => {
+                                        if (window.location.href.indexOf('guarantor-details') === -1) {
+                                            console.log('First redirect failed, trying window.location.replace');
+                                            window.location.replace(redirectUrl);
+                                        }
+                                    }, 100);
+                                    setTimeout(() => {
+                                        if (window.location.href.indexOf('guarantor-details') === -1) {
+                                            console.log('Second redirect failed, trying window.location.assign');
+                                            window.location.assign(redirectUrl);
+                                        }
+                                    }, 200);
+                                } catch (redirectError) {
+                                    console.error('All redirect methods failed:', redirectError);
+                                    showMessage('Form saved successfully! Please click here to continue to Guarantor Details.', 'info');
+                                }
+                            };
+
+                            // Short delay for user to see success message, then redirect
+                            console.log('Setting redirect timeout for 1 second');
+                            setTimeout(() => {
+                                console.log('Timeout executed, calling doRedirect function');
+                                doRedirect();
+                            }, 1000);
+                        } else {
+                            console.error('No redirect URL available');
+                            const submissionId = localStorage.getItem('jito_submission_id');
+                            const manualUrl = submissionId ? `/guarantor-details?submission_id=${submissionId}` : '/guarantor-details';
+                            showMessage('Success, but unable to determine next step. Please click here to continue.', 'info', true, manualUrl);
+                        }
                     } else {
+                        console.error('Server returned success: false', data);
                         // Display validation errors if any
                         if (data.errors) {
-                            let errorMessages = '';
+                            let errorMessages = 'Please fix the following errors:\n';
                             for (const field in data.errors) {
                                 errorMessages += `${data.errors[field].join(', ')}\n`;
                             }
@@ -678,16 +761,28 @@
                     }
                 })
                 .catch(error => {
-                    console.error('Error:', error);
+                    console.error('Fetch error:', error);
+                    console.error('Error name:', error.name);
+                    console.error('Error message:', error.message);
+
                     // Check if it's a network error or a server error
                     if (error.name === 'TypeError' && error.message.includes('fetch')) {
                         showMessage('Network error. Please check your connection and try again.', 'error');
                     } else if (error.message.includes('HTTP error')) {
                         showMessage('Server error. Please try again later.', 'error');
-                    } else if (error.message.includes('JSON')) {
-                        showMessage('Invalid response from server. Please try again.', 'error');
+                    } else if (error.message.includes('JSON') || error.message.includes('non-JSON')) {
+                        showMessage('Invalid response from server. The form data may have been saved. Please check the next step manually.', 'error');
+                        // Still try to redirect after a longer delay
+                        setTimeout(() => {
+                            const submissionId = document.querySelector('input[name="submission_id"]')?.value || localStorage.getItem('jito_submission_id');
+                            if (submissionId) {
+                                const redirectUrl = `/guarantor-details?submission_id=${submissionId}`;
+                                console.log('Error fallback redirecting to:', redirectUrl);
+                                window.location.href = redirectUrl;
+                            }
+                        }, 3000);
                     } else {
-                        showMessage('An error occurred. Please try again.', 'error');
+                        showMessage('An error occurred: ' + error.message, 'error');
                     }
                 })
                 .finally(() => {
@@ -697,28 +792,36 @@
                 });
             });
 
-            function showMessage(message, type) {
+            function showMessage(message, type, clickable = false, clickUrl = null) {
                 const messageDiv = document.createElement('div');
                 const bgColor = type === 'success' ? 'bg-green-100 border-green-400 text-green-700' :
                               type === 'info' ? 'bg-blue-100 border-blue-400 text-blue-700' :
                               'bg-red-100 border-red-400 text-red-700';
 
-                messageDiv.className = `px-4 py-3 rounded mb-4 border ${bgColor}`;
+                const clickableClass = clickable ? 'cursor-pointer hover:opacity-80' : '';
+                messageDiv.className = `px-4 py-3 rounded mb-4 border ${bgColor} ${clickableClass}`;
+
+                const clickHandler = clickable && clickUrl ? `onclick="window.location.href='${clickUrl}'"` : '';
+
                 messageDiv.innerHTML = `
-                    <div class="flex">
+                    <div class="flex" ${clickHandler}>
                         <div class="flex-1">
                             <p class="text-sm">${message}</p>
+                            ${clickable ? '<p class="text-xs mt-1 font-semibold">Click this message to navigate manually</p>' : ''}
                         </div>
                         <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-lg font-bold">&times;</button>
                     </div>
                 `;
 
                 messageContainer.appendChild(messageDiv);
+
+                // Auto-remove after longer time for clickable messages
+                const autoRemoveTime = clickable ? 10000 : 5000;
                 setTimeout(() => {
                     if (messageDiv.parentNode) {
                         messageDiv.remove();
                     }
-                }, 5000);
+                }, autoRemoveTime);
             }
 
             // Navigation tab handlers

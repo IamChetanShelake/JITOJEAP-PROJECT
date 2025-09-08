@@ -9,20 +9,45 @@ use Illuminate\Support\Facades\Session;
 use App\Models\FinancialAssistance;
 use App\Models\FamilyDetails;
 use App\Models\EducationDetails;
+use App\Models\FundingDetails;
+use App\Models\GuarantorDetails;
+use App\Models\Document;
 use Illuminate\Support\Str;
 
 class FinancialAssistanceController extends Controller
 {
     public function index(Request $request)
     {
-        // Check if there's an existing submission in progress
-        $submissionId = $request->get('submission_id') ?? Session::get('submission_id');
-        $existingData = null;
+        // Check if this is a request for a new form (clear any existing session)
+        $newForm = $request->has('new') || $request->has('new_form');
 
-        if ($submissionId) {
-            $existingData = FinancialAssistance::bySubmissionId($submissionId)->first();
-            if ($existingData) {
-                Session::put('submission_id', $submissionId);
+        if ($newForm) {
+            // Clear existing session data for new form
+            Session::forget('submission_id');
+            $submissionId = null;
+            $existingData = null;
+
+            Log::info('Starting new form - session cleared', [
+                'request_params' => $request->all()
+            ]);
+        } else {
+            // Check if there's an existing submission in progress
+            $submissionId = $request->get('submission_id') ?? Session::get('submission_id');
+            $existingData = null;
+
+            if ($submissionId) {
+                $existingData = FinancialAssistance::bySubmissionId($submissionId)->first();
+                if ($existingData) {
+                    Session::put('submission_id', $submissionId);
+                    Log::info('Resuming existing form session', [
+                        'submission_id' => $submissionId,
+                        'current_step' => $existingData->current_step
+                    ]);
+                } else {
+                    // Invalid submission ID, clear it
+                    Session::forget('submission_id');
+                    $submissionId = null;
+                }
             }
         }
 
@@ -672,6 +697,100 @@ class FinancialAssistanceController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Error clearing session'
+            ], 500);
+        }
+    }
+
+    /**
+     * Delete an entire application and all related data
+     */
+    public function deleteApplication($submissionId)
+    {
+        try {
+            Log::info('Attempting to delete application', [
+                'submission_id' => $submissionId
+            ]);
+
+            // Find the main application
+            $application = FinancialAssistance::bySubmissionId($submissionId)->first();
+
+            if (!$application) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Application not found'
+                ], 404);
+            }
+
+            // Delete related records first (foreign key constraints)
+            $deletedRecords = [];
+
+            // Delete family details
+            $familyDetails = \App\Models\FamilyDetails::bySubmissionId($submissionId)->first();
+            if ($familyDetails) {
+                $familyDetails->delete();
+                $deletedRecords[] = 'family_details';
+            }
+
+            // Delete education details
+            $educationDetails = \App\Models\EducationDetails::bySubmissionId($submissionId)->first();
+            if ($educationDetails) {
+                $educationDetails->delete();
+                $deletedRecords[] = 'education_details';
+            }
+
+            // Delete funding details
+            $fundingDetails = \App\Models\FundingDetails::bySubmissionId($submissionId)->first();
+            if ($fundingDetails) {
+                $fundingDetails->delete();
+                $deletedRecords[] = 'funding_details';
+            }
+
+            // Delete guarantor details
+            $guarantorDetails = \App\Models\GuarantorDetails::bySubmissionId($submissionId)->first();
+            if ($guarantorDetails) {
+                $guarantorDetails->delete();
+                $deletedRecords[] = 'guarantor_details';
+            }
+
+            // Delete documents
+            $documents = \App\Models\Document::bySubmissionId($submissionId)->get();
+            foreach ($documents as $document) {
+                $document->delete();
+                $deletedRecords[] = 'documents';
+            }
+
+            // Finally delete the main application
+            $studentName = $application->fullName ?? $application->name ?? 'Unknown';
+            $application->delete();
+            $deletedRecords[] = 'financial_assistance';
+
+            Log::info('Application deleted successfully', [
+                'submission_id' => $submissionId,
+                'student_name' => $studentName,
+                'deleted_records' => $deletedRecords
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Application deleted successfully',
+                'data' => [
+                    'submission_id' => $submissionId,
+                    'student_name' => $studentName,
+                    'deleted_records' => $deletedRecords
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error deleting application', [
+                'submission_id' => $submissionId,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while deleting the application',
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
             ], 500);
         }
     }

@@ -53,6 +53,9 @@ Route::get('/financial-assistance/{id}/edit', [FinancialAssistanceController::cl
 Route::get('/financial-assistance/{id}/print', [FinancialAssistanceController::class, 'print'])->name('financial-assistance.print');
 Route::post('/financial-assistance/draft', [FinancialAssistanceController::class, 'saveDraft'])->name('financial-assistance.draft');
 
+// Delete application route
+Route::delete('/delete-application/{submissionId}', [FinancialAssistanceController::class, 'deleteApplication'])->name('delete-application');
+
 // API Routes for Demo Form
 Route::prefix('api')->group(function () {
     Route::post('/demo/submit', [DemoController::class, 'apiSubmit'])->name('api.demo.submit');

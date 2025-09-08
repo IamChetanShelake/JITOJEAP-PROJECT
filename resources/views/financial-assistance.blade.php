@@ -856,7 +856,20 @@
             const sameAsPermCheckbox = document.getElementById('same_as_permanent');
 
             // Check for existing submission_id in localStorage on page load
-            checkExistingSession();
+            // But only if this is not a request for a new form
+            const urlParams = new URLSearchParams(window.location.search);
+            const isNewForm = urlParams.has('new') || urlParams.has('new_form');
+
+            if (!isNewForm) {
+                checkExistingSession();
+            } else {
+                console.log('New form requested - skipping session recovery');
+                // Clear any existing session data
+                localStorage.removeItem('jito_submission_id');
+                localStorage.removeItem('jito_current_step');
+                localStorage.removeItem('jito_last_saved');
+                showMessage('Starting a new form...', 'info');
+            }
 
             function checkExistingSession() {
                 const existingSubmissionId = localStorage.getItem('jito_submission_id');

@@ -56,7 +56,7 @@ class FundingDetailsController extends Controller
         try {
             // Get submission ID from session or request
             $submissionId = $request->get('submission_id') ?? Session::get('submission_id');
-            
+
             Log::info('Funding details submission attempt', [
                 'submission_id_from_request' => $request->get('submission_id'),
                 'submission_id_from_session' => Session::get('submission_id'),
@@ -71,7 +71,7 @@ class FundingDetailsController extends Controller
                     'redirect_url' => route('financial-assistance')
                 ], 400);
             }
-            
+
             // Check if financial assistance record exists
             $financialAssistance = FinancialAssistance::bySubmissionId($submissionId)->first();
             if (!$financialAssistance) {
@@ -84,7 +84,7 @@ class FundingDetailsController extends Controller
                     'redirect_url' => route('financial-assistance')
                 ], 400);
             }
-            
+
             // Check if previous steps are completed
             if ($financialAssistance->current_step < 4) {
                 Log::warning('Previous steps not completed for submission ID', [
@@ -97,21 +97,29 @@ class FundingDetailsController extends Controller
                     'redirect_url' => route('education-details', ['submission_id' => $submissionId])
                 ], 400);
             }
-            
+
             // Log the incoming request data for debugging
             Log::info('Funding details form submission', [
                 'submission_id' => $submissionId,
-                'request_data' => $request->except(['_token']),
-                'funding_details_table' => $request->input('funding_details_table')
+                'request_data' => $request->except(['_token', 'funding_details_table']),
+                'funding_details_table_count' => count($request->input('funding_details_table', [])),
+                'has_required_fields' => [
+                    'student_name' => $request->has('student_name'),
+                    'student_account_number' => $request->has('student_account_number'),
+                    'ifsc_code' => $request->has('ifsc_code'),
+                    'bank_name' => $request->has('bank_name'),
+                    'branch_name' => $request->has('branch_name'),
+                    'bank_address' => $request->has('bank_address')
+                ]
             ]);
-            
+
             // Check if funding details table data is present in the request
             if (!$request->has('funding_details_table')) {
                 Log::warning('Funding details table data not found in request', [
                     'submission_id' => $submissionId
                 ]);
             }
-            
+
             // Check if required fields are present
             $requiredFields = ['student_name', 'student_account_number', 'ifsc_code', 'bank_name', 'branch_name', 'bank_address'];
             foreach ($requiredFields as $field) {
@@ -166,14 +174,20 @@ class FundingDetailsController extends Controller
             if ($validator->fails()) {
                 Log::info('Funding details validation failed', [
                     'submission_id' => $submissionId,
-                    'errors' => $validator->errors()
+                    'errors' => $validator->errors()->toArray(),
+                    'failed_rules' => $validator->failed()
                 ]);
-                
+
                 return response()->json([
                     'success' => false,
                     'message' => 'Please check the form for errors.',
-                    'errors' => $validator->errors()
-                ], 422);
+                    'errors' => $validator->errors(),
+                    'data' => [
+                        'submission_id' => $submissionId
+                    ]
+                ], 422, [
+                    'Content-Type' => 'application/json'
+                ]);
             }
 
             $validatedData = $validator->validated();
@@ -186,60 +200,68 @@ class FundingDetailsController extends Controller
                 'validated_data' => $validatedData,
                 'funding_details_table' => $validatedData['funding_details_table'] ?? null
             ]);
-            
+
             // Check if funding details table data is properly structured
             if (isset($validatedData['funding_details_table']) && is_array($validatedData['funding_details_table'])) {
                 Log::info('Funding details table structure', [
                     'count' => count($validatedData['funding_details_table']),
                     'keys' => array_keys($validatedData['funding_details_table'])
                 ]);
-                
-                foreach ($validatedData['funding_details_table'] as $index => $row) {
-                    Log::info("Funding details table row $index", [
-                        'data' => $row
-                    ]);
-                }
-                
-                // Filter out empty rows
+
+                // Filter out completely empty rows
                 $filteredFundingDetails = array_filter($validatedData['funding_details_table'], function($row) {
-                    return !empty(array_filter($row, function($value) {
-                        return $value !== null && $value !== '';
-                    }));
+                    if (!is_array($row)) return false;
+                    $hasData = false;
+                    foreach ($row as $key => $value) {
+                        if ($value !== null && $value !== '' && trim($value) !== '') {
+                            $hasData = true;
+                            break;
+                        }
+                    }
+                    return $hasData;
                 });
-                
+
                 Log::info('Filtered funding details table', [
-                    'count' => count($filteredFundingDetails),
-                    'data' => $filteredFundingDetails
+                    'original_count' => count($validatedData['funding_details_table']),
+                    'filtered_count' => count($filteredFundingDetails)
                 ]);
-                
-                $validatedData['funding_details_table'] = array_values($filteredFundingDetails); // Re-index array
-                
+
+                // Re-index array and store
+                $validatedData['funding_details_table'] = array_values($filteredFundingDetails);
+
                 // Ensure the data is properly encoded as JSON
                 $jsonEncoded = json_encode($validatedData['funding_details_table']);
-                Log::info('Funding details table JSON encoded', [
-                    'json' => $jsonEncoded,
-                    'error' => json_last_error_msg()
+                if (json_last_error() !== JSON_ERROR_NONE) {
+                    Log::error('JSON encoding error for funding details table', [
+                        'error' => json_last_error_msg(),
+                        'data' => $validatedData['funding_details_table']
+                    ]);
+                }
+                Log::info('Funding details table JSON validation', [
+                    'json_valid' => json_last_error() === JSON_ERROR_NONE,
+                    'json_error' => json_last_error_msg()
                 ]);
             } else {
                 Log::info('No funding details table data or not an array', [
-                    'data' => $validatedData['funding_details_table'] ?? null
+                    'data_type' => gettype($validatedData['funding_details_table'] ?? null),
+                    'data_isset' => isset($validatedData['funding_details_table'])
                 ]);
-                $validatedData['funding_details_table'] = null; // Set to null instead of empty array
+                $validatedData['funding_details_table'] = []; // Set to empty array instead of null
             }
 
             // Check if funding details already exist for this submission
             $existingFundingDetails = FundingDetails::bySubmissionId($submissionId)->first();
-            
+
             if ($existingFundingDetails) {
                 // Update existing record
                 Log::info('Updating existing funding details', [
                     'submission_id' => $submissionId,
                     'funding_details_id' => $existingFundingDetails->id
                 ]);
-                
+
                 $updateResult = $existingFundingDetails->update($validatedData);
                 $fundingDetails = $existingFundingDetails;
-                
+
                 Log::info('Update result', [
                     'success' => $updateResult,
                     'funding_details_id' => $fundingDetails->id
@@ -249,9 +271,9 @@ class FundingDetailsController extends Controller
                 Log::info('Creating new funding details record', [
                     'submission_id' => $submissionId
                 ]);
-                
+
                 $fundingDetails = FundingDetails::create($validatedData);
-                
+
                 Log::info('Created funding details record', [
                     'funding_details_id' => $fundingDetails->id,
                     'submission_id' => $fundingDetails->submission_id
@@ -265,7 +287,7 @@ class FundingDetailsController extends Controller
                     'submission_id' => $submissionId,
                     'current_step' => $application->current_step
                 ]);
-                
+
                 if ($application->current_step < 5) {
                     $updateResult = $application->update(['current_step' => 5]);
                     Log::info('Application step updated', [
@@ -285,36 +307,47 @@ class FundingDetailsController extends Controller
                 ]);
             }
 
-            Log::info('Funding details saved', [
+            Log::info('Funding details saved successfully', [
                 'submission_id' => $submissionId,
                 'funding_details_id' => $fundingDetails->id,
                 'student_name' => $validatedData['student_name'] ?? 'N/A',
-                'funding_details_table_count' => count($validatedData['funding_details_table'] ?? [])
+                'funding_details_table_count' => count($validatedData['funding_details_table'] ?? []),
+                'current_step_updated' => true
             ]);
 
             $redirectUrl = route('guarantor-details', ['submission_id' => $submissionId]);
-            
-            Log::info('Preparing redirect URL', [
+
+            Log::info('Preparing successful response', [
                 'redirect_url' => $redirectUrl,
                 'submission_id' => $submissionId
             ]);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Funding details saved successfully!',
-                'data' => [
-                    'submission_id' => $submissionId,
-                    'step' => 5,
-                    'next_step' => 'guarantor-details',
-                    'completion_percentage' => 71.4, // 5/7 steps
-                    'redirect_url' => $redirectUrl
-                ]
-            ], 200);
+            // Ensure we return a proper JSON response
+
+            // return response()->json([
+            //     'success' => true,
+            //     'message' => 'Funding details saved successfully!',
+            //     'data' => [
+            //         'submission_id' => $submissionId,
+            //         'step' => 5,
+            //         'next_step' => 'guarantor-details',
+            //         'completion_percentage' => 71.4, // 5/7 steps
+            //         'redirect_url' => $redirectUrl,
+            //         'funding_details_id' => $fundingDetails->id
+            //     ]
+            // ], 200, [
+            //     'Content-Type' => 'application/json',
+            //     'Cache-Control' => 'no-cache, no-store, must-revalidate'
+            // ]);
+            return redirect()->route('guarantor-details', ['submission_id' => $submissionId])
+                 ->with('success', 'Funding details saved successfully!');
 
         } catch (\Exception $e) {
             Log::error('Error processing funding details', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
                 'request_data' => $request->except(['_token']),
                 'submission_id' => $submissionId ?? null
             ]);
@@ -322,8 +355,13 @@ class FundingDetailsController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'An error occurred while processing funding details. Please try again.',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
-            ], 500);
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error',
+                'data' => [
+                    'submission_id' => $submissionId ?? null
+                ]
+            ], 500, [
+                'Content-Type' => 'application/json'
+            ]);
         }
     }
 
