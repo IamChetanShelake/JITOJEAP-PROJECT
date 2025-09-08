@@ -63,6 +63,50 @@
         *NOTE:- STUDENT HAS TO FILL ALL THE DETAILS IN 7 PAGES AND IN SUBMIT SECTION PLEASE CLICK
     </section>
 
+    <!-- Toast Messages -->
+    @if(session('success'))
+    <div class="fixed top-4 right-4 z-50">
+        <div class="px-4 py-3 rounded mb-4 border bg-green-100 border-green-400 text-green-700">
+            <div class="flex">
+                <div class="flex-1">
+                    <p class="text-sm">{{ session('success') }}</p>
+                </div>
+                <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-lg font-bold">&times;</button>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    @if(session('error'))
+    <div class="fixed top-4 right-4 z-50">
+        <div class="px-4 py-3 rounded mb-4 border bg-red-100 border-red-400 text-red-700">
+            <div class="flex">
+                <div class="flex-1">
+                    <p class="text-sm">{{ session('error') }}</p>
+                </div>
+                <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-lg font-bold">&times;</button>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    @if($errors->any())
+    <div class="fixed top-4 right-4 z-50">
+        <div class="px-4 py-3 rounded mb-4 border bg-red-100 border-red-400 text-red-700">
+            <div class="flex">
+                <div class="flex-1">
+                    <ul class="text-sm list-disc pl-5">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+                <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-lg font-bold">&times;</button>
+            </div>
+        </div>
+    </div>
+    @endif
+
     @if(isset($submissionId))
     <!-- Session Info -->
     <section class="max-w-[1200px] mx-auto px-6 mb-4">
@@ -210,24 +254,41 @@
                     method: 'POST',
                     body: formData,
                     headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    }
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'X-Requested-With': 'XMLHttpRequest' // This header helps Laravel identify AJAX requests
+                    },
+                    redirect: 'follow' // Follow redirects
                 })
                 .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
+                    // Handle redirects
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                        return;
                     }
-                    return response.json();
+                    
+                    // Check if the response is JSON
+                    const contentType = response.headers.get('content-type');
+                    
+                    if (contentType && contentType.includes('application/json')) {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json();
+                    } else {
+                        // If not JSON, it's likely an HTML redirect or error page
+                        window.location.reload();
+                        return;
+                    }
                 })
                 .then(data => {
+                    if (!data) return; // If redirected, data will be undefined
+                    
                     if (data.success) {
                         showMessage('Application submitted successfully!', 'success');
                         // Redirect to main page
-                        if (data.data.redirect_url) {
-                            setTimeout(() => {
-                                window.location.href = data.data.redirect_url;
-                            }, 2000);
-                        }
+                        setTimeout(() => {
+                            window.location.href = '{{ route("main") }}';
+                        }, 2000);
                     } else {
                         showMessage(data.message || 'Error submitting application', 'error');
                     }

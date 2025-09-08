@@ -65,11 +65,10 @@ class FundingDetailsController extends Controller
 
             if (!$submissionId) {
                 Log::warning('No submission ID found for funding details');
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Session expired. Please start from the beginning.',
-                    'redirect_url' => route('financial-assistance')
-                ], 400);
+                // Return with toast message instead of JSON
+                return redirect()->back()
+                    ->with('error', 'Session expired. Please start from the beginning.')
+                    ->withInput();
             }
 
             // Check if financial assistance record exists
@@ -78,11 +77,9 @@ class FundingDetailsController extends Controller
                 Log::warning('No financial assistance record found for submission ID', [
                     'submission_id' => $submissionId
                 ]);
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Financial assistance record not found. Please start from the beginning.',
-                    'redirect_url' => route('financial-assistance')
-                ], 400);
+                return redirect()->back()
+                    ->with('error', 'Financial assistance record not found. Please start from the beginning.')
+                    ->withInput();
             }
 
             // Check if previous steps are completed
@@ -91,11 +88,9 @@ class FundingDetailsController extends Controller
                     'submission_id' => $submissionId,
                     'current_step' => $financialAssistance->current_step
                 ]);
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Please complete previous steps first.',
-                    'redirect_url' => route('education-details', ['submission_id' => $submissionId])
-                ], 400);
+                return redirect()->back()
+                    ->with('error', 'Please complete previous steps first.')
+                    ->withInput();
             }
 
             // Log the incoming request data for debugging
@@ -130,27 +125,27 @@ class FundingDetailsController extends Controller
                 }
             }
 
-            // Validate funding details
+            // Validate funding details - Making all fields required
             $validator = Validator::make($request->all(), [
                 // Amount and Funding Information
-                'amount_requested_years' => 'nullable|string|max:255',
-                'tuition_fees_amount' => 'nullable|numeric|min:0',
+                'amount_requested_years' => 'required|string|max:255',
+                'tuition_fees_amount' => 'required|numeric|min:0',
 
                 // Funding Details Table (dynamic table)
-                'funding_details_table' => 'nullable|array',
-                'funding_details_table.*.particulars' => 'nullable|string|max:255',
-                'funding_details_table.*.status' => 'nullable|string|max:255',
-                'funding_details_table.*.trust_institute_name' => 'nullable|string|max:255',
-                'funding_details_table.*.contact_person_name' => 'nullable|string|max:255',
-                'funding_details_table.*.contact_number' => 'nullable|string|max:20',
-                'funding_details_table.*.amount' => 'nullable|numeric|min:0',
+                'funding_details_table' => 'required|array',
+                'funding_details_table.*.particulars' => 'required|string|max:255',
+                'funding_details_table.*.status' => 'required|string|max:255',
+                'funding_details_table.*.trust_institute_name' => 'required|string|max:255',
+                'funding_details_table.*.contact_person_name' => 'required|string|max:255',
+                'funding_details_table.*.contact_number' => 'required|string|max:20',
+                'funding_details_table.*.amount' => 'required|numeric|min:0',
 
                 // Previous Financial Assistance
-                'family_received_assistance' => 'nullable|string|max:255',
-                'ngo_name' => 'nullable|string|max:255',
-                'loan_status' => 'nullable|string|max:255',
-                'applied_year' => 'nullable|string|max:50',
-                'applied_amount' => 'nullable|numeric|min:0',
+                'family_received_assistance' => 'required|string|max:255',
+                'ngo_name' => 'required|string|max:255',
+                'loan_status' => 'required|string|max:255',
+                'applied_year' => 'required|string|max:50',
+                'applied_amount' => 'required|numeric|min:0',
 
                 // Bank Account Details
                 'student_name' => 'required|string|max:255',
@@ -160,6 +155,23 @@ class FundingDetailsController extends Controller
                 'branch_name' => 'required|string|max:255',
                 'bank_address' => 'required|string',
             ], [
+                // Custom error messages for all fields
+                'amount_requested_years.required' => 'Amount requested for years is required.',
+                'tuition_fees_amount.required' => 'Tuition fees amount is required.',
+                'tuition_fees_amount.numeric' => 'Tuition fees amount must be a number.',
+                'funding_details_table.required' => 'Funding details table is required.',
+                'funding_details_table.*.particulars.required' => 'Particulars field is required.',
+                'funding_details_table.*.status.required' => 'Status field is required.',
+                'funding_details_table.*.trust_institute_name.required' => 'Trust/Institute name field is required.',
+                'funding_details_table.*.contact_person_name.required' => 'Contact person name field is required.',
+                'funding_details_table.*.contact_number.required' => 'Contact number field is required.',
+                'funding_details_table.*.amount.required' => 'Amount field is required.',
+                'family_received_assistance.required' => 'Family received assistance field is required.',
+                'ngo_name.required' => 'NGO name is required.',
+                'loan_status.required' => 'Loan status is required.',
+                'applied_year.required' => 'Applied year is required.',
+                'applied_amount.required' => 'Applied amount is required.',
+                'applied_amount.numeric' => 'Applied amount must be a number.',
                 'student_name.required' => 'Student name is required.',
                 'student_account_number.required' => 'Student account number is required.',
                 'ifsc_code.required' => 'IFSC code is required.',
@@ -167,8 +179,6 @@ class FundingDetailsController extends Controller
                 'bank_name.required' => 'Bank name is required.',
                 'branch_name.required' => 'Branch name is required.',
                 'bank_address.required' => 'Bank address is required.',
-                'tuition_fees_amount.numeric' => 'Tuition fees amount must be a number.',
-                'applied_amount.numeric' => 'Applied amount must be a number.',
             ]);
 
             if ($validator->fails()) {
@@ -178,16 +188,20 @@ class FundingDetailsController extends Controller
                     'failed_rules' => $validator->failed()
                 ]);
 
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Please check the form for errors.',
-                    'errors' => $validator->errors(),
-                    'data' => [
-                        'submission_id' => $submissionId
-                    ]
-                ], 422, [
-                    'Content-Type' => 'application/json'
-                ]);
+                // Check if this is an AJAX request
+                if ($request->wantsJson() || $request->ajax() || $request->headers->get('X-Requested-With') === 'XMLHttpRequest') {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $validator->errors(),
+                        'message' => 'Please check the form for errors.'
+                    ], 422);
+                }
+
+                // Return with validation errors as toast message for non-AJAX requests
+                return redirect()->back()
+                    ->withErrors($validator)
+                    ->with('error', 'Please check the form for errors.')
+                    ->withInput();
             }
 
             $validatedData = $validator->validated();
@@ -311,36 +325,12 @@ class FundingDetailsController extends Controller
                 'submission_id' => $submissionId,
                 'funding_details_id' => $fundingDetails->id,
                 'student_name' => $validatedData['student_name'] ?? 'N/A',
-                'funding_details_table_count' => count($validatedData['funding_details_table'] ?? []),
-                'current_step_updated' => true
+                'funding_details_table_count' => count($validatedData['funding_details_table'] ?? [])
             ]);
 
-            $redirectUrl = route('guarantor-details', ['submission_id' => $submissionId]);
-
-            Log::info('Preparing successful response', [
-                'redirect_url' => $redirectUrl,
-                'submission_id' => $submissionId
-            ]);
-
-            // Ensure we return a proper JSON response
-
-            // return response()->json([
-            //     'success' => true,
-            //     'message' => 'Funding details saved successfully!',
-            //     'data' => [
-            //         'submission_id' => $submissionId,
-            //         'step' => 5,
-            //         'next_step' => 'guarantor-details',
-            //         'completion_percentage' => 71.4, // 5/7 steps
-            //         'redirect_url' => $redirectUrl,
-            //         'funding_details_id' => $fundingDetails->id
-            //     ]
-            // ], 200, [
-            //     'Content-Type' => 'application/json',
-            //     'Cache-Control' => 'no-cache, no-store, must-revalidate'
-            // ]);
+            // Redirect to the next step with success message
             return redirect()->route('guarantor-details', ['submission_id' => $submissionId])
-                 ->with('success', 'Funding details saved successfully!');
+                ->with('success', 'Funding details saved successfully!');
 
         } catch (\Exception $e) {
             Log::error('Error processing funding details', [
@@ -352,16 +342,9 @@ class FundingDetailsController extends Controller
                 'submission_id' => $submissionId ?? null
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred while processing funding details. Please try again.',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error',
-                'data' => [
-                    'submission_id' => $submissionId ?? null
-                ]
-            ], 500, [
-                'Content-Type' => 'application/json'
-            ]);
+            return redirect()->back()
+                ->with('error', 'An error occurred while processing your request.')
+                ->withInput();
         }
     }
 
@@ -399,10 +382,8 @@ class FundingDetailsController extends Controller
             $fundingDetails = FundingDetails::bySubmissionId($submissionId)->first();
 
             if (!$fundingDetails) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Funding details not found.'
-                ], 404);
+                return redirect()->back()
+                    ->with('error', 'Funding details not found.');
             }
 
             $fundingDetails->delete();
@@ -418,10 +399,8 @@ class FundingDetailsController extends Controller
                 'funding_details_id' => $fundingDetails->id
             ]);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Funding details deleted successfully.'
-            ], 200);
+            return redirect()->back()
+                ->with('success', 'Funding details deleted successfully.');
 
         } catch (\Exception $e) {
             Log::error('Error deleting funding details', [
@@ -429,10 +408,8 @@ class FundingDetailsController extends Controller
                 'submission_id' => $submissionId
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred while deleting funding details.'
-            ], 500);
+            return redirect()->back()
+                ->with('error', 'An error occurred while deleting funding details.');
         }
     }
 }

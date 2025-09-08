@@ -82,9 +82,9 @@
             <button class="bg-gray-300 hover:bg-gray-400 text-gray-900 text-sm font-normal px-4 py-2 rounded transition-colors">
                 Save to Draft
             </button>
-            <button onclick="clearSession()" class="bg-red-500 hover:bg-red-600 text-white text-sm font-normal px-4 py-2 rounded transition-colors">
+            <!-- <button onclick="clearSession()" class="bg-red-500 hover:bg-red-600 text-white text-sm font-normal px-4 py-2 rounded transition-colors">
                 Clear Session
-            </button>
+            </button> -->
         </div>
     </section>
 
@@ -93,9 +93,55 @@
         *NOTE:- STUDENT HAS TO FILL ALL THE DETAILS IN 7 PAGES AND IN SUBMIT SECTION PLEASE CLICK
     </section>
 
+    <!-- Success Message -->
+    @if(session('success'))
+    <div class="fixed top-4 right-4 z-50">
+        <div class="px-4 py-3 rounded mb-4 border bg-green-100 border-green-400 text-green-700">
+            <div class="flex">
+                <div class="flex-1">
+                    <p class="text-sm">{{ session('success') }}</p>
+                </div>
+                <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-lg font-bold">&times;</button>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    <!-- Error Message -->
+    @if(session('error'))
+    <div class="fixed top-4 right-4 z-50">
+        <div class="px-4 py-3 rounded mb-4 border bg-red-100 border-red-400 text-red-700">
+            <div class="flex">
+                <div class="flex-1">
+                    <p class="text-sm">{{ session('error') }}</p>
+                </div>
+                <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-lg font-bold">&times;</button>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    <!-- Validation Errors -->
+    @if($errors->any())
+    <div class="fixed top-4 right-4 z-50">
+        <div class="px-4 py-3 rounded mb-4 border bg-red-100 border-red-400 text-red-700">
+            <div class="flex">
+                <div class="flex-1">
+                    <ul class="text-sm list-disc pl-5">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+                <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-lg font-bold">&times;</button>
+            </div>
+        </div>
+    </div>
+    @endif
+
     @if(isset($submissionId))
     <!-- Session Info -->
-    <section class="max-w-[1200px] mx-auto px-6 mb-4">
+    {{-- <section class="max-w-[1200px] mx-auto px-6 mb-4">
         <div class="bg-blue-50 border border-blue-200 rounded-md p-3 text-sm">
             <div class="flex items-center justify-between">
                 <span class="text-blue-800">
@@ -107,7 +153,7 @@
                 </span>
             </div>
         </div>
-    </section>
+    </section>  --}}
     @endif
 
     <!-- Main Form Section -->
@@ -125,41 +171,50 @@
                     <label class="block text-xs text-gray-600 mb-1" for="name">
                         Name <span class="text-red-500">*</span>
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600 @error('name') border-red-500 @enderror"
                            id="name"
                            name="name"
                            type="text"
                            value="{{ old('name', $existingData->name ?? '') }}"
                            required/>
+                    @error('name')
+                        <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
                 <div></div>
                 <div>
                     <label class="block text-xs text-gray-600 mb-1" for="applicant">
                         Applicant <span class="text-red-500">*</span>
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600 @error('applicant') border-red-500 @enderror"
                            id="applicant"
                            name="applicant"
                            type="text"
                            value="{{ old('applicant', $existingData->applicant ?? '') }}"
                            required/>
+                    @error('applicant')
+                        <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
                 <div>
                     <label class="block text-xs text-gray-600 mb-1" for="request_date">
                         Request Date <span class="text-red-500">*</span>
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600 @error('request_date') border-red-500 @enderror"
                            id="request_date"
                            name="request_date"
                            type="date"
                            value="{{ old('request_date', $existingData && $existingData->request_date ? $existingData->request_date->format('Y-m-d') : '') }}"
                            required/>
+                    @error('request_date')
+                        <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
                 <div>
                     <label class="block text-xs text-gray-600 mb-1" for="financial_asst_type">
                         Financial Asst Type <span class="text-red-500">*</span>
                     </label>
-                    <select class="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
+                    <select class="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600 @error('financial_asst_type') border-red-500 @enderror"
                             id="financial_asst_type"
                             name="financial_asst_type"
                             required>
@@ -169,55 +224,70 @@
                         <option value="emergency" {{ old('financial_asst_type', $existingData->financial_asst_type ?? '') == 'emergency' ? 'selected' : '' }}>Emergency</option>
                         <option value="business" {{ old('financial_asst_type', $existingData->financial_asst_type ?? '') == 'business' ? 'selected' : '' }}>Business</option>
                     </select>
+                    @error('financial_asst_type')
+                        <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
                 <div>
                     <label class="block text-xs text-gray-600 mb-1" for="financial_asst_for">
                         Financial Asst For <span class="text-red-500">*</span>
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600 @error('financial_asst_for') border-red-500 @enderror"
                            id="financial_asst_for"
                            name="financial_asst_for"
                            type="text"
                            value="{{ old('financial_asst_for', $existingData->financial_asst_for ?? '') }}"
                            required/>
+                    @error('financial_asst_for')
+                        <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
                 <div>
                     <label class="block text-xs text-gray-600 mb-1" for="paid_amount">
                         Paid Amount
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600 @error('paid_amount') border-red-500 @enderror"
                            id="paid_amount"
                            name="paid_amount"
                            type="number"
                            step="0.01"
                            value="{{ old('paid_amount', $existingData->paid_amount ?? '') }}"/>
+                    @error('paid_amount')
+                        <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
                 <div>
                     <label class="block text-xs text-gray-600 mb-1" for="approve_date">
                         Approve Date
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600 @error('approve_date') border-red-500 @enderror"
                            id="approve_date"
                            name="approve_date"
                            type="date"
                            value="{{ old('approve_date', $existingData && $existingData->approve_date ? $existingData->approve_date->format('Y-m-d') : '') }}"/>
+                    @error('approve_date')
+                        <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
                 <div>
                     <label class="block text-xs text-gray-600 mb-1" for="outstanding_amount">
                         Outstanding Amount
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600 @error('outstanding_amount') border-red-500 @enderror"
                            id="outstanding_amount"
                            name="outstanding_amount"
                            type="number"
                            step="0.01"
                            value="{{ old('outstanding_amount', $existingData->outstanding_amount ?? '') }}"/>
+                    @error('outstanding_amount')
+                        <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
                 <div>
                     <label class="block text-xs text-gray-600 mb-1" for="form_status">
                         Form Status
                     </label>
-                    <select class="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
+                    <select class="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600 @error('form_status') border-red-500 @enderror"
                             id="form_status"
                             name="form_status">
                         <option value="draft" {{ old('form_status', $existingData->form_status ?? '') == 'draft' ? 'selected' : '' }}>Draft</option>
@@ -226,6 +296,9 @@
                         <option value="approved" {{ old('form_status', $existingData->form_status ?? '') == 'approved' ? 'selected' : '' }}>Approved</option>
                         <option value="rejected" {{ old('form_status', $existingData->form_status ?? '') == 'rejected' ? 'selected' : '' }}>Rejected</option>
                     </select>
+                    @error('form_status')
+                        <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
             </div>
         </section>
@@ -244,6 +317,36 @@
                 <li>FORM ONCE SUBMITTED WILL NOT BE EDITABLE; HENCE ENTER INFORMATION CORRECTLY.</li>
                 <li>"RED" COLOUR FIELD'S ARE MANDATORY IN THE FORM</li>
             </ul>
+        </section>
+
+        <!-- Profile Photo Upload Section -->
+        <section class="max-w-[1200px] mx-auto px-6 mb-8">
+            <h3 class="text-sm font-semibold mb-4 text-project-secondary">Profile Photo</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-4 text-xs text-gray-700">
+                <div class="md:col-span-3">
+                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center bg-gray-50">
+                        <div class="flex flex-col items-center justify-center">
+                            <div class="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mb-4">
+                                <i class="fas fa-camera text-gray-500 text-xl"></i>
+                            </div>
+                            <p class="text-gray-600 mb-2">Drag & Drop Image Here</p>
+                            <p class="text-gray-500 text-xs mb-4">or</p>
+                            <input type="file" id="profile_photo" name="profile_photo" accept="image/jpeg,image/jpg" class="hidden">
+                            <button type="button" id="upload-btn" class="bg-project-primary hover:bg-project-primary text-white px-4 py-2 rounded text-xs">
+                                Browse Files
+                            </button>
+                            <p class="text-gray-500 text-xs mt-2">Only JPEG/JPG format allowed</p>
+                            <div id="file-name" class="text-xs text-gray-600 mt-2 hidden"></div>
+                            @if(isset($existingData) && $existingData->profile_photo_path)
+                                <div class="mt-4">
+                                    <p class="text-xs text-gray-600 mb-1">Current Photo:</p>
+                                    <img src="{{ asset($existingData->profile_photo_path) }}" alt="Profile Photo" class="w-24 h-24 object-cover rounded">
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
         </section>
 
         <!-- Form Navigation Tabs -->
@@ -281,73 +384,91 @@
                     <label class="block mb-1" for="aadhar_number">
                         Aadhar Number <span class="text-red-500">*</span>
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 @error('aadhar_number') border-red-500 @enderror"
                            id="aadhar_number"
                            name="aadhar_number"
                            type="text"
                            maxlength="12"
                            value="{{ old('aadhar_number', $existingData->aadhar_number ?? '') }}"
                            required/>
+                    @error('aadhar_number')
+                        <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
                 <div>
                     <label class="block mb-1" for="date_of_birth">
                         Date Of Birth <span class="text-red-500">*</span>
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 @error('date_of_birth') border-red-500 @enderror"
                            id="date_of_birth"
                            name="date_of_birth"
                            type="date"
                            value="{{ old('date_of_birth', $existingData && $existingData->date_of_birth ? $existingData->date_of_birth->format('Y-m-d') : '') }}"
                            required/>
+                    @error('date_of_birth')
+                        <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
                 <div>
                     <label class="block mb-1" for="birth_place">
                         Birth Place <span class="text-red-500">*</span>
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 @error('birth_place') border-red-500 @enderror"
                            id="birth_place"
                            name="birth_place"
                            type="text"
                            value="{{ old('birth_place', $existingData->birth_place ?? '') }}"
                            required/>
+                    @error('birth_place')
+                        <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
                 <div>
                     <label class="block mb-1" for="student_first_name">
                         Student First Name <span class="text-red-500">*</span>
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 @error('student_first_name') border-red-500 @enderror"
                            id="student_first_name"
                            name="student_first_name"
                            type="text"
                            value="{{ old('student_first_name', $existingData->student_first_name ?? '') }}"
                            required/>
+                    @error('student_first_name')
+                        <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
                 <div>
                     <label class="block mb-1" for="middle_name">
                         Middle Name
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 @error('middle_name') border-red-500 @enderror"
                            id="middle_name"
                            name="middle_name"
                            type="text"
                            value="{{ old('middle_name', $existingData->middle_name ?? '') }}"/>
+                    @error('middle_name')
+                        <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
                 <div>
                     <label class="block mb-1" for="last_name">
                         Last Name <span class="text-red-500">*</span>
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 @error('last_name') border-red-500 @enderror"
                            id="last_name"
                            name="last_name"
                            type="text"
                            value="{{ old('last_name', $existingData->last_name ?? '') }}"
                            required/>
+                    @error('last_name')
+                        <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
                 <div>
                     <label class="block mb-1" for="marital_status">
                         Marital Status <span class="text-red-500">*</span>
                     </label>
-                    <select class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                    <select class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 @error('marital_status') border-red-500 @enderror"
                             id="marital_status"
                             name="marital_status"
                             required>
@@ -357,6 +478,9 @@
                         <option value="divorced" {{ old('marital_status', $existingData->marital_status ?? '') == 'divorced' ? 'selected' : '' }}>Divorced</option>
                         <option value="widowed" {{ old('marital_status', $existingData->marital_status ?? '') == 'widowed' ? 'selected' : '' }}>Widowed</option>
                     </select>
+                    @error('marital_status')
+                        <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
                 <div>
                     <label class="block mb-1" for="native_place">
@@ -400,13 +524,16 @@
                     <label class="block mb-1" for="student_mobile">
                         Student Mobile Number <span class="text-red-500">*</span>
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 @error('student_mobile') border-red-500 @enderror"
                            id="student_mobile"
                            name="student_mobile"
                            type="tel"
                            maxlength="10"
                            value="{{ old('student_mobile', $existingData->student_mobile ?? '') }}"
                            required/>
+                    @error('student_mobile')
+                        <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
                 <div>
                     <label class="block mb-1" for="religion">
@@ -475,12 +602,15 @@
                     <label class="block mb-1" for="pan_no">
                         PAN No
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 @error('pan_no') border-red-500 @enderror"
                            id="pan_no"
                            name="pan_no"
                            type="text"
                            maxlength="10"
                            value="{{ old('pan_no', $existingData->pan_no ?? '') }}"/>
+                    @error('pan_no')
+                        <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
             </div>
         </section>
@@ -556,13 +686,16 @@
                     <label class="block mb-1" for="pincode">
                         Pincode <span class="text-red-500">*</span>
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 @error('pincode') border-red-500 @enderror"
                            id="pincode"
                            name="pincode"
                            type="text"
                            maxlength="6"
                            value="{{ old('pincode', $existingData->pincode ?? '') }}"
                            required/>
+                    @error('pincode')
+                        <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
                 <div>
                     <label class="block mb-1" for="status">
@@ -642,12 +775,15 @@
                     <label class="block mb-1" for="alternate_mobile">
                         Alternate Mobile Number
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 @error('alternate_mobile') border-red-500 @enderror"
                            id="alternate_mobile"
                            name="alternate_mobile"
                            type="tel"
                            maxlength="10"
                            value="{{ old('alternate_mobile', $existingData->alternate_mobile ?? '') }}"/>
+                    @error('alternate_mobile')
+                        <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
             </div>
         </section>
@@ -732,12 +868,15 @@
                         <label class="block mb-1" for="corr_pincode">
                             Pincode
                         </label>
-                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 @error('corr_pincode') border-red-500 @enderror"
                                id="corr_pincode"
                                name="corr_pincode"
                                type="text"
                                maxlength="6"
                                value="{{ old('corr_pincode', $existingData->corr_pincode ?? '') }}"/>
+                        @error('corr_pincode')
+                            <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div>
                         <label class="block mb-1" for="corr_status">
@@ -1012,6 +1151,42 @@
                 });
             }
 
+            // Profile photo upload functionality
+            const uploadBtn = document.getElementById('upload-btn');
+            const fileInput = document.getElementById('profile_photo');
+            const fileName = document.getElementById('file-name');
+
+            if (uploadBtn && fileInput) {
+                uploadBtn.addEventListener('click', function() {
+                    fileInput.click();
+                });
+
+                fileInput.addEventListener('change', function() {
+                    if (this.files && this.files[0]) {
+                        const file = this.files[0];
+                        const fileType = file.type;
+                        const fileNameText = file.name;
+
+                        // Check if file is JPEG or JPG
+                        if (fileType === 'image/jpeg' || fileNameText.toLowerCase().endsWith('.jpg')) {
+                            fileName.textContent = 'Selected: ' + fileNameText;
+                            fileName.classList.remove('hidden');
+
+                            // Preview the image
+                            const reader = new FileReader();
+                            reader.onload = function(e) {
+                                // You can add image preview functionality here if needed
+                            }
+                            reader.readAsDataURL(file);
+                        } else {
+                            alert('Please select a JPEG or JPG file only.');
+                            this.value = ''; // Clear the input
+                            fileName.classList.add('hidden');
+                        }
+                    }
+                });
+            }
+
             // Form submission
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
@@ -1028,32 +1203,58 @@
                     method: 'POST',
                     body: formData,
                     headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'X-Requested-With': 'XMLHttpRequest' // This header helps Laravel identify AJAX requests
+                    },
+                    redirect: 'follow' // Follow redirects
+                })
+                .then(response => {
+                    // Handle redirects
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                        return;
+                    }
+
+                    // Check if the response is JSON
+                    const contentType = response.headers.get('content-type');
+
+                    if (contentType && contentType.includes('application/json')) {
+                        return response.json().then(data => {
+                            // Return both response status and data for proper error handling
+                            return { ok: response.ok, data: data, status: response.status };
+                        });
+                    } else {
+                        // If not JSON, it's likely an HTML redirect or error page
+                        window.location.reload();
+                        return;
                     }
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        clearValidationErrors();
+                .then(result => {
+                    if (!result) return; // If redirected, result will be undefined
 
-                        // Store submission_id in localStorage
-                        if (data.data.submission_id) {
-                            localStorage.setItem('jito_submission_id', data.data.submission_id);
-                            localStorage.setItem('jito_current_step', data.data.step);
-                            localStorage.setItem('jito_last_saved', new Date().toISOString());
+                    const { ok, data, status } = result;
+
+                    if (ok) {
+                        // Success case
+                        if (data.success) {
+                            clearValidationErrors();
+                            showMessage('Personal details saved successfully!', 'success');
+                            // Redirect to family details page
+                            setTimeout(() => {
+                                window.location.href = '{{ route("family-details", ["submission_id" => $submissionId ?? ""]) }}';
+                            }, 1500);
+                        } else {
+                            showMessage(data.message || 'Error saving details', 'error');
                         }
-
-                        showMessage('Personal details saved successfully!', 'success');
-
-                        setTimeout(() => {
-                            window.location.href = data.data.redirect_url || '/family-details?submission_id=' + data.data.submission_id;
-                        }, 1500);
                     } else {
+                        // Error case (including validation errors)
                         if (data.errors) {
+                            // Display individual field errors
                             displayValidationErrors(data.errors);
                             showMessage('Please correct the errors below and try again.', 'error');
                         } else {
-                            showMessage(data.message || 'Error saving details', 'error');
+                            // Handle other types of errors
+                            showMessage(data.message || `Error: ${status}`, 'error');
                         }
                     }
                 })

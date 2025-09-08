@@ -19,6 +19,8 @@
         .hover\:bg-project-primary:hover { background-color: #4c63d2; }
         .hover\:bg-project-success:hover { background-color: #008139; }
         .hover\:bg-project-warning:hover { background-color: #e6a800; }
+        .border-error { border-color: #ef4444; border-width: 2px; }
+        .field-error { border: 2px solid #ef4444 !important; }
     </style>
 </head>
 <body class="bg-white text-gray-900">
@@ -65,7 +67,7 @@
 
     {{-- @if(isset($submissionId))
     <!-- Session Info -->
-    <section class="max-w-[1200px] mx-auto px-6 mb-4">
+    <!-- <section class="max-w-[1200px] mx-auto px-6 mb-4">
         <div class="bg-blue-50 border border-blue-200 rounded-md p-3 text-sm">
             <div class="flex items-center justify-between">
                 <span class="text-blue-800">
@@ -76,7 +78,53 @@
             </div>
         </div>
     </section>
-    @endif --}}
+    @endif
+    </section> -->
+    @endif--}}
+
+    <!-- Toast Messages -->
+    @if(session('success'))
+    <div class="fixed top-4 right-4 z-50">
+        <div class="px-4 py-3 rounded mb-4 border bg-green-100 border-green-400 text-green-700">
+            <div class="flex">
+                <div class="flex-1">
+                    <p class="text-sm">{{ session('success') }}</p>
+                </div>
+                <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-lg font-bold">&times;</button>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    @if(session('error'))
+    <div class="fixed top-4 right-4 z-50">
+        <div class="px-4 py-3 rounded mb-4 border bg-red-100 border-red-400 text-red-700">
+            <div class="flex">
+                <div class="flex-1">
+                    <p class="text-sm">{{ session('error') }}</p>
+                </div>
+                <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-lg font-bold">&times;</button>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    @if($errors->any())
+    <div class="fixed top-4 right-4 z-50">
+        <div class="px-4 py-3 rounded mb-4 border bg-red-100 border-red-400 text-red-700">
+            <div class="flex">
+                <div class="flex-1">
+                    <ul class="text-sm list-disc pl-5">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+                <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-lg font-bold">&times;</button>
+            </div>
+        </div>
+    </div>
+    @endif
 
     <main class="max-w-[1200px] mx-auto px-6 py-8">
         <form method="POST" action="{{ route('funding-details.store') }}" id="funding-form">
@@ -119,8 +167,8 @@
                     <!-- Amount Information -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 mb-6">
                         <div>
-                            <label for="amount_requested_years" class="block mb-1 text-sm">Amount Requested for Years</label>
-                            <select id="amount_requested_years" name="amount_requested_years" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm">
+                            <label for="amount_requested_years" class="block mb-1 text-sm">Amount Requested for Years *</label>
+                            <select id="amount_requested_years" name="amount_requested_years" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required>
                                 <option value="">Select Years</option>
                                 <option value="1" {{ old('amount_requested_years', $existingData->amount_requested_years ?? '') == '1' ? 'selected' : '' }}>1 Year</option>
                                 <option value="2" {{ old('amount_requested_years', $existingData->amount_requested_years ?? '') == '2' ? 'selected' : '' }}>2 Years</option>
@@ -130,15 +178,15 @@
                             </select>
                         </div>
                         <div>
-                            <label for="tuition_fees_amount" class="block mb-1 text-sm">Amount Tuition Fees in Indian Rupees</label>
-                            <input id="tuition_fees_amount" name="tuition_fees_amount" type="number" step="0.01" value="{{ old('tuition_fees_amount', $existingData->tuition_fees_amount ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" />
+                            <label for="tuition_fees_amount" class="block mb-1 text-sm">Amount Tuition Fees in Indian Rupees *</label>
+                            <input id="tuition_fees_amount" name="tuition_fees_amount" type="number" step="0.01" value="{{ old('tuition_fees_amount', $existingData->tuition_fees_amount ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required placeholder="e.g. 50000" />
                         </div>
                     </div>
 
                     <!-- Funding Details Table -->
                     <div class="mb-6">
                         <div class="flex justify-between items-center mb-4">
-                            <h3 class="font-semibold text-sm">Funding Details</h3>
+                            <h3 class="font-semibold text-sm">Funding Details *</h3>
                             {{-- <div class="flex gap-2">
                                 <button type="button" id="add-funding" class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1 rounded transition-colors">
                                     Add
@@ -154,12 +202,12 @@
                                 <thead>
                                     <tr class="text-white text-xs" style="background: #0A2478;">
                                         <th class="border border-white px-2 py-2 text-center w-16">Sr. No.</th>
-                                        <th class="border border-white px-2 py-2 text-center">Particulars</th>
-                                        <th class="border border-white px-2 py-2 text-center">Status</th>
-                                        <th class="border border-white px-2 py-2 text-center">Name Of Trust/Institute</th>
-                                        <th class="border border-white px-2 py-2 text-center">Name Of Contact Person</th>
-                                        <th class="border border-white px-2 py-2 text-center">Contact Number</th>
-                                        <th class="border border-white px-2 py-2 text-center">Amount</th>
+                                        <th class="border border-white px-2 py-2 text-center">Particulars *</th>
+                                        <th class="border border-white px-2 py-2 text-center">Status *</th>
+                                        <th class="border border-white px-2 py-2 text-center">Name Of Trust/Institute *</th>
+                                        <th class="border border-white px-2 py-2 text-center">Name Of Contact Person *</th>
+                                        <th class="border border-white px-2 py-2 text-center">Contact Number *</th>
+                                        <th class="border border-white px-2 py-2 text-center">Amount *</th>
                                     </tr>
                                 </thead>
                                 <tbody id="funding-table-body">
@@ -168,22 +216,22 @@
                                             <tr class="funding-row" style="background-color: {{ ($index % 2 == 0) ? '#FFF7D3' : '#FFC4C4' }};">
                                                 <td class="border border-white px-2 py-1 text-center row-number">{{ $index + 1 }}</td>
                                                 <td class="border border-white px-1 py-1">
-                                                    <input type="text" name="funding_details_table[{{ $index }}][particulars]" value="{{ old('funding_details_table.'.$index.'.particulars', $funding['particulars'] ?? '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" />
+                                                    <input type="text" name="funding_details_table[{{ $index }}][particulars]" value="{{ old('funding_details_table.'.$index.'.particulars', $funding['particulars'] ?? '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. Own family funding" />
                                                 </td>
                                                 <td class="border border-white px-1 py-1">
-                                                    <input type="text" name="funding_details_table[{{ $index }}][status]" value="{{ old('funding_details_table.'.$index.'.status', $funding['status'] ?? '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" />
+                                                    <input type="text" name="funding_details_table[{{ $index }}][status]" value="{{ old('funding_details_table.'.$index.'.status', $funding['status'] ?? '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. Approved" />
                                                 </td>
                                                 <td class="border border-white px-1 py-1">
-                                                    <input type="text" name="funding_details_table[{{ $index }}][trust_institute_name]" value="{{ old('funding_details_table.'.$index.'.trust_institute_name', $funding['trust_institute_name'] ?? '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" />
+                                                    <input type="text" name="funding_details_table[{{ $index }}][trust_institute_name]" value="{{ old('funding_details_table.'.$index.'.trust_institute_name', $funding['trust_institute_name'] ?? '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. Family Trust" />
                                                 </td>
                                                 <td class="border border-white px-1 py-1">
-                                                    <input type="text" name="funding_details_table[{{ $index }}][contact_person_name]" value="{{ old('funding_details_table.'.$index.'.contact_person_name', $funding['contact_person_name'] ?? '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" />
+                                                    <input type="text" name="funding_details_table[{{ $index }}][contact_person_name]" value="{{ old('funding_details_table.'.$index.'.contact_person_name', $funding['contact_person_name'] ?? '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. Rajesh Kumar" />
                                                 </td>
                                                 <td class="border border-white px-1 py-1">
-                                                    <input type="text" name="funding_details_table[{{ $index }}][contact_number]" value="{{ old('funding_details_table.'.$index.'.contact_number', $funding['contact_number'] ?? '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" />
+                                                    <input type="text" name="funding_details_table[{{ $index }}][contact_number]" value="{{ old('funding_details_table.'.$index.'.contact_number', $funding['contact_number'] ?? '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. 9876543210" />
                                                 </td>
                                                 <td class="border border-white px-1 py-1">
-                                                    <input type="number" name="funding_details_table[{{ $index }}][amount]" value="{{ old('funding_details_table.'.$index.'.amount', $funding['amount'] ?? '') }}" step="0.01" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" />
+                                                    <input type="number" name="funding_details_table[{{ $index }}][amount]" value="{{ old('funding_details_table.'.$index.'.amount', $funding['amount'] ?? '') }}" step="0.01" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. 50000" />
                                                 </td>
                                             </tr>
                                         @endforeach
@@ -192,148 +240,148 @@
                                         <tr class="funding-row" style="background-color: #FFF7D3;">
                                             <td class="border border-white px-2 py-1 text-center row-number">1</td>
                                             <td class="border border-white px-1 py-1">
-                                                <input type="text" name="funding_details_table[0][particulars]" value="{{ old('funding_details_table.0.particulars', 'Own family funding (Father + Mother)') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" />
+                                                <input type="text" name="funding_details_table[0][particulars]" value="{{ old('funding_details_table.0.particulars', 'Own family funding (Father + Mother)') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. Own family funding" />
                                             </td>
                                             <td class="border border-white px-1 py-1">
-                                                <input type="text" name="funding_details_table[0][status]" value="{{ old('funding_details_table.0.status', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" />
+                                                <input type="text" name="funding_details_table[0][status]" value="{{ old('funding_details_table.0.status', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. Approved" />
                                             </td>
                                             <td class="border border-white px-1 py-1">
-                                                <input type="text" name="funding_details_table[0][trust_institute_name]" value="{{ old('funding_details_table.0.trust_institute_name', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" />
+                                                <input type="text" name="funding_details_table[0][trust_institute_name]" value="{{ old('funding_details_table.0.trust_institute_name', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. Family Trust" />
                                             </td>
                                             <td class="border border-white px-1 py-1">
-                                                <input type="text" name="funding_details_table[0][contact_person_name]" value="{{ old('funding_details_table.0.contact_person_name', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" />
+                                                <input type="text" name="funding_details_table[0][contact_person_name]" value="{{ old('funding_details_table.0.contact_person_name', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. Rajesh Kumar" />
                                             </td>
                                             <td class="border border-white px-1 py-1">
-                                                <input type="text" name="funding_details_table[0][contact_number]" value="{{ old('funding_details_table.0.contact_number', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" />
+                                                <input type="text" name="funding_details_table[0][contact_number]" value="{{ old('funding_details_table.0.contact_number', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. 9876543210" />
                                             </td>
                                             <td class="border border-white px-1 py-1">
-                                                <input type="number" name="funding_details_table[0][amount]" value="{{ old('funding_details_table.0.amount', '') }}" step="0.01" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" />
+                                                <input type="number" name="funding_details_table[0][amount]" value="{{ old('funding_details_table.0.amount', '') }}" step="0.01" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. 50000" />
                                             </td>
                                         </tr>
                                         <tr class="funding-row" style="background-color: #FFC4C4;">
                                             <td class="border border-white px-2 py-1 text-center row-number">2</td>
                                             <td class="border border-white px-1 py-1">
-                                                <input type="text" name="funding_details_table[1][particulars]" value="{{ old('funding_details_table.1.particulars', 'Bank Loan') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" />
+                                                <input type="text" name="funding_details_table[1][particulars]" value="{{ old('funding_details_table.1.particulars', 'Bank Loan') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. Bank Loan" />
                                             </td>
                                             <td class="border border-white px-1 py-1">
-                                                <input type="text" name="funding_details_table[1][status]" value="{{ old('funding_details_table.1.status', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" />
+                                                <input type="text" name="funding_details_table[1][status]" value="{{ old('funding_details_table.1.status', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. Pending" />
                                             </td>
                                             <td class="border border-white px-1 py-1">
-                                                <input type="text" name="funding_details_table[1][trust_institute_name]" value="{{ old('funding_details_table.1.trust_institute_name', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" />
+                                                <input type="text" name="funding_details_table[1][trust_institute_name]" value="{{ old('funding_details_table.1.trust_institute_name', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. HDFC Bank" />
                                             </td>
                                             <td class="border border-white px-1 py-1">
-                                                <input type="text" name="funding_details_table[1][contact_person_name]" value="{{ old('funding_details_table.1.contact_person_name', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" />
+                                                <input type="text" name="funding_details_table[1][contact_person_name]" value="{{ old('funding_details_table.1.contact_person_name', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. Bank Manager" />
                                             </td>
                                             <td class="border border-white px-1 py-1">
-                                                <input type="text" name="funding_details_table[1][contact_number]" value="{{ old('funding_details_table.1.contact_number', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" />
+                                                <input type="text" name="funding_details_table[1][contact_number]" value="{{ old('funding_details_table.1.contact_number', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. 022-12345678" />
                                             </td>
                                             <td class="border border-white px-1 py-1">
-                                                <input type="number" name="funding_details_table[1][amount]" value="{{ old('funding_details_table.1.amount', '') }}" step="0.01" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" />
+                                                <input type="number" name="funding_details_table[1][amount]" value="{{ old('funding_details_table.1.amount', '') }}" step="0.01" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. 100000" />
                                             </td>
                                         </tr>
                                         <tr class="funding-row" style="background-color: #FFF7D3;">
                                             <td class="border border-white px-2 py-1 text-center row-number">3</td>
                                             <td class="border border-white px-1 py-1">
-                                                <input type="text" name="funding_details_table[2][particulars]" value="{{ old('funding_details_table.2.particulars', 'Other Assistance(1)') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" />
+                                                <input type="text" name="funding_details_table[2][particulars]" value="{{ old('funding_details_table.2.particulars', 'Other Assistance(1)') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. Scholarship" />
                                             </td>
                                             <td class="border border-white px-1 py-1">
-                                                <input type="text" name="funding_details_table[2][status]" value="{{ old('funding_details_table.2.status', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" />
+                                                <input type="text" name="funding_details_table[2][status]" value="{{ old('funding_details_table.2.status', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. Applied" />
                                             </td>
                                             <td class="border border-white px-1 py-1">
-                                                <input type="text" name="funding_details_table[2][trust_institute_name]" value="{{ old('funding_details_table.2.trust_institute_name', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" />
+                                                <input type="text" name="funding_details_table[2][trust_institute_name]" value="{{ old('funding_details_table.2.trust_institute_name', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. University" />
                                             </td>
                                             <td class="border border-white px-1 py-1">
-                                                <input type="text" name="funding_details_table[2][contact_person_name]" value="{{ old('funding_details_table.2.contact_person_name', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" />
+                                                <input type="text" name="funding_details_table[2][contact_person_name]" value="{{ old('funding_details_table.2.contact_person_name', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. Scholarship Officer" />
                                             </td>
                                             <td class="border border-white px-1 py-1">
-                                                <input type="text" name="funding_details_table[2][contact_number]" value="{{ old('funding_details_table.2.contact_number', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" />
+                                                <input type="text" name="funding_details_table[2][contact_number]" value="{{ old('funding_details_table.2.contact_number', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. 9876543211" />
                                             </td>
                                             <td class="border border-white px-1 py-1">
-                                                <input type="number" name="funding_details_table[2][amount]" value="{{ old('funding_details_table.2.amount', '') }}" step="0.01" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" />
+                                                <input type="number" name="funding_details_table[2][amount]" value="{{ old('funding_details_table.2.amount', '') }}" step="0.01" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. 25000" />
                                             </td>
                                         </tr>
                                         <tr class="funding-row" style="background-color: #FFC4C4;">
                                             <td class="border border-white px-2 py-1 text-center row-number">4</td>
                                             <td class="border border-white px-1 py-1">
-                                                <input type="text" name="funding_details_table[3][particulars]" value="{{ old('funding_details_table.3.particulars', 'Other Assistance(2)') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" />
+                                                <input type="text" name="funding_details_table[3][particulars]" value="{{ old('funding_details_table.3.particulars', 'Other Assistance(2)') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. Government Grant" />
                                             </td>
                                             <td class="border border-white px-1 py-1">
-                                                <input type="text" name="funding_details_table[3][status]" value="{{ old('funding_details_table.3.status', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" />
+                                                <input type="text" name="funding_details_table[3][status]" value="{{ old('funding_details_table.3.status', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. Approved" />
                                             </td>
                                             <td class="border border-white px-1 py-1">
-                                                <input type="text" name="funding_details_table[3][trust_institute_name]" value="{{ old('funding_details_table.3.trust_institute_name', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" />
+                                                <input type="text" name="funding_details_table[3][trust_institute_name]" value="{{ old('funding_details_table.3.trust_institute_name', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. Government" />
                                             </td>
                                             <td class="border border-white px-1 py-1">
-                                                <input type="text" name="funding_details_table[3][contact_person_name]" value="{{ old('funding_details_table.3.contact_person_name', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" />
+                                                <input type="text" name="funding_details_table[3][contact_person_name]" value="{{ old('funding_details_table.3.contact_person_name', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. Govt. Officer" />
                                             </td>
                                             <td class="border border-white px-1 py-1">
-                                                <input type="text" name="funding_details_table[3][contact_number]" value="{{ old('funding_details_table.3.contact_number', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" />
+                                                <input type="text" name="funding_details_table[3][contact_number]" value="{{ old('funding_details_table.3.contact_number', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. 011-23456789" />
                                             </td>
                                             <td class="border border-white px-1 py-1">
-                                                <input type="number" name="funding_details_table[3][amount]" value="{{ old('funding_details_table.3.amount', '') }}" step="0.01" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" />
+                                                <input type="number" name="funding_details_table[3][amount]" value="{{ old('funding_details_table.3.amount', '') }}" step="0.01" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. 30000" />
                                             </td>
                                         </tr>
                                         <tr class="funding-row" style="background-color: #FFF7D3;">
                                             <td class="border border-white px-2 py-1 text-center row-number">5</td>
                                             <td class="border border-white px-1 py-1">
-                                                <input type="text" name="funding_details_table[4][particulars]" value="{{ old('funding_details_table.4.particulars', 'Other Assistance(3)') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" />
+                                                <input type="text" name="funding_details_table[4][particulars]" value="{{ old('funding_details_table.4.particulars', 'Other Assistance(3)') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. Private Scholarship" />
                                             </td>
                                             <td class="border border-white px-1 py-1">
-                                                <input type="text" name="funding_details_table[4][status]" value="{{ old('funding_details_table.4.status', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" />
+                                                <input type="text" name="funding_details_table[4][status]" value="{{ old('funding_details_table.4.status', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. Pending" />
                                             </td>
                                             <td class="border border-white px-1 py-1">
-                                                <input type="text" name="funding_details_table[4][trust_institute_name]" value="{{ old('funding_details_table.4.trust_institute_name', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" />
+                                                <input type="text" name="funding_details_table[4][trust_institute_name]" value="{{ old('funding_details_table.4.trust_institute_name', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. Private Trust" />
                                             </td>
                                             <td class="border border-white px-1 py-1">
-                                                <input type="text" name="funding_details_table[4][contact_person_name]" value="{{ old('funding_details_table.4.contact_person_name', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" />
+                                                <input type="text" name="funding_details_table[4][contact_person_name]" value="{{ old('funding_details_table.4.contact_person_name', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. Trust Manager" />
                                             </td>
                                             <td class="border border-white px-1 py-1">
-                                                <input type="text" name="funding_details_table[4][contact_number]" value="{{ old('funding_details_table.4.contact_number', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" />
+                                                <input type="text" name="funding_details_table[4][contact_number]" value="{{ old('funding_details_table.4.contact_number', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. 9876543212" />
                                             </td>
                                             <td class="border border-white px-1 py-1">
-                                                <input type="number" name="funding_details_table[4][amount]" value="{{ old('funding_details_table.4.amount', '') }}" step="0.01" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" />
+                                                <input type="number" name="funding_details_table[4][amount]" value="{{ old('funding_details_table.4.amount', '') }}" step="0.01" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. 15000" />
                                             </td>
                                         </tr>
                                         <tr class="funding-row" style="background-color: #FFC4C4;">
                                             <td class="border border-white px-2 py-1 text-center row-number">6</td>
                                             <td class="border border-white px-1 py-1">
-                                                <input type="text" name="funding_details_table[5][particulars]" value="{{ old('funding_details_table.5.particulars', 'Local Assistance') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" />
+                                                <input type="text" name="funding_details_table[5][particulars]" value="{{ old('funding_details_table.5.particulars', 'Local Assistance') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. Local Assistance" />
                                             </td>
                                             <td class="border border-white px-1 py-1">
-                                                <input type="text" name="funding_details_table[5][status]" value="{{ old('funding_details_table.5.status', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" />
+                                                <input type="text" name="funding_details_table[5][status]" value="{{ old('funding_details_table.5.status', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. Approved" />
                                             </td>
                                             <td class="border border-white px-1 py-1">
-                                                <input type="text" name="funding_details_table[5][trust_institute_name]" value="{{ old('funding_details_table.5.trust_institute_name', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" />
+                                                <input type="text" name="funding_details_table[5][trust_institute_name]" value="{{ old('funding_details_table.5.trust_institute_name', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. Local Trust" />
                                             </td>
                                             <td class="border border-white px-1 py-1">
-                                                <input type="text" name="funding_details_table[5][contact_person_name]" value="{{ old('funding_details_table.5.contact_person_name', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" />
+                                                <input type="text" name="funding_details_table[5][contact_person_name]" value="{{ old('funding_details_table.5.contact_person_name', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. Local Officer" />
                                             </td>
                                             <td class="border border-white px-1 py-1">
-                                                <input type="text" name="funding_details_table[5][contact_number]" value="{{ old('funding_details_table.5.contact_number', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" />
+                                                <input type="text" name="funding_details_table[5][contact_number]" value="{{ old('funding_details_table.5.contact_number', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. 9876543213" />
                                             </td>
                                             <td class="border border-white px-1 py-1">
-                                                <input type="number" name="funding_details_table[5][amount]" value="{{ old('funding_details_table.5.amount', '') }}" step="0.01" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" />
+                                                <input type="number" name="funding_details_table[5][amount]" value="{{ old('funding_details_table.5.amount', '') }}" step="0.01" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. 10000" />
                                             </td>
                                         </tr>
                                         <tr class="funding-row" style="background-color: #FFF7D3;">
                                             <td class="border border-white px-2 py-1 text-center row-number">7</td>
                                             <td class="border border-white px-1 py-1">
-                                                <input type="text" name="funding_details_table[6][particulars]" value="{{ old('funding_details_table.6.particulars', 'Total') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" readonly />
+                                                <input type="text" name="funding_details_table[6][particulars]" value="{{ old('funding_details_table.6.particulars', 'Total') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" readonly placeholder="Total" />
                                             </td>
                                             <td class="border border-white px-1 py-1">
-                                                <input type="text" name="funding_details_table[6][status]" value="{{ old('funding_details_table.6.status', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" />
+                                                <input type="text" name="funding_details_table[6][status]" value="{{ old('funding_details_table.6.status', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" placeholder="e.g. Calculated" />
                                             </td>
                                             <td class="border border-white px-1 py-1">
-                                                <input type="text" name="funding_details_table[6][trust_institute_name]" value="{{ old('funding_details_table.6.trust_institute_name', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" />
+                                                <input type="text" name="funding_details_table[6][trust_institute_name]" value="{{ old('funding_details_table.6.trust_institute_name', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" placeholder="e.g. Total" />
                                             </td>
                                             <td class="border border-white px-1 py-1">
-                                                <input type="text" name="funding_details_table[6][contact_person_name]" value="{{ old('funding_details_table.6.contact_person_name', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" />
+                                                <input type="text" name="funding_details_table[6][contact_person_name]" value="{{ old('funding_details_table.6.contact_person_name', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" placeholder="e.g. System" />
                                             </td>
                                             <td class="border border-white px-1 py-1">
-                                                <input type="text" name="funding_details_table[6][contact_number]" value="{{ old('funding_details_table.6.contact_number', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" />
+                                                <input type="text" name="funding_details_table[6][contact_number]" value="{{ old('funding_details_table.6.contact_number', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" placeholder="e.g. 0000000000" />
                                             </td>
                                             <td class="border border-white px-1 py-1">
-                                                <input type="number" name="funding_details_table[6][amount]" value="{{ old('funding_details_table.6.amount', '') }}" step="0.01" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent total-amount" readonly />
+                                                <input type="number" name="funding_details_table[6][amount]" value="{{ old('funding_details_table.6.amount', '') }}" step="0.01" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent total-amount" readonly placeholder="0.00" />
                                             </td>
                                         </tr>
                                     @endif
@@ -346,62 +394,62 @@
                     <div class="mb-6">
                         <div class="mb-4 grid grid-cols-1 md:grid-cols-3 gap-4 ">
                             <div class="col-lg-4">
-                                <label for="family_received_assistance" class="block mb-1 text-sm">Have your Brother/Sister received Financial assistance from JITO JEAP/JATF/SEED or JITO Chapter?</label>
-                                <input id="family_received_assistance" name="family_received_assistance" type="text" value="{{ old('family_received_assistance', $existingData->family_received_assistance ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" />
+                                <label for="family_received_assistance" class="block mb-1 text-sm">Have your Brother/Sister received Financial assistance from JITO JEAP/JATF/SEED or JITO Chapter? *</label>
+                                <input id="family_received_assistance" name="family_received_assistance" type="text" value="{{ old('family_received_assistance', $existingData->family_received_assistance ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required placeholder="e.g. Yes/No" />
                             </div>
-                            <div class="col-lg-4 mt-10">
-                                <label for="ngo_name" class="block mb-1 text-sm">NGO Name</label>
-                                <input id="ngo_name" name="ngo_name" type="text" value="{{ old('ngo_name', $existingData->ngo_name ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" />
+                            <div class="col-lg-4">
+                                <label for="ngo_name" class="block mb-1 text-sm">NGO Name *</label>
+                                <input id="ngo_name" name="ngo_name" type="text" value="{{ old('ngo_name', $existingData->ngo_name ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required placeholder="e.g. JITO JEAP" />
                             </div>
-                            <div class="col-lg-4 mt-10">
-                                <label for="loan_status" class="block mb-1 text-sm">Loan Status</label>
-                                <input id="loan_status" name="loan_status" type="text" value="{{ old('loan_status', $existingData->loan_status ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" />
+                            <div class="col-lg-4">
+                                <label for="loan_status" class="block mb-1 text-sm">Loan Status *</label>
+                                <input id="loan_status" name="loan_status" type="text" value="{{ old('loan_status', $existingData->loan_status ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required placeholder="e.g. Pending/Approved" />
                             </div>
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 mb-6">
 
                             <div>
-                                <label for="applied_year" class="block mb-1 text-sm">Applied for Year</label>
-                                <input id="applied_year" name="applied_year" type="text" value="{{ old('applied_year', $existingData->applied_year ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" />
+                                <label for="applied_year" class="block mb-1 text-sm">Applied for Year *</label>
+                                <input id="applied_year" name="applied_year" type="text" value="{{ old('applied_year', $existingData->applied_year ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required placeholder="e.g. 2023" />
                             </div>
                             <div>
-                                <label for="applied_amount" class="block mb-1 text-sm">Applied Amount</label>
-                                <input id="applied_amount" name="applied_amount" type="number" step="0.01" value="{{ old('applied_amount', $existingData->applied_amount ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" />
+                                <label for="applied_amount" class="block mb-1 text-sm">Applied Amount *</label>
+                                <input id="applied_amount" name="applied_amount" type="number" step="0.01" value="{{ old('applied_amount', $existingData->applied_amount ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required placeholder="e.g. 100000" />
                             </div>
                         </div>
                     </div>
 
                     <!-- Bank Account Details -->
                     <div class="mb-6">
-                        <h3 class="font-semibold text-sm mb-4">Bank Account Details of Applicant</h3>
+                        <h3 class="font-semibold text-sm mb-4">Bank Account Details of Applicant *</h3>
                         <div class="bg-red-50 border border-red-200 rounded-md p-3 mb-4 text-sm text-red-700">
                             <strong>Bank Account Details of Applicant - </strong>We only accept cheques of Government Nationalized bank and Banks - HDFC Bank, ICICI Bank, Kotak Mahindra Bank, Axis Bank, IndusInd Bank, IDBI Bank, Yes Bank, IDFC First Bank, etc). Please mention those bank details whose Post Dated Cheques will be submitting us in future if your application is getting sanctioned.
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-4 mb-6">
                             <div>
-                                <label for="student_name" class="block mb-1 text-sm">Student Name</label>
-                                <input id="student_name" name="student_name" type="text" value="{{ old('student_name', $existingData->student_name ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required />
+                                <label for="student_name" class="block mb-1 text-sm">Student Name *</label>
+                                <input id="student_name" name="student_name" type="text" value="{{ old('student_name', $existingData->student_name ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required placeholder="e.g. Rajesh Kumar" />
                             </div>
                             <div>
-                                <label for="student_account_number" class="block mb-1 text-sm">Student Account Number</label>
-                                <input id="student_account_number" name="student_account_number" type="text" value="{{ old('student_account_number', $existingData->student_account_number ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required />
+                                <label for="student_account_number" class="block mb-1 text-sm">Student Account Number *</label>
+                                <input id="student_account_number" name="student_account_number" type="text" value="{{ old('student_account_number', $existingData->student_account_number ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required placeholder="e.g. 123456789012" />
                             </div>
                             <div>
-                                <label for="ifsc_code" class="block mb-1 text-sm">IFSC Code</label>
-                                <input id="ifsc_code" name="ifsc_code" type="text" value="{{ old('ifsc_code', $existingData->ifsc_code ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required />
+                                <label for="ifsc_code" class="block mb-1 text-sm">IFSC Code *</label>
+                                <input id="ifsc_code" name="ifsc_code" type="text" value="{{ old('ifsc_code', $existingData->ifsc_code ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required placeholder="e.g. HDFC0001234" />
                             </div>
                             <div>
-                                <label for="bank_name" class="block mb-1 text-sm">Bank Name</label>
-                                <input id="bank_name" name="bank_name" type="text" value="{{ old('bank_name', $existingData->bank_name ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required />
+                                <label for="bank_name" class="block mb-1 text-sm">Bank Name *</label>
+                                <input id="bank_name" name="bank_name" type="text" value="{{ old('bank_name', $existingData->bank_name ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required placeholder="e.g. HDFC Bank" />
                             </div>
                             <div>
-                                <label for="branch_name" class="block mb-1 text-sm">Branch Name</label>
-                                <input id="branch_name" name="branch_name" type="text" value="{{ old('branch_name', $existingData->branch_name ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required />
+                                <label for="branch_name" class="block mb-1 text-sm">Branch Name *</label>
+                                <input id="branch_name" name="branch_name" type="text" value="{{ old('branch_name', $existingData->branch_name ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required placeholder="e.g. Mumbai Central" />
                             </div>
                             <div>
-                                <label for="bank_address" class="block mb-1 text-sm">Bank Address</label>
-                                <textarea id="bank_address" name="bank_address" rows="3" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required>{{ old('bank_address', $existingData->bank_address ?? '') }}</textarea>
+                                <label for="bank_address" class="block mb-1 text-sm">Bank Address *</label>
+                                <textarea id="bank_address" name="bank_address" rows="3" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required placeholder="e.g. 123 Main Street, Mumbai, Maharashtra 400001">{{ old('bank_address', $existingData->bank_address ?? '') }}</textarea>
                             </div>
                         </div>
                     </div>
@@ -452,256 +500,92 @@
             const submitText = document.getElementById('submit-text');
             const loadingText = document.getElementById('loading-text');
             const messageContainer = document.getElementById('message-container');
-            // Initialize row count based on existing data
-            let fundingRowCount = document.querySelectorAll('.funding-row').length || 7;
-            console.log('Initialized funding row count:', fundingRowCount);
 
-            // Function to calculate total amount
-            function calculateTotal() {
-                const amountInputs = document.querySelectorAll('input[name*="[amount]"]');
-                let total = 0;
-
-                amountInputs.forEach((input, index) => {
-                    // Skip the last row (Total row)
-                    if (index < amountInputs.length - 1) {
-                        const value = parseFloat(input.value) || 0;
-                        total += value;
+            // Add event listeners to remove error highlighting when user starts typing
+            const inputs = form.querySelectorAll('input, select, textarea');
+            inputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    if (this.classList.contains('field-error')) {
+                        this.classList.remove('field-error');
+                        this.classList.add('border-gray-300');
                     }
                 });
-
-                // Update the total field (last row)
-                const totalInput = document.querySelector('.total-amount');
-                if (totalInput) {
-                    totalInput.value = total.toFixed(2);
-                }
-            }
-
-            // Add event listeners for amount calculation
-            function addAmountListeners() {
-                const amountInputs = document.querySelectorAll('input[name*="[amount]"]');
-                amountInputs.forEach((input, index) => {
-                    // Skip the last row (Total row)
-                    if (index < amountInputs.length - 1) {
-                        input.addEventListener('input', calculateTotal);
-                    }
-                });
-            }
-
-            // Initialize amount listeners
-            addAmountListeners();
-
-            // Calculate initial total
-            calculateTotal();
-
-            // Function to update row numbers
-            function updateRowNumbers() {
-                const rows = document.querySelectorAll('.funding-row');
-                rows.forEach((row, index) => {
-                    const rowNumber = row.querySelector('.row-number');
-                    rowNumber.textContent = index + 1;
-
-                    // Apply alternating colors to entire row (except Total row)
-                    const isLastRow = index === rows.length - 1;
-                    if (!isLastRow) {
-                        const isOddRow = (index % 2) === 0;
-                        const backgroundColor = isOddRow ? '#FFF7D3' : '#FFC4C4';
-                        row.style.backgroundColor = backgroundColor;
-                    }
-
-                    // Update input names (except for Total row)
-                    if (!isLastRow) {
-                        const inputs = row.querySelectorAll('input');
-                        inputs.forEach(input => {
-                            const name = input.getAttribute('name');
-                            if (name && name.includes('funding_details_table')) {
-                                const newName = name.replace(/\[\d+\]/, `[${index}]`);
-                                input.setAttribute('name', newName);
-                            }
-                        });
-                    }
-                });
-            }
-
-            // Add new funding row (before the Total row)
-            document.getElementById('add-funding').addEventListener('click', function() {
-                const tableBody = document.getElementById('funding-table-body');
-                const totalRow = tableBody.querySelector('tr:last-child'); // Get the Total row
-                const newRow = document.createElement('tr');
-                newRow.className = 'funding-row';
-
-                // Calculate new row index (excluding the Total row)
-                const currentRows = document.querySelectorAll('.funding-row');
-                const newIndex = currentRows.length - 1; // Exclude Total row from count
-
-                const isOddRow = (newIndex % 2) === 0;
-                const backgroundColor = isOddRow ? '#FFF7D3' : '#FFC4C4';
-                newRow.style.backgroundColor = backgroundColor;
-
-                newRow.innerHTML = `
-                    <td class="border border-white px-2 py-1 text-center row-number">${newIndex + 1}</td>
-                    <td class="border border-white px-1 py-1">
-                        <input type="text" name="funding_details_table[${newIndex}][particulars]" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" />
-                    </td>
-                    <td class="border border-white px-1 py-1">
-                        <input type="text" name="funding_details_table[${newIndex}][status]" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" />
-                    </td>
-                    <td class="border border-white px-1 py-1">
-                        <input type="text" name="funding_details_table[${newIndex}][trust_institute_name]" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" />
-                    </td>
-                    <td class="border border-white px-1 py-1">
-                        <input type="text" name="funding_details_table[${newIndex}][contact_person_name]" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" />
-                    </td>
-                    <td class="border border-white px-1 py-1">
-                        <input type="text" name="funding_details_table[${newIndex}][contact_number]" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" />
-                    </td>
-                    <td class="border border-white px-1 py-1">
-                        <input type="number" name="funding_details_table[${newIndex}][amount]" step="0.01" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" />
-                    </td>
-                `;
-
-                // Insert before the Total row
-                tableBody.insertBefore(newRow, totalRow);
-                fundingRowCount++;
-                updateRowNumbers();
-                addAmountListeners();
             });
 
-            // Remove funding row (but not the Total row)
-            document.getElementById('remove-funding').addEventListener('click', function() {
-                const rows = document.querySelectorAll('.funding-row');
-                // Keep at least 2 rows (1 data row + Total row)
-                if (rows.length > 2) {
-                    // Remove the second-to-last row (keep the Total row)
-                    const rowToRemove = rows[rows.length - 2];
-                    rowToRemove.remove();
-                    fundingRowCount = Math.max(2, fundingRowCount - 1);
-                    updateRowNumbers();
-                    calculateTotal();
-                }
-            });
-
-            // Form submission and other functions
+            // Form submission
             form.addEventListener('submit', function(e) {
-                console.log('Form submit event triggered');
                 e.preventDefault();
-                console.log('Default prevented');
                 submitBtn.disabled = true;
                 submitText.classList.add('hidden');
                 loadingText.classList.remove('hidden');
 
+                // Clear previous error highlights
+                clearErrorHighlights();
+
                 const formData = new FormData(form);
-                console.log('FormData created');
-
-                // Debug: Log form data
-                console.log('Form data being sent:');
-                const formDataLog = {};
-                for (let [key, value] of formData.entries()) {
-                    if (!formDataLog[key]) {
-                        formDataLog[key] = [];
-                    }
-                    formDataLog[key].push(value);
-                }
-                console.log(formDataLog);
-
-                // Check if CSRF token is present
-                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-                console.log('CSRF Token:', csrfToken);
-
-                // Check if required fields are present
-                const requiredFields = ['student_name', 'student_account_number', 'ifsc_code', 'bank_name', 'branch_name', 'bank_address'];
-                for (const field of requiredFields) {
-                    if (!formData.has(field)) {
-                        console.warn(`Required field '${field}' not found in form data`);
-                    }
-                }
-
-                // Check if funding details table data is present
-                let fundingDetailsFields = [];
-                for (let [key, value] of formData.entries()) {
-                    if (key.startsWith('funding_details_table')) {
-                        fundingDetailsFields.push({key, value});
-                    }
-                }
-                console.log('Funding details table fields:', fundingDetailsFields);
-
-                // Check if we have enough funding details table data
-                const expectedFieldsPerRow = 6; // particulars, status, trust_institute_name, contact_person_name, contact_number, amount
-                const expectedRows = 7; // Based on the predefined rows in the form
-                const expectedTotalFields = expectedFieldsPerRow * expectedRows;
-                console.log('Expected funding details fields:', expectedTotalFields);
-                console.log('Actual funding details fields:', fundingDetailsFields.length);
-
-                if (fundingDetailsFields.length < expectedTotalFields) {
-                    console.warn('Funding details table data may be incomplete');
-                }
-
-                console.log('Making fetch request to:', form.action);
                 fetch(form.action, {
                     method: 'POST',
                     body: formData,
                     headers: {
-                        'X-CSRF-TOKEN': csrfToken,
-                        'Accept': 'application/json'
-                    }
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    redirect: 'follow'
                 })
                 .then(response => {
-                    console.log('Response received:', response);
-                    console.log('Response status:', response.status);
-                    console.log('Response headers:', response.headers);
+                    // Handle redirects
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                        return Promise.reject('redirected'); // Use reject to skip further processing
+                    }
 
-                    // Get content type
+                    // Check if the response is JSON
                     const contentType = response.headers.get('content-type');
-                    console.log('Content type:', contentType);
 
-                    // If not JSON, try to get text to see what the server returned
-                    if (!contentType || !contentType.includes('application/json')) {
-                        return response.text().then(text => {
-                            console.log('Non-JSON response text:', text);
-                            throw new Error('Received non-JSON response from server. Response: ' + text.substring(0, 200));
-                        });
-                    }
-
-                    if (!response.ok) {
+                    if (contentType && contentType.includes('application/json')) {
                         return response.json().then(data => {
-                            console.log('Error response data:', data);
-                            throw new Error(data.message || `HTTP error! status: ${response.status}`);
-                        }).catch(() => {
-                            throw new Error(`HTTP error! status: ${response.status}`);
+                            // If response is not ok, but we have JSON data, pass it along
+                            // This handles validation errors (422) that still return JSON
+                            return { ok: response.ok, data: data, status: response.status };
                         });
-                    }
-
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('Server response:', data);
-
-                    if (data.success) {
-                        console.log('Success response received - processing redirect');
-
-                        // Store submission data
-                        if (data.data && data.data.submission_id) {
-                            console.log('Storing submission ID:', data.data.submission_id);
-                            localStorage.setItem('jito_submission_id', data.data.submission_id);
-                            localStorage.setItem('jito_current_step', data.data.step || '5');
-                        }
-
-                        // Show success message with clickable backup
-                        const submissionId = (data.data && data.data.submission_id) || localStorage.getItem('jito_submission_id');
-                        const backupUrl = submissionId ? `/guarantor-details?submission_id=${submissionId}` : '/guarantor-details';
-                        showMessage('Funding details saved successfully! Redirecting...', 'success', true, backupUrl);
-
-                        // Get redirect URL
-                        let redirectUrl = null;
-                        if (data.data && data.data.redirect_url) {
-                            redirectUrl = data.data.redirect_url;
-                            console.log('Using redirect URL from server:', redirectUrl);
+                    } else {
+                        // If not JSON, it's likely an HTML redirect or error page
+                        if (response.ok) {
+                            window.location.reload();
+                            return Promise.reject('reload'); // Use reject to skip further processing
                         } else {
-                            // Fallback redirect URL construction
-                            const submissionId = (data.data && data.data.submission_id) || localStorage.getItem('jito_submission_id');
-                            if (submissionId) {
-                                redirectUrl = `/guarantor-details?submission_id=${submissionId}`;
-                                console.log('Using fallback redirect URL:', redirectUrl);
+                            // Handle non-JSON error responses
+                            return response.text().then(text => {
+                                throw new Error(`HTTP error! status: ${response.status}, body: ${text}`);
+                            });
+                        }
+                    }
+                })
+                .then(result => {
+                    // Skip processing if we've already handled redirect or reload
+                    if (!result) return;
+
+                    const { ok, data, status } = result;
+
+                    if (ok) {
+                        // Success case
+                        if (data.success) {
+                            showMessage('Funding details saved successfully!', 'success');
+                            // Use the redirect URL from the server response
+                            if (data.redirect_url) {
+                                setTimeout(() => {
+                                    window.location.href = data.redirect_url;
+                                }, 1500);
+                            } else {
+                                // Default redirect to guarantor details
+                                setTimeout(() => {
+                                    const submissionId = document.querySelector('input[name="submission_id"]').value;
+                                    window.location.href = '/guarantor-details?submission_id=' + submissionId;
+                                }, 1500);
                             }
+                        } else {
+                            // Handle unexpected success response format
+                            showMessage(data.message || 'Operation completed successfully!', 'success');
                         }
 
                         // Perform redirection
@@ -747,42 +631,58 @@
                             showMessage('Success, but unable to determine next step. Please click here to continue.', 'info', true, manualUrl);
                         }
                     } else {
-                        console.error('Server returned success: false', data);
-                        // Display validation errors if any
+                        // Error case (including validation errors)
                         if (data.errors) {
-                            let errorMessages = 'Please fix the following errors:\n';
+                            // Display individual field errors as separate toast messages
+                            let firstErrorField = null;
                             for (const field in data.errors) {
-                                errorMessages += `${data.errors[field].join(', ')}\n`;
+                                data.errors[field].forEach(error => {
+                                    showMessage(`${getFieldLabel(field)}: ${error}`, 'error');
+                                });
+
+                                // Highlight the field with error
+                                const fieldElement = document.getElementById(field);
+                                if (fieldElement) {
+                                    fieldElement.classList.remove('border-gray-300');
+                                    fieldElement.classList.add('field-error');
+
+                                    // Keep track of the first error field for scrolling
+                                    if (!firstErrorField) {
+                                        firstErrorField = fieldElement;
+                                    }
+                                } else {
+                                    // For table fields, we need to find them by name attribute
+                                    const tableFieldElements = document.querySelectorAll(`[name*="${field}"]`);
+                                    if (tableFieldElements.length > 0) {
+                                        tableFieldElements.forEach(element => {
+                                            element.classList.remove('border-gray-300');
+                                            element.classList.add('field-error');
+                                        });
+
+                                        // Keep track of the first error field for scrolling
+                                        if (!firstErrorField) {
+                                            firstErrorField = tableFieldElements[0];
+                                        }
+                                    }
+                                }
                             }
-                            showMessage(errorMessages, 'error');
+
+                            // Scroll to the first error field
+                            if (firstErrorField) {
+                                firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                firstErrorField.focus();
+                            }
                         } else {
-                            showMessage(data.message || 'Error saving details', 'error');
+                            // Handle other types of errors
+                            showMessage(data.message || `Error: ${status}`, 'error');
                         }
                     }
                 })
                 .catch(error => {
-                    console.error('Fetch error:', error);
-                    console.error('Error name:', error.name);
-                    console.error('Error message:', error.message);
-
-                    // Check if it's a network error or a server error
-                    if (error.name === 'TypeError' && error.message.includes('fetch')) {
-                        showMessage('Network error. Please check your connection and try again.', 'error');
-                    } else if (error.message.includes('HTTP error')) {
-                        showMessage('Server error. Please try again later.', 'error');
-                    } else if (error.message.includes('JSON') || error.message.includes('non-JSON')) {
-                        showMessage('Invalid response from server. The form data may have been saved. Please check the next step manually.', 'error');
-                        // Still try to redirect after a longer delay
-                        setTimeout(() => {
-                            const submissionId = document.querySelector('input[name="submission_id"]')?.value || localStorage.getItem('jito_submission_id');
-                            if (submissionId) {
-                                const redirectUrl = `/guarantor-details?submission_id=${submissionId}`;
-                                console.log('Error fallback redirecting to:', redirectUrl);
-                                window.location.href = redirectUrl;
-                            }
-                        }, 3000);
-                    } else {
-                        showMessage('An error occurred: ' + error.message, 'error');
+                    // Handle network errors or other exceptions
+                    console.error('Error:', error);
+                    if (error !== 'redirected' && error !== 'reload') {
+                        showMessage('An error occurred. Please try again.', 'error');
                     }
                 })
                 .finally(() => {
@@ -792,7 +692,47 @@
                 });
             });
 
-            function showMessage(message, type, clickable = false, clickUrl = null) {
+            // Function to clear error highlights
+            function clearErrorHighlights() {
+                const errorFields = form.querySelectorAll('.field-error');
+                errorFields.forEach(field => {
+                    field.classList.remove('field-error');
+                    field.classList.add('border-gray-300');
+                });
+            }
+
+            // Function to get field label for better error messages
+            function getFieldLabel(fieldName) {
+                const labelMap = {
+                    'amount_requested_years': 'Amount Requested for Years',
+                    'tuition_fees_amount': 'Tuition Fees Amount',
+                    'family_received_assistance': 'Family Received Assistance',
+                    'ngo_name': 'NGO Name',
+                    'loan_status': 'Loan Status',
+                    'applied_year': 'Applied Year',
+                    'applied_amount': 'Applied Amount',
+                    'student_name': 'Student Name',
+                    'student_account_number': 'Student Account Number',
+                    'ifsc_code': 'IFSC Code',
+                    'bank_name': 'Bank Name',
+                    'branch_name': 'Branch Name',
+                    'bank_address': 'Bank Address'
+                };
+
+                // For table fields
+                if (fieldName.includes('funding_details_table')) {
+                    if (fieldName.includes('particulars')) return 'Particulars';
+                    if (fieldName.includes('status')) return 'Status';
+                    if (fieldName.includes('trust_institute_name')) return 'Trust/Institute Name';
+                    if (fieldName.includes('contact_person_name')) return 'Contact Person Name';
+                    if (fieldName.includes('contact_number')) return 'Contact Number';
+                    if (fieldName.includes('amount')) return 'Amount';
+                }
+
+                return labelMap[fieldName] || fieldName;
+            }
+
+            function showMessage(message, type) {
                 const messageDiv = document.createElement('div');
                 const bgColor = type === 'success' ? 'bg-green-100 border-green-400 text-green-700' :
                               type === 'info' ? 'bg-blue-100 border-blue-400 text-blue-700' :
@@ -821,7 +761,7 @@
                     if (messageDiv.parentNode) {
                         messageDiv.remove();
                     }
-                }, autoRemoveTime);
+                }, 10000); // Increased timeout to 10 seconds for better visibility
             }
 
             // Navigation tab handlers

@@ -19,6 +19,8 @@
         .hover\:bg-project-primary:hover { background-color: #4c63d2; }
         .hover\:bg-project-success:hover { background-color: #008139; }
         .hover\:bg-project-warning:hover { background-color: #e6a800; }
+        .border-error { border-color: #ef4444; border-width: 2px; }
+        .field-error { border: 2px solid #ef4444 !important; }
     </style>
 </head>
 <body class="bg-white text-gray-900">
@@ -65,7 +67,7 @@
 
     @if(isset($submissionId))
     <!-- Session Info -->
-    <section class="max-w-[1200px] mx-auto px-6 mb-4">
+    <!-- <section class="max-w-[1200px] mx-auto px-6 mb-4">
         <div class="bg-blue-50 border border-blue-200 rounded-md p-3 text-sm">
             <div class="flex items-center justify-between">
                 <span class="text-blue-800">
@@ -75,7 +77,51 @@
                 <span class="text-blue-600 font-semibold">Step 5/7 - Guarantor Details</span>
             </div>
         </div>
-    </section>
+    </section> -->
+    @endif
+
+    <!-- Toast Messages -->
+    @if(session('success'))
+    <div class="fixed top-4 right-4 z-50">
+        <div class="px-4 py-3 rounded mb-4 border bg-green-100 border-green-400 text-green-700">
+            <div class="flex">
+                <div class="flex-1">
+                    <p class="text-sm">{{ session('success') }}</p>
+                </div>
+                <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-lg font-bold">&times;</button>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    @if(session('error'))
+    <div class="fixed top-4 right-4 z-50">
+        <div class="px-4 py-3 rounded mb-4 border bg-red-100 border-red-400 text-red-700">
+            <div class="flex">
+                <div class="flex-1">
+                    <p class="text-sm">{{ session('error') }}</p>
+                </div>
+                <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-lg font-bold">&times;</button>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    @if($errors->any())
+    <div class="fixed top-4 right-4 z-50">
+        <div class="px-4 py-3 rounded mb-4 border bg-red-100 border-red-400 text-red-700">
+            <div class="flex">
+                <div class="flex-1">
+                    <ul class="text-sm list-disc pl-5">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+                <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-lg font-bold">&times;</button>
+            </div>
+        </div>
+    </div>
     @endif
 
     <main class="max-w-[1200px] mx-auto px-6 py-8">
@@ -128,19 +174,19 @@
                         <!-- First Guarantor Name -->
                         <div>
                             <label for="first_guarantor_name" class="block mb-1 text-sm text-gray-700">First Guarantor Name</label>
-                            <input id="first_guarantor_name" name="first_guarantor_name" type="text" value="{{ old('first_guarantor_name', $existingData->first_guarantor_name ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required />
+                            <input id="first_guarantor_name" name="first_guarantor_name" type="text" value="{{ old('first_guarantor_name', $existingData->first_guarantor_name ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required placeholder="e.g. Rajesh Kumar" />
                         </div>
 
                         <!-- Mobile Number -->
                         <div>
                             <label for="first_guarantor_mobile" class="block mb-1 text-sm text-gray-700">Mobile Number</label>
-                            <input id="first_guarantor_mobile" name="first_guarantor_mobile" type="text" value="{{ old('first_guarantor_mobile', $existingData->first_guarantor_mobile ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required />
+                            <input id="first_guarantor_mobile" name="first_guarantor_mobile" type="text" value="{{ old('first_guarantor_mobile', $existingData->first_guarantor_mobile ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required placeholder="e.g. 9876543210" />
                         </div>
 
                         <!-- Relation with Student -->
                         <div>
                             <label for="first_guarantor_relation" class="block mb-1 text-sm text-gray-700">Relation with Student</label>
-                            <input id="first_guarantor_relation" name="first_guarantor_relation" type="text" value="{{ old('first_guarantor_relation', $existingData->first_guarantor_relation ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required />
+                            <input id="first_guarantor_relation" name="first_guarantor_relation" type="text" value="{{ old('first_guarantor_relation', $existingData->first_guarantor_relation ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required placeholder="e.g. Uncle" />
                         </div>
 
                         <!-- Date Of Birth -->
@@ -163,43 +209,43 @@
                         <!-- Permanent Address -->
                         <div>
                             <label for="first_guarantor_permanent_address" class="block mb-1 text-sm text-gray-700">Permanent Address</label>
-                            <textarea id="first_guarantor_permanent_address" name="first_guarantor_permanent_address" rows="3" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required>{{ old('first_guarantor_permanent_address', $existingData->first_guarantor_permanent_address ?? '') }}</textarea>
+                            <textarea id="first_guarantor_permanent_address" name="first_guarantor_permanent_address" rows="3" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required placeholder="e.g. 123 Main Street, Mumbai, Maharashtra 400001">{{ old('first_guarantor_permanent_address', $existingData->first_guarantor_permanent_address ?? '') }}</textarea>
                         </div>
 
                         <!-- Phone Number -->
                         <div>
                             <label for="first_guarantor_phone" class="block mb-1 text-sm text-gray-700">Phone Number</label>
-                            <input id="first_guarantor_phone" name="first_guarantor_phone" type="text" value="{{ old('first_guarantor_phone', $existingData->first_guarantor_phone ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" />
+                            <input id="first_guarantor_phone" name="first_guarantor_phone" type="text" value="{{ old('first_guarantor_phone', $existingData->first_guarantor_phone ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" placeholder="e.g. 022-12345678" />
                         </div>
 
                         <!-- Pan Card Number -->
                         <div>
                             <label for="first_guarantor_pan" class="block mb-1 text-sm text-gray-700">Pan Card Number</label>
-                            <input id="first_guarantor_pan" name="first_guarantor_pan" type="text" value="{{ old('first_guarantor_pan', $existingData->first_guarantor_pan ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required />
+                            <input id="first_guarantor_pan" name="first_guarantor_pan" type="text" value="{{ old('first_guarantor_pan', $existingData->first_guarantor_pan ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required placeholder="e.g. ABCDE1234F" />
                         </div>
 
                         <!-- Income -->
                         <div>
                             <label for="first_guarantor_income" class="block mb-1 text-sm text-gray-700">Income</label>
-                            <input id="first_guarantor_income" name="first_guarantor_income" type="number" step="0.01" value="{{ old('first_guarantor_income', $existingData->first_guarantor_income ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required />
+                            <input id="first_guarantor_income" name="first_guarantor_income" type="number" step="0.01" value="{{ old('first_guarantor_income', $existingData->first_guarantor_income ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required placeholder="e.g. 500000" />
                         </div>
 
                         <!-- Email Id -->
                         <div>
                             <label for="first_guarantor_email" class="block mb-1 text-sm text-gray-700">Email Id</label>
-                            <input id="first_guarantor_email" name="first_guarantor_email" type="email" value="{{ old('first_guarantor_email', $existingData->first_guarantor_email ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required />
+                            <input id="first_guarantor_email" name="first_guarantor_email" type="email" value="{{ old('first_guarantor_email', $existingData->first_guarantor_email ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required placeholder="e.g. rajesh@example.com" />
                         </div>
 
                         <!-- Aadhar Card Number -->
                         <div>
                             <label for="first_guarantor_aadhar" class="block mb-1 text-sm text-gray-700">Aadhar Card Number</label>
-                            <input id="first_guarantor_aadhar" name="first_guarantor_aadhar" type="text" value="{{ old('first_guarantor_aadhar', $existingData->first_guarantor_aadhar ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required />
+                            <input id="first_guarantor_aadhar" name="first_guarantor_aadhar" type="text" value="{{ old('first_guarantor_aadhar', $existingData->first_guarantor_aadhar ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required placeholder="e.g. 123456789012" />
                         </div>
 
                         <!-- Name of Business/ Service -->
                         <div>
                             <label for="first_guarantor_business_name" class="block mb-1 text-sm text-gray-700">Name of Business/ Service</label>
-                            <input id="first_guarantor_business_name" name="first_guarantor_business_name" type="text" value="{{ old('first_guarantor_business_name', $existingData->first_guarantor_business_name ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" />
+                            <input id="first_guarantor_business_name" name="first_guarantor_business_name" type="text" value="{{ old('first_guarantor_business_name', $existingData->first_guarantor_business_name ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" placeholder="e.g. Kumar Traders" />
                         </div>
                     </div>
                 </div>
@@ -213,19 +259,19 @@
                         <!-- Second Guarantor Name -->
                         <div>
                             <label for="second_guarantor_name" class="block mb-1 text-sm text-gray-700">Second Guarantor Name</label>
-                            <input id="second_guarantor_name" name="second_guarantor_name" type="text" value="{{ old('second_guarantor_name', $existingData->second_guarantor_name ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required />
+                            <input id="second_guarantor_name" name="second_guarantor_name" type="text" value="{{ old('second_guarantor_name', $existingData->second_guarantor_name ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required placeholder="e.g. Priya Sharma" />
                         </div>
 
                         <!-- Mobile Number -->
                         <div>
                             <label for="second_guarantor_mobile" class="block mb-1 text-sm text-gray-700">Mobile Number</label>
-                            <input id="second_guarantor_mobile" name="second_guarantor_mobile" type="text" value="{{ old('second_guarantor_mobile', $existingData->second_guarantor_mobile ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required />
+                            <input id="second_guarantor_mobile" name="second_guarantor_mobile" type="text" value="{{ old('second_guarantor_mobile', $existingData->second_guarantor_mobile ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required placeholder="e.g. 9876543211" />
                         </div>
 
                         <!-- Relation with Student -->
                         <div>
                             <label for="second_guarantor_relation" class="block mb-1 text-sm text-gray-700">Relation with Student</label>
-                            <input id="second_guarantor_relation" name="second_guarantor_relation" type="text" value="{{ old('second_guarantor_relation', $existingData->second_guarantor_relation ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required />
+                            <input id="second_guarantor_relation" name="second_guarantor_relation" type="text" value="{{ old('second_guarantor_relation', $existingData->second_guarantor_relation ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required placeholder="e.g. Family Friend" />
                         </div>
 
                         <!-- Date Of Birth -->
@@ -248,43 +294,43 @@
                         <!-- Permanent Address -->
                         <div>
                             <label for="second_guarantor_permanent_address" class="block mb-1 text-sm text-gray-700">Permanent Address</label>
-                            <textarea id="second_guarantor_permanent_address" name="second_guarantor_permanent_address" rows="3" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required>{{ old('second_guarantor_permanent_address', $existingData->second_guarantor_permanent_address ?? '') }}</textarea>
+                            <textarea id="second_guarantor_permanent_address" name="second_guarantor_permanent_address" rows="3" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required placeholder="e.g. 456 Park Street, Delhi, Delhi 110001">{{ old('second_guarantor_permanent_address', $existingData->second_guarantor_permanent_address ?? '') }}</textarea>
                         </div>
 
                         <!-- Phone Number -->
                         <div>
                             <label for="second_guarantor_phone" class="block mb-1 text-sm text-gray-700">Phone Number</label>
-                            <input id="second_guarantor_phone" name="second_guarantor_phone" type="text" value="{{ old('second_guarantor_phone', $existingData->second_guarantor_phone ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" />
+                            <input id="second_guarantor_phone" name="second_guarantor_phone" type="text" value="{{ old('second_guarantor_phone', $existingData->second_guarantor_phone ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" placeholder="e.g. 011-23456789" />
                         </div>
 
                         <!-- Pan Card Number -->
                         <div>
                             <label for="second_guarantor_pan" class="block mb-1 text-sm text-gray-700">Pan Card Number</label>
-                            <input id="second_guarantor_pan" name="second_guarantor_pan" type="text" value="{{ old('second_guarantor_pan', $existingData->second_guarantor_pan ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required />
+                            <input id="second_guarantor_pan" name="second_guarantor_pan" type="text" value="{{ old('second_guarantor_pan', $existingData->second_guarantor_pan ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required placeholder="e.g. FGHIJ5678K" />
                         </div>
 
                         <!-- Income -->
                         <div>
                             <label for="second_guarantor_income" class="block mb-1 text-sm text-gray-700">Income</label>
-                            <input id="second_guarantor_income" name="second_guarantor_income" type="number" step="0.01" value="{{ old('second_guarantor_income', $existingData->second_guarantor_income ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required />
+                            <input id="second_guarantor_income" name="second_guarantor_income" type="number" step="0.01" value="{{ old('second_guarantor_income', $existingData->second_guarantor_income ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required placeholder="e.g. 600000" />
                         </div>
 
                         <!-- Email Id -->
                         <div>
                             <label for="second_guarantor_email" class="block mb-1 text-sm text-gray-700">Email Id</label>
-                            <input id="second_guarantor_email" name="second_guarantor_email" type="email" value="{{ old('second_guarantor_email', $existingData->second_guarantor_email ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required />
+                            <input id="second_guarantor_email" name="second_guarantor_email" type="email" value="{{ old('second_guarantor_email', $existingData->second_guarantor_email ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required placeholder="e.g. priya@example.com" />
                         </div>
 
                         <!-- Aadhar Card Number -->
                         <div>
                             <label for="second_guarantor_aadhar" class="block mb-1 text-sm text-gray-700">Aadhar Card Number</label>
-                            <input id="second_guarantor_aadhar" name="second_guarantor_aadhar" type="text" value="{{ old('second_guarantor_aadhar', $existingData->second_guarantor_aadhar ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required />
+                            <input id="second_guarantor_aadhar" name="second_guarantor_aadhar" type="text" value="{{ old('second_guarantor_aadhar', $existingData->second_guarantor_aadhar ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required placeholder="e.g. 987654321098" />
                         </div>
 
                         <!-- Name of Business/ Service -->
                         <div>
                             <label for="second_guarantor_business_name" class="block mb-1 text-sm text-gray-700">Name of Business/ Service</label>
-                            <input id="second_guarantor_business_name" name="second_guarantor_business_name" type="text" value="{{ old('second_guarantor_business_name', $existingData->second_guarantor_business_name ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" />
+                            <input id="second_guarantor_business_name" name="second_guarantor_business_name" type="text" value="{{ old('second_guarantor_business_name', $existingData->second_guarantor_business_name ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" placeholder="e.g. Sharma Enterprises" />
                         </div>
                     </div>
                 </div>
@@ -308,6 +354,17 @@
             const loadingText = document.getElementById('loading-text');
             const messageContainer = document.getElementById('message-container');
 
+            // Add event listeners to remove error highlighting when user starts typing
+            const inputs = form.querySelectorAll('input, select, textarea');
+            inputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    if (this.classList.contains('field-error')) {
+                        this.classList.remove('field-error');
+                        this.classList.add('border-gray-300');
+                    }
+                });
+            });
+
             // Form submission
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
@@ -315,76 +372,111 @@
                 submitText.classList.add('hidden');
                 loadingText.classList.remove('hidden');
 
+                // Clear previous error highlights
+                clearErrorHighlights();
+
                 const formData = new FormData(form);
-                
-                // Debug: Log form data
-                console.log('Form data being sent:');
-                for (let [key, value] of formData.entries()) {
-                    console.log(key, value);
-                }
                 
                 fetch(form.action, {
                     method: 'POST',
                     body: formData,
                     headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    }
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    redirect: 'follow'
                 })
                 .then(response => {
-                    console.log('Response status:', response.status);
-                    console.log('Response headers:', [...response.headers.entries()]);
+                    // Handle redirects
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                        return Promise.reject('redirected'); // Use reject to skip further processing
+                    }
                     
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
+                    // Check if the response is JSON
                     const contentType = response.headers.get('content-type');
-                    console.log('Content type:', contentType);
-                    if (!contentType || !contentType.includes('application/json')) {
-                        throw new Error('Received non-JSON response from server');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('Server response:', data);
-                    if (data.success) {
-                        if (data.data.submission_id) {
-                            localStorage.setItem('jito_submission_id', data.data.submission_id);
-                            localStorage.setItem('jito_current_step', data.data.step);
+                    
+                    if (contentType && contentType.includes('application/json')) {
+                        return response.json().then(data => {
+                            // If response is not ok, but we have JSON data, pass it along
+                            // This handles validation errors (422) that still return JSON
+                            return { ok: response.ok, data: data, status: response.status };
+                        });
+                    } else {
+                        // If not JSON, it's likely an HTML redirect or error page
+                        if (response.ok) {
+                            window.location.reload();
+                            return Promise.reject('reload'); // Use reject to skip further processing
+                        } else {
+                            // Handle non-JSON error responses
+                            return response.text().then(text => {
+                                throw new Error(`HTTP error! status: ${response.status}, body: ${text}`);
+                            });
                         }
-                        showMessage('Guarantor details saved successfully!', 'success');
-                        // Use the redirect URL from the server response
-                        if (data.data.redirect_url) {
-                            setTimeout(() => {
-                                window.location.href = data.data.redirect_url;
-                            }, 1500);
+                    }
+                })
+                .then(result => {
+                    // Skip processing if we've already handled redirect or reload
+                    if (!result) return;
+                    
+                    const { ok, data, status } = result;
+                    
+                    if (ok) {
+                        // Success case
+                        if (data.success) {
+                            if (data.data && data.data.submission_id) {
+                                localStorage.setItem('jito_submission_id', data.data.submission_id);
+                                localStorage.setItem('jito_current_step', data.data.step);
+                            }
+                            showMessage('Guarantor details saved successfully!', 'success');
+                            // Use the redirect URL from the server response
+                            if (data.data && data.data.redirect_url) {
+                                setTimeout(() => {
+                                    window.location.href = data.data.redirect_url;
+                                }, 1500);
+                            }
+                        } else {
+                            // Handle unexpected success response format
+                            showMessage(data.message || 'Operation completed successfully!', 'success');
                         }
                     } else {
-                        // Display validation errors if any
+                        // Error case (including validation errors)
                         if (data.errors) {
-                            let errorMessages = 'Please correct the following errors:\n\n';
+                            // Display individual field errors as separate toast messages
+                            let firstErrorField = null;
                             for (const field in data.errors) {
-                                errorMessages += `${field}:\n`;
                                 data.errors[field].forEach(error => {
-                                    errorMessages += `  - ${error}\n`;
+                                    showMessage(`${getFieldLabel(field)}: ${error}`, 'error');
                                 });
-                                errorMessages += '\n';
+                                
+                                // Highlight the field with error
+                                const fieldElement = document.getElementById(field);
+                                if (fieldElement) {
+                                    fieldElement.classList.remove('border-gray-300');
+                                    fieldElement.classList.add('field-error');
+                                    
+                                    // Keep track of the first error field for scrolling
+                                    if (!firstErrorField) {
+                                        firstErrorField = fieldElement;
+                                    }
+                                }
                             }
-                            showMessage(errorMessages, 'error');
+                            
+                            // Scroll to the first error field
+                            if (firstErrorField) {
+                                firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                firstErrorField.focus();
+                            }
                         } else {
-                            showMessage(data.message || 'Error saving details', 'error');
+                            // Handle other types of errors
+                            showMessage(data.message || `Error: ${status}`, 'error');
                         }
                     }
                 })
                 .catch(error => {
+                    // Handle network errors or other exceptions
                     console.error('Error:', error);
-                    // Check if it's a network error or a server error
-                    if (error.name === 'TypeError' && error.message.includes('fetch')) {
-                        showMessage('Network error. Please check your connection and try again.', 'error');
-                    } else if (error.message.includes('HTTP error')) {
-                        showMessage('Server error. Please try again later.', 'error');
-                    } else if (error.message.includes('JSON')) {
-                        showMessage('Invalid response from server. Please try again.', 'error');
-                    } else {
+                    if (error !== 'redirected' && error !== 'reload') {
                         showMessage('An error occurred. Please try again.', 'error');
                     }
                 })
@@ -394,6 +486,46 @@
                     loadingText.classList.add('hidden');
                 });
             });
+
+            // Function to clear error highlights
+            function clearErrorHighlights() {
+                const errorFields = form.querySelectorAll('.field-error');
+                errorFields.forEach(field => {
+                    field.classList.remove('field-error');
+                    field.classList.add('border-gray-300');
+                });
+            }
+
+            // Function to get field label for better error messages
+            function getFieldLabel(fieldName) {
+                const labelMap = {
+                    'first_guarantor_name': 'First Guarantor Name',
+                    'first_guarantor_mobile': 'First Guarantor Mobile',
+                    'first_guarantor_relation': 'First Guarantor Relation',
+                    'first_guarantor_dob': 'First Guarantor DOB',
+                    'first_guarantor_gender': 'First Guarantor Gender',
+                    'first_guarantor_permanent_address': 'First Guarantor Address',
+                    'first_guarantor_phone': 'First Guarantor Phone',
+                    'first_guarantor_pan': 'First Guarantor PAN',
+                    'first_guarantor_income': 'First Guarantor Income',
+                    'first_guarantor_email': 'First Guarantor Email',
+                    'first_guarantor_aadhar': 'First Guarantor Aadhar',
+                    'first_guarantor_business_name': 'First Guarantor Business',
+                    'second_guarantor_name': 'Second Guarantor Name',
+                    'second_guarantor_mobile': 'Second Guarantor Mobile',
+                    'second_guarantor_relation': 'Second Guarantor Relation',
+                    'second_guarantor_dob': 'Second Guarantor DOB',
+                    'second_guarantor_gender': 'Second Guarantor Gender',
+                    'second_guarantor_permanent_address': 'Second Guarantor Address',
+                    'second_guarantor_phone': 'Second Guarantor Phone',
+                    'second_guarantor_pan': 'Second Guarantor PAN',
+                    'second_guarantor_income': 'Second Guarantor Income',
+                    'second_guarantor_email': 'Second Guarantor Email',
+                    'second_guarantor_aadhar': 'Second Guarantor Aadhar',
+                    'second_guarantor_business_name': 'Second Guarantor Business'
+                };
+                return labelMap[fieldName] || fieldName;
+            }
 
             function showMessage(message, type) {
                 const messageDiv = document.createElement('div');
@@ -416,7 +548,7 @@
                     if (messageDiv.parentNode) {
                         messageDiv.remove();
                     }
-                }, 5000);
+                }, 10000); // Increased timeout to 10 seconds for better visibility
             }
 
             // Navigation tab handlers
