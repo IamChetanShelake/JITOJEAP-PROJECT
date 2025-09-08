@@ -168,7 +168,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 mb-6">
                         <div>
                             <label for="amount_requested_years" class="block mb-1 text-sm">Amount Requested for Years *</label>
-                            <select id="amount_requested_years" name="amount_requested_years" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required>
+                            <select id="amount_requested_years" name="amount_requested_years" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm @error('amount_requested_years') border-red-500 @enderror" required>
                                 <option value="">Select Years</option>
                                 <option value="1" {{ old('amount_requested_years', $existingData->amount_requested_years ?? '') == '1' ? 'selected' : '' }}>1 Year</option>
                                 <option value="2" {{ old('amount_requested_years', $existingData->amount_requested_years ?? '') == '2' ? 'selected' : '' }}>2 Years</option>
@@ -176,10 +176,16 @@
                                 <option value="4" {{ old('amount_requested_years', $existingData->amount_requested_years ?? '') == '4' ? 'selected' : '' }}>4 Years</option>
                                 <option value="5" {{ old('amount_requested_years', $existingData->amount_requested_years ?? '') == '5' ? 'selected' : '' }}>5 Years</option>
                             </select>
+                            @error('amount_requested_years')
+                                <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div>
                             <label for="tuition_fees_amount" class="block mb-1 text-sm">Amount Tuition Fees in Indian Rupees *</label>
-                            <input id="tuition_fees_amount" name="tuition_fees_amount" type="number" step="0.01" value="{{ old('tuition_fees_amount', $existingData->tuition_fees_amount ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required placeholder="e.g. 50000" />
+                            <input id="tuition_fees_amount" name="tuition_fees_amount" type="number" step="0.01" value="{{ old('tuition_fees_amount', $existingData->tuition_fees_amount ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm @error('tuition_fees_amount') border-red-500 @enderror" required placeholder="e.g. 50000" />
+                            @error('tuition_fees_amount')
+                                <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                            @enderror
                         </div>
                     </div>
 
@@ -215,24 +221,47 @@
                                         @foreach($existingData->funding_details_table as $index => $funding)
                                             <tr class="funding-row" style="background-color: {{ ($index % 2 == 0) ? '#FFF7D3' : '#FFC4C4' }};">
                                                 <td class="border border-white px-2 py-1 text-center row-number">{{ $index + 1 }}</td>
-                                                <td class="border border-white px-1 py-1">
-                                                    <input type="text" name="funding_details_table[{{ $index }}][particulars]" value="{{ old('funding_details_table.'.$index.'.particulars', $funding['particulars'] ?? '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. Own family funding" />
-                                                </td>
-                                                <td class="border border-white px-1 py-1">
-                                                    <input type="text" name="funding_details_table[{{ $index }}][status]" value="{{ old('funding_details_table.'.$index.'.status', $funding['status'] ?? '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. Approved" />
-                                                </td>
-                                                <td class="border border-white px-1 py-1">
-                                                    <input type="text" name="funding_details_table[{{ $index }}][trust_institute_name]" value="{{ old('funding_details_table.'.$index.'.trust_institute_name', $funding['trust_institute_name'] ?? '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. Family Trust" />
-                                                </td>
-                                                <td class="border border-white px-1 py-1">
-                                                    <input type="text" name="funding_details_table[{{ $index }}][contact_person_name]" value="{{ old('funding_details_table.'.$index.'.contact_person_name', $funding['contact_person_name'] ?? '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. Rajesh Kumar" />
-                                                </td>
-                                                <td class="border border-white px-1 py-1">
-                                                    <input type="text" name="funding_details_table[{{ $index }}][contact_number]" value="{{ old('funding_details_table.'.$index.'.contact_number', $funding['contact_number'] ?? '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. 9876543210" />
-                                                </td>
-                                                <td class="border border-white px-1 py-1">
-                                                    <input type="number" name="funding_details_table[{{ $index }}][amount]" value="{{ old('funding_details_table.'.$index.'.amount', $funding['amount'] ?? '') }}" step="0.01" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. 50000" />
-                                                </td>
+                                                @if($index == 6)
+                                                    {{-- Total row (7th row) - Special handling --}}
+                                                    <td class="border border-white px-1 py-1">
+                                                        <input type="text" name="funding_details_table[{{ $index }}][particulars]" value="{{ old('funding_details_table.'.$index.'.particulars', $funding['particulars'] ?? 'Total') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent font-semibold" readonly />
+                                                    </td>
+                                                    <td class="border border-white px-1 py-1">
+                                                        <input type="text" name="funding_details_table[{{ $index }}][status]" value="{{ old('funding_details_table.'.$index.'.status', $funding['status'] ?? '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" readonly />
+                                                    </td>
+                                                    <td class="border border-white px-1 py-1">
+                                                        <input type="text" name="funding_details_table[{{ $index }}][trust_institute_name]" value="{{ old('funding_details_table.'.$index.'.trust_institute_name', $funding['trust_institute_name'] ?? '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" readonly />
+                                                    </td>
+                                                    <td class="border border-white px-1 py-1">
+                                                        <input type="text" name="funding_details_table[{{ $index }}][contact_person_name]" value="{{ old('funding_details_table.'.$index.'.contact_person_name', $funding['contact_person_name'] ?? '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" readonly />
+                                                    </td>
+                                                    <td class="border border-white px-1 py-1">
+                                                        <input type="text" name="funding_details_table[{{ $index }}][contact_number]" value="{{ old('funding_details_table.'.$index.'.contact_number', $funding['contact_number'] ?? '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" readonly />
+                                                    </td>
+                                                    <td class="border border-white px-1 py-1">
+                                                        <input type="number" name="funding_details_table[{{ $index }}][amount]" value="{{ old('funding_details_table.'.$index.'.amount', $funding['amount'] ?? '') }}" step="0.01" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent total-amount font-semibold" />
+                                                    </td>
+                                                @else
+                                                    {{-- Regular rows (1-6) --}}
+                                                    <td class="border border-white px-1 py-1">
+                                                        <input type="text" name="funding_details_table[{{ $index }}][particulars]" value="{{ old('funding_details_table.'.$index.'.particulars', $funding['particulars'] ?? '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. Own family funding" />
+                                                    </td>
+                                                    <td class="border border-white px-1 py-1">
+                                                        <input type="text" name="funding_details_table[{{ $index }}][status]" value="{{ old('funding_details_table.'.$index.'.status', $funding['status'] ?? '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. Approved" />
+                                                    </td>
+                                                    <td class="border border-white px-1 py-1">
+                                                        <input type="text" name="funding_details_table[{{ $index }}][trust_institute_name]" value="{{ old('funding_details_table.'.$index.'.trust_institute_name', $funding['trust_institute_name'] ?? '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. Family Trust" />
+                                                    </td>
+                                                    <td class="border border-white px-1 py-1">
+                                                        <input type="text" name="funding_details_table[{{ $index }}][contact_person_name]" value="{{ old('funding_details_table.'.$index.'.contact_person_name', $funding['contact_person_name'] ?? '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. Rajesh Kumar" />
+                                                    </td>
+                                                    <td class="border border-white px-1 py-1">
+                                                        <input type="text" name="funding_details_table[{{ $index }}][contact_number]" value="{{ old('funding_details_table.'.$index.'.contact_number', $funding['contact_number'] ?? '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. 9876543210" />
+                                                    </td>
+                                                    <td class="border border-white px-1 py-1">
+                                                        <input type="number" name="funding_details_table[{{ $index }}][amount]" value="{{ old('funding_details_table.'.$index.'.amount', $funding['amount'] ?? '') }}" step="0.01" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. 50000" />
+                                                    </td>
+                                                @endif
                                             </tr>
                                         @endforeach
                                     @else
@@ -240,7 +269,7 @@
                                         <tr class="funding-row" style="background-color: #FFF7D3;">
                                             <td class="border border-white px-2 py-1 text-center row-number">1</td>
                                             <td class="border border-white px-1 py-1">
-                                                <input type="text" name="funding_details_table[0][particulars]" value="{{ old('funding_details_table.0.particulars', 'Own family funding (Father + Mother)') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. Own family funding" />
+                                                <input type="text" name="funding_details_table[0][particulars]" value="{{ old('funding_details_table.0.particulars', 'Own family funding (Father + Mother)') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. Own family funding" readonly />
                                             </td>
                                             <td class="border border-white px-1 py-1">
                                                 <input type="text" name="funding_details_table[0][status]" value="{{ old('funding_details_table.0.status', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. Approved" />
@@ -261,7 +290,7 @@
                                         <tr class="funding-row" style="background-color: #FFC4C4;">
                                             <td class="border border-white px-2 py-1 text-center row-number">2</td>
                                             <td class="border border-white px-1 py-1">
-                                                <input type="text" name="funding_details_table[1][particulars]" value="{{ old('funding_details_table.1.particulars', 'Bank Loan') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. Bank Loan" />
+                                                <input type="text" name="funding_details_table[1][particulars]" value="{{ old('funding_details_table.1.particulars', 'Bank Loan') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. Bank Loan" readonly/>
                                             </td>
                                             <td class="border border-white px-1 py-1">
                                                 <input type="text" name="funding_details_table[1][status]" value="{{ old('funding_details_table.1.status', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. Pending" />
@@ -282,7 +311,7 @@
                                         <tr class="funding-row" style="background-color: #FFF7D3;">
                                             <td class="border border-white px-2 py-1 text-center row-number">3</td>
                                             <td class="border border-white px-1 py-1">
-                                                <input type="text" name="funding_details_table[2][particulars]" value="{{ old('funding_details_table.2.particulars', 'Other Assistance(1)') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. Scholarship" />
+                                                <input type="text" name="funding_details_table[2][particulars]" value="{{ old('funding_details_table.2.particulars', 'Other Assistance(1)') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. Scholarship" readonly/>
                                             </td>
                                             <td class="border border-white px-1 py-1">
                                                 <input type="text" name="funding_details_table[2][status]" value="{{ old('funding_details_table.2.status', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. Applied" />
@@ -303,7 +332,7 @@
                                         <tr class="funding-row" style="background-color: #FFC4C4;">
                                             <td class="border border-white px-2 py-1 text-center row-number">4</td>
                                             <td class="border border-white px-1 py-1">
-                                                <input type="text" name="funding_details_table[3][particulars]" value="{{ old('funding_details_table.3.particulars', 'Other Assistance(2)') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. Government Grant" />
+                                                <input type="text" name="funding_details_table[3][particulars]" value="{{ old('funding_details_table.3.particulars', 'Other Assistance(2)') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. Government Grant" readonly/>
                                             </td>
                                             <td class="border border-white px-1 py-1">
                                                 <input type="text" name="funding_details_table[3][status]" value="{{ old('funding_details_table.3.status', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. Approved" />
@@ -324,7 +353,7 @@
                                         <tr class="funding-row" style="background-color: #FFF7D3;">
                                             <td class="border border-white px-2 py-1 text-center row-number">5</td>
                                             <td class="border border-white px-1 py-1">
-                                                <input type="text" name="funding_details_table[4][particulars]" value="{{ old('funding_details_table.4.particulars', 'Other Assistance(3)') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. Private Scholarship" />
+                                                <input type="text" name="funding_details_table[4][particulars]" value="{{ old('funding_details_table.4.particulars', 'Other Assistance(3)') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. Private Scholarship" readonly/>
                                             </td>
                                             <td class="border border-white px-1 py-1">
                                                 <input type="text" name="funding_details_table[4][status]" value="{{ old('funding_details_table.4.status', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. Pending" />
@@ -345,7 +374,7 @@
                                         <tr class="funding-row" style="background-color: #FFC4C4;">
                                             <td class="border border-white px-2 py-1 text-center row-number">6</td>
                                             <td class="border border-white px-1 py-1">
-                                                <input type="text" name="funding_details_table[5][particulars]" value="{{ old('funding_details_table.5.particulars', 'Local Assistance') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. Local Assistance" />
+                                                <input type="text" name="funding_details_table[5][particulars]" value="{{ old('funding_details_table.5.particulars', 'Local Assistance') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. Local Assistance" readonly/>
                                             </td>
                                             <td class="border border-white px-1 py-1">
                                                 <input type="text" name="funding_details_table[5][status]" value="{{ old('funding_details_table.5.status', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" required placeholder="e.g. Approved" />
@@ -366,22 +395,22 @@
                                         <tr class="funding-row" style="background-color: #FFF7D3;">
                                             <td class="border border-white px-2 py-1 text-center row-number">7</td>
                                             <td class="border border-white px-1 py-1">
-                                                <input type="text" name="funding_details_table[6][particulars]" value="{{ old('funding_details_table.6.particulars', 'Total') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" readonly placeholder="Total" />
+                                                <input type="text" name="funding_details_table[6][particulars]" value="{{ old('funding_details_table.6.particulars', 'Total') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent font-semibold" readonly />
                                             </td>
                                             <td class="border border-white px-1 py-1">
-                                                <input type="text" name="funding_details_table[6][status]" value="{{ old('funding_details_table.6.status', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" placeholder="e.g. Calculated" />
+                                                <input type="text" name="funding_details_table[6][status]" value="{{ old('funding_details_table.6.status', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" readonly />
                                             </td>
                                             <td class="border border-white px-1 py-1">
-                                                <input type="text" name="funding_details_table[6][trust_institute_name]" value="{{ old('funding_details_table.6.trust_institute_name', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" placeholder="e.g. Total" />
+                                                <input type="text" name="funding_details_table[6][trust_institute_name]" value="{{ old('funding_details_table.6.trust_institute_name', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" readonly />
                                             </td>
                                             <td class="border border-white px-1 py-1">
-                                                <input type="text" name="funding_details_table[6][contact_person_name]" value="{{ old('funding_details_table.6.contact_person_name', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" placeholder="e.g. System" />
+                                                <input type="text" name="funding_details_table[6][contact_person_name]" value="{{ old('funding_details_table.6.contact_person_name', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" readonly />
                                             </td>
                                             <td class="border border-white px-1 py-1">
-                                                <input type="text" name="funding_details_table[6][contact_number]" value="{{ old('funding_details_table.6.contact_number', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" placeholder="e.g. 0000000000" />
+                                                <input type="text" name="funding_details_table[6][contact_number]" value="{{ old('funding_details_table.6.contact_number', '') }}" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent" readonly />
                                             </td>
                                             <td class="border border-white px-1 py-1">
-                                                <input type="number" name="funding_details_table[6][amount]" value="{{ old('funding_details_table.6.amount', '') }}" step="0.01" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent total-amount" readonly placeholder="0.00" />
+                                                <input type="number" name="funding_details_table[6][amount]" value="{{ old('funding_details_table.6.amount', '') }}" step="0.01" class="w-full border-0 px-1 py-1 text-xs focus:outline-none bg-transparent total-amount font-semibold" />
                                             </td>
                                         </tr>
                                     @endif
@@ -390,20 +419,52 @@
                         </div>
                     </div>
 
+                    <!-- Display funding table validation errors -->
+                    @if($errors->has('funding_details_table*'))
+                        <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded">
+                            <div class="text-red-700 text-sm font-medium mb-2">
+                                <i class="fas fa-exclamation-triangle mr-1"></i>
+                                Funding Details Table Errors:
+                            </div>
+                            <ul class="text-red-600 text-xs list-disc pl-5 space-y-1">
+                                @foreach($errors->all() as $error)
+                                    @if(str_contains($error, 'funding_details_table') ||
+                                        str_contains($error, 'Particulars') ||
+                                        str_contains($error, 'Status') ||
+                                        str_contains($error, 'Trust/Institute') ||
+                                        str_contains($error, 'Contact person') ||
+                                        str_contains($error, 'Contact number') ||
+                                        str_contains($error, 'Amount field'))
+                                        <li>{{ $error }}</li>
+                                    @endif
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
                     <!-- Previous Financial Assistance -->
                     <div class="mb-6">
                         <div class="mb-4 grid grid-cols-1 md:grid-cols-3 gap-4 ">
                             <div class="col-lg-4">
                                 <label for="family_received_assistance" class="block mb-1 text-sm">Have your Brother/Sister received Financial assistance from JITO JEAP/JATF/SEED or JITO Chapter? *</label>
-                                <input id="family_received_assistance" name="family_received_assistance" type="text" value="{{ old('family_received_assistance', $existingData->family_received_assistance ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required placeholder="e.g. Yes/No" />
+                                <input id="family_received_assistance" name="family_received_assistance" type="text" value="{{ old('family_received_assistance', $existingData->family_received_assistance ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm @error('family_received_assistance') border-red-500 @enderror" required placeholder="e.g. Yes/No" />
+                                @error('family_received_assistance')
+                                    <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                                @enderror
                             </div>
-                            <div class="col-lg-4">
+                            <div class="col-lg-4 mt-10">
                                 <label for="ngo_name" class="block mb-1 text-sm">NGO Name *</label>
-                                <input id="ngo_name" name="ngo_name" type="text" value="{{ old('ngo_name', $existingData->ngo_name ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required placeholder="e.g. JITO JEAP" />
+                                <input id="ngo_name" name="ngo_name" type="text" value="{{ old('ngo_name', $existingData->ngo_name ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm @error('ngo_name') border-red-500 @enderror" required placeholder="e.g. JITO JEAP" />
+                                @error('ngo_name')
+                                    <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                                @enderror
                             </div>
-                            <div class="col-lg-4">
+                            <div class="col-lg-4 mt-10">
                                 <label for="loan_status" class="block mb-1 text-sm">Loan Status *</label>
-                                <input id="loan_status" name="loan_status" type="text" value="{{ old('loan_status', $existingData->loan_status ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required placeholder="e.g. Pending/Approved" />
+                                <input id="loan_status" name="loan_status" type="text" value="{{ old('loan_status', $existingData->loan_status ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm @error('loan_status') border-red-500 @enderror" required placeholder="e.g. Pending/Approved" />
+                                @error('loan_status')
+                                    <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
 
@@ -411,11 +472,17 @@
 
                             <div>
                                 <label for="applied_year" class="block mb-1 text-sm">Applied for Year *</label>
-                                <input id="applied_year" name="applied_year" type="text" value="{{ old('applied_year', $existingData->applied_year ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required placeholder="e.g. 2023" />
+                                <input id="applied_year" name="applied_year" type="text" value="{{ old('applied_year', $existingData->applied_year ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm @error('applied_year') border-red-500 @enderror" required placeholder="e.g. 2023" />
+                                @error('applied_year')
+                                    <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                                @enderror
                             </div>
                             <div>
                                 <label for="applied_amount" class="block mb-1 text-sm">Applied Amount *</label>
-                                <input id="applied_amount" name="applied_amount" type="number" step="0.01" value="{{ old('applied_amount', $existingData->applied_amount ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required placeholder="e.g. 100000" />
+                                <input id="applied_amount" name="applied_amount" type="number" step="0.01" value="{{ old('applied_amount', $existingData->applied_amount ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm @error('applied_amount') border-red-500 @enderror" required placeholder="e.g. 100000" />
+                                @error('applied_amount')
+                                    <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                     </div>
@@ -429,27 +496,46 @@
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-4 mb-6">
                             <div>
                                 <label for="student_name" class="block mb-1 text-sm">Student Name *</label>
-                                <input id="student_name" name="student_name" type="text" value="{{ old('student_name', $existingData->student_name ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required placeholder="e.g. Rajesh Kumar" />
+                                <input id="student_name" name="student_name" type="text" value="{{ old('student_name', $existingData->student_name ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm @error('student_name') border-red-500 @enderror" required placeholder="e.g. Rajesh Kumar" />
+                                @error('student_name')
+                                    <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                                @enderror
                             </div>
                             <div>
                                 <label for="student_account_number" class="block mb-1 text-sm">Student Account Number *</label>
-                                <input id="student_account_number" name="student_account_number" type="text" value="{{ old('student_account_number', $existingData->student_account_number ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required placeholder="e.g. 123456789012" />
+                                <input id="student_account_number" name="student_account_number" type="text" value="{{ old('student_account_number', $existingData->student_account_number ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm @error('student_account_number') border-red-500 @enderror" required placeholder="e.g. 123456789012" />
+                                @error('student_account_number')
+                                    <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                                @enderror
                             </div>
                             <div>
                                 <label for="ifsc_code" class="block mb-1 text-sm">IFSC Code *</label>
-                                <input id="ifsc_code" name="ifsc_code" type="text" value="{{ old('ifsc_code', $existingData->ifsc_code ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required placeholder="e.g. HDFC0001234" />
+                                <input id="ifsc_code" name="ifsc_code" type="text" maxlength="11" value="{{ old('ifsc_code', $existingData->ifsc_code ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm @error('ifsc_code') border-red-500 @enderror" required placeholder="e.g. HDFC0001234" />
+                                <div class="text-xs text-gray-500 mt-1">Maximum 11 characters</div>
+                                @error('ifsc_code')
+                                    <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                                @enderror
                             </div>
                             <div>
                                 <label for="bank_name" class="block mb-1 text-sm">Bank Name *</label>
-                                <input id="bank_name" name="bank_name" type="text" value="{{ old('bank_name', $existingData->bank_name ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required placeholder="e.g. HDFC Bank" />
+                                <input id="bank_name" name="bank_name" type="text" value="{{ old('bank_name', $existingData->bank_name ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm @error('bank_name') border-red-500 @enderror" required placeholder="e.g. HDFC Bank" />
+                                @error('bank_name')
+                                    <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                                @enderror
                             </div>
                             <div>
                                 <label for="branch_name" class="block mb-1 text-sm">Branch Name *</label>
-                                <input id="branch_name" name="branch_name" type="text" value="{{ old('branch_name', $existingData->branch_name ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required placeholder="e.g. Mumbai Central" />
+                                <input id="branch_name" name="branch_name" type="text" value="{{ old('branch_name', $existingData->branch_name ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm @error('branch_name') border-red-500 @enderror" required placeholder="e.g. Mumbai Central" />
+                                @error('branch_name')
+                                    <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                                @enderror
                             </div>
                             <div>
                                 <label for="bank_address" class="block mb-1 text-sm">Bank Address *</label>
-                                <textarea id="bank_address" name="bank_address" rows="3" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required placeholder="e.g. 123 Main Street, Mumbai, Maharashtra 400001">{{ old('bank_address', $existingData->bank_address ?? '') }}</textarea>
+                                <textarea id="bank_address" name="bank_address" rows="3" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm @error('bank_address') border-red-500 @enderror" required placeholder="e.g. 123 Main Street, Mumbai, Maharashtra 400001">{{ old('bank_address', $existingData->bank_address ?? '') }}</textarea>
+                                @error('bank_address')
+                                    <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                     </div>
@@ -768,6 +854,39 @@
             const personalDetailsTab = document.getElementById('personal-details-tab');
             const familyDetailsTab = document.getElementById('family-details-tab');
             const educationDetailsTab = document.getElementById('education-details-tab');
+
+            // Automatic total calculation functionality
+            function calculateTotal() {
+                const amountInputs = document.querySelectorAll('input[name*="funding_details_table"][name*="[amount]"]');
+                const totalAmountInput = document.querySelector('input[name="funding_details_table[6][amount]"]');
+
+                if (!totalAmountInput) return;
+
+                let total = 0;
+
+                // Sum all amount inputs except the total row (index 6)
+                amountInputs.forEach(input => {
+                    if (!input.name.includes('[6][amount]')) {
+                        const value = parseFloat(input.value) || 0;
+                        total += value;
+                    }
+                });
+
+                // Update the total amount field
+                totalAmountInput.value = total.toFixed(2);
+            }
+
+            // Add event listeners to all amount input fields
+            const amountInputs = document.querySelectorAll('input[name*="funding_details_table"][name*="[amount]"]');
+            amountInputs.forEach(input => {
+                if (!input.name.includes('[6][amount]')) { // Exclude the total field itself
+                    input.addEventListener('input', calculateTotal);
+                    input.addEventListener('change', calculateTotal);
+                }
+            });
+
+            // Calculate initial total on page load
+            calculateTotal();
 
             if (personalDetailsTab) {
                 personalDetailsTab.addEventListener('click', function(e) {

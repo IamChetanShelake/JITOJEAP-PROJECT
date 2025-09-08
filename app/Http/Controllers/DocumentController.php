@@ -75,7 +75,7 @@ class DocumentController extends Controller
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-            
+
             return redirect()->route('financial-assistance')
                 ->with('error', 'An error occurred. Please try again.');
         }
@@ -109,10 +109,15 @@ class DocumentController extends Controller
                 'other_documents'
             ];
 
-            // Validate that all required documents are uploaded
+            // Get existing documents to check if they already exist
+            $existingDocuments = Document::bySubmissionId($submissionId)->get();
+            $existingDocumentTypes = $existingDocuments->pluck('document_type')->toArray();
+
+            // Validate that all required documents are uploaded (only if they don't already exist)
             $errors = [];
             foreach ($requiredDocumentTypes as $docType) {
-                if (!$request->hasFile($docType)) {
+                // Only require new upload if document doesn't already exist
+                if (!in_array($docType, $existingDocumentTypes) && !$request->hasFile($docType)) {
                     $errors[$docType] = ["The {$docType} document is required."];
                 }
             }
@@ -128,7 +133,7 @@ class DocumentController extends Controller
             foreach (array_merge($requiredDocumentTypes, ['additional_documents']) as $docType) {
                 if ($request->hasFile($docType)) {
                     $file = $request->file($docType);
-                    
+
                     // Validate file
                     $validator = Validator::make([$docType => $file], [
                         $docType => 'file|mimes:jpeg,png,jpg,pdf|max:2048' // 2MB max
@@ -147,7 +152,7 @@ class DocumentController extends Controller
 
                     // Store file
                     $filePath = $file->store('documents/' . $submissionId, 'public');
-                    
+
                     // Save document record
                     Document::updateOrCreate(
                         [
@@ -175,7 +180,7 @@ class DocumentController extends Controller
             ]);
 
             // Redirect to the final submit page with success message
-            return redirect()->route('final-submission', ['submission_id' => $submissionId])
+            return redirect()->route('final-submission.index', ['submission_id' => $submissionId])
                 ->with('success', 'Documents saved successfully!');
 
         } catch (\Exception $e) {
@@ -239,7 +244,7 @@ class DocumentController extends Controller
                 if (Storage::disk('public')->exists($document->file_path)) {
                     Storage::disk('public')->delete($document->file_path);
                 }
-                
+
                 // Delete database record
                 $document->delete();
             }

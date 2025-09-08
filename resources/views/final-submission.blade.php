@@ -9,16 +9,23 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <style>
-        body { font-family: "Inter", sans-serif; }
+        body { 
+            font-family: "Inter", sans-serif; 
+        }
         .project-primary { color: #556EE6; }
         .project-success { color: #009846; }
         .project-warning { color: #FBBA00; }
         .bg-project-primary { background-color: #556EE6; }
         .bg-project-success { background-color: #009846; }
         .bg-project-warning { background-color: #FBBA00; }
+        .bg-blue-600 { background-color: #007DFC; }
         .hover\:bg-project-primary:hover { background-color: #4c63d2; }
         .hover\:bg-project-success:hover { background-color: #008139; }
         .hover\:bg-project-warning:hover { background-color: #e6a800; }
+        .hover\:bg-blue-600:hover { background-color: #007DFC; }
+        .hover\:bg-blue-700:hover { background-color: #007DFC; }
+        .border-gray-300 { border-color: rgba(196, 196, 196, 0.55); }
+        .shadow-box { box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25); }
     </style>
 </head>
 <body class="bg-white text-gray-900">
@@ -109,17 +116,7 @@
 
     @if(isset($submissionId))
     <!-- Session Info -->
-    <section class="max-w-[1200px] mx-auto px-6 mb-4">
-        <div class="bg-blue-50 border border-blue-200 rounded-md p-3 text-sm">
-            <div class="flex items-center justify-between">
-                <span class="text-blue-800">
-                    <i class="fas fa-info-circle mr-2"></i>
-                    Session ID: <strong>{{ substr($submissionId, 0, 8) }}...</strong>
-                </span>
-                <span class="text-blue-600 font-semibold">Step 7/7 - Final Submission</span>
-            </div>
-        </div>
-    </section>
+   
     @endif
 
     <main class="max-w-[1200px] mx-auto px-6 py-8">
@@ -158,73 +155,75 @@
 
             <!-- Final Submission Confirmation Section -->
             <section class="max-w-[1200px] mx-auto px-6 mb-8">
-                <div class="bg-green-50 border border-green-200 rounded-md p-6 mb-6">
-                    <div class="text-center">
-                        <i class="fas fa-check-circle text-green-500 text-5xl mb-4"></i>
-                        <h2 class="text-2xl font-bold text-green-700 mb-2">Application Submitted Successfully!</h2>
-                        <p class="text-gray-700 mb-4">Your application has been successfully submitted. You can view the details below.</p>
-                        <div class="bg-white border border-green-300 rounded-md p-4 inline-block">
-                            <p class="text-sm text-gray-600">Application ID</p>
-                            <p class="text-lg font-bold text-green-700">{{ $application->submission_id ?? 'N/A' }}</p>
-                        </div>
-                    </div>
-                </div>
+               
 
-                <!-- Application Summary -->
+                <!-- Declaration Form -->
                 <div class="border border-gray-300 rounded-md mb-6">
                     <div class="bg-blue-900 text-white text-sm font-bold px-4 py-2 rounded-t-md">
-                        Application Summary
+                        Declaration
                     </div>
-                    <div class="p-4">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <p class="text-sm text-gray-600">Applicant Name</p>
-                                <p class="font-semibold">{{ $application->fullName ?? 'N/A' }}</p>
+                    <div class="p-6">
+                        <div class="mb-4">
+                            <p class="text-gray-700 mb-4">
+                                I hereby declare that the details in this form are true and correct to the best of my knowledge.
+                            </p>
+                            <p class="text-gray-700 mb-4">
+                                I hereby give my consent to my son / daughter / ward for going to for further studies.
+                            </p>
+                            <p class="text-gray-700 mb-4">
+                                If my Financial Assistance Application is approved, I agree to abide by the terms and conditions of the JITO-JEAP –Domestic/Foreign EducationFinancial Assistance Application
+                            </p>
+                            <p class="text-gray-700 mb-4">
+                                In case of any change in the above information, I will inform the Institution immediately in writing within three days.
+                            </p>
+                            <p class="text-gray-700 mb-4">
+                                I also undertake to keep the office bearers/Trustees informed of my correct address and that of my Parents/Guarantors and recommenders from time to time.
+                            </p>
+                            <p class="text-gray-700 mb-4">
+                                I will send my second stage documents duly completed.
+                            </p>
+                            <p class="text-gray-700 mb-4">
+                                I hereby declare that amount of Financial Assistance will be utilized for education purpose only
+                            </p>
+                            <p class="text-gray-700 mb-4">
+                                I /we agree that JEAP may reject our Financial Assistance application without giving any reasons thereof and that JEAP shall not be held responsible/liable in any manner whatsoever to us for rejection or any delay in notifying us of such rejection including any costs, losses, damages, or expenses or consequences caused by such rejection of financial assistance application
+                            </p>
+                            <p class="text-gray-700 mb-4">
+                                I have read all FAQs mentioned on website and accepting the same.
+                            </p>
+                        </div>
+
+                        <div class="flex items-start mb-4">
+                            <div class="flex items-center h-5">
+                                <input id="declaration-checkbox-1" name="declaration_checkbox_1" type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2" required>
                             </div>
-                            <div>
-                                <p class="text-sm text-gray-600">Application Date</p>
-                                <p class="font-semibold">{{ $application->created_at->format('d M Y') ?? 'N/A' }}</p>
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-600">Financial Assistance Type</p>
-                                <p class="font-semibold">{{ $application->financial_asst_type ?? 'N/A' }}</p>
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-600">Financial Assistance For</p>
-                                <p class="font-semibold">{{ $application->financial_asst_for ?? 'N/A' }}</p>
+                            <div class="ml-3 text-sm">
+                                <label for="declaration-checkbox-1" class="font-medium text-gray-700">
+                                    I have read all the instructions properly and agree to submit the required documents as per the policy and timelines.
+                                </label>
                             </div>
                         </div>
-                    </div>
-                </div>
 
-                <!-- Documents Uploaded -->
-                <div class="border border-gray-300 rounded-md mb-6">
-                    <div class="bg-gray-700 text-white text-sm font-bold px-4 py-2 rounded-t-md">
-                        Documents Uploaded
-                    </div>
-                    <div class="p-4">
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                            @if(isset($documents) && $documents->count() > 0)
-                                @foreach($documents as $document)
-                                    <div class="border border-gray-200 rounded p-2">
-                                        <p class="text-sm font-medium">{{ ucfirst(str_replace('_', ' ', $document->document_type)) }}</p>
-                                        <p class="text-xs text-gray-500">{{ $document->uploaded_at ? $document->uploaded_at->format('d M Y') : 'N/A' }}</p>
-                                    </div>
-                                @endforeach
-                            @else
-                                <p class="text-gray-500">No documents uploaded</p>
-                            @endif
+                        <div class="flex items-start mb-6">
+                            <div class="flex items-center h-5">
+                                <input id="declaration-checkbox-2" name="declaration_checkbox_2" type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2" required>
+                            </div>
+                            <div class="ml-3 text-sm">
+                                <label for="declaration-checkbox-2" class="font-medium text-gray-700">
+                                    Preview Financial Assistance Application
+                                </label>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Action Buttons -->
                 <div class="flex justify-center gap-4 mt-8">
-                    <button type="button" onclick="window.print()" class="bg-gray-300 hover:bg-gray-400 text-gray-900 font-semibold text-sm px-6 py-2 rounded focus:outline-none focus:ring-2 focus:ring-gray-600 transition-colors">
-                        <i class="fas fa-print mr-2"></i> Print Application
+                    <button type="button" onclick="window.location.href='{{ route('preview-submission', ['submission_id' => $submissionId ?? '']) }}'" class="bg-gray-300 hover:bg-gray-400 text-gray-900 font-semibold text-sm px-6 py-2 rounded focus:outline-none focus:ring-2 focus:ring-gray-600 transition-colors">
+                        <i class="fas fa-eye mr-2"></i> Preview Application
                     </button>
-                    <button id="submit-btn" type="submit" class="bg-project-primary hover:bg-project-primary text-white font-semibold text-sm px-6 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-600 transition-colors">
-                        <span id="submit-text">Confirm Submission</span>
+                    <button id="submit-btn" type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm px-6 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-600 transition-colors">
+                        <span id="submit-text">Submit 7/7</span>
                         <span id="loading-text" class="hidden">Processing...</span>
                     </button>
                 </div>
@@ -243,6 +242,16 @@
 
             // Form submission
             form.addEventListener('submit', function(e) {
+                // Check if declaration checkboxes are checked
+                const checkbox1 = document.getElementById('declaration-checkbox-1');
+                const checkbox2 = document.getElementById('declaration-checkbox-2');
+                
+                if (!checkbox1.checked || !checkbox2.checked) {
+                    e.preventDefault();
+                    showMessage('Please check both declaration checkboxes to proceed.', 'error');
+                    return;
+                }
+
                 e.preventDefault();
                 submitBtn.disabled = true;
                 submitText.classList.add('hidden');

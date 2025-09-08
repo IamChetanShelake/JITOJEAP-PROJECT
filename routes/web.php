@@ -43,7 +43,8 @@ Route::get('/documents', [DocumentController::class, 'index'])->name('documents'
 Route::post('/documents', [DocumentController::class, 'store'])->name('documents.store');
 Route::get('/documents/{submissionId}/edit', [DocumentController::class, 'edit'])->name('documents.edit');
 Route::delete('/documents/{submissionId}', [DocumentController::class, 'destroy'])->name('documents.destroy');
-Route::get('/final-submission', [FinalSubmissionController::class, 'index'])->name('final-submission');
+Route::get('/final-submission', [FinalSubmissionController::class, 'index'])->name('final-submission.index');
+Route::get('/preview-submission', [FinalSubmissionController::class, 'preview'])->name('preview-submission');
 Route::post('/final-submission', [FinalSubmissionController::class, 'store'])->name('final-submission.store');
 Route::get('/financial-assistance/{id}/edit', [FinancialAssistanceController::class, 'edit'])->name('financial-assistance.edit');
 Route::get('/financial-assistance/{id}/print', [FinancialAssistanceController::class, 'print'])->name('financial-assistance.print');

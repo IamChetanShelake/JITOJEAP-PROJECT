@@ -192,7 +192,7 @@
                         <!-- Date Of Birth -->
                         <div>
                             <label for="first_guarantor_dob" class="block mb-1 text-sm text-gray-700">Date Of Birth</label>
-                            <input id="first_guarantor_dob" name="first_guarantor_dob" type="date" value="{{ old('first_guarantor_dob', $existingData->first_guarantor_dob ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required />
+                            <input id="first_guarantor_dob" name="first_guarantor_dob" type="date" value="{{ old('first_guarantor_dob', $existingData && $existingData->first_guarantor_dob ? $existingData->first_guarantor_dob->format('Y-m-d') : '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required />
                         </div>
 
                         <!-- Gender -->
@@ -277,7 +277,7 @@
                         <!-- Date Of Birth -->
                         <div>
                             <label for="second_guarantor_dob" class="block mb-1 text-sm text-gray-700">Date Of Birth</label>
-                            <input id="second_guarantor_dob" name="second_guarantor_dob" type="date" value="{{ old('second_guarantor_dob', $existingData->second_guarantor_dob ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required />
+                            <input id="second_guarantor_dob" name="second_guarantor_dob" type="date" value="{{ old('second_guarantor_dob', $existingData && $existingData->second_guarantor_dob ? $existingData->second_guarantor_dob->format('Y-m-d') : '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required />
                         </div>
 
                         <!-- Gender -->
@@ -376,7 +376,7 @@
                 clearErrorHighlights();
 
                 const formData = new FormData(form);
-                
+
                 fetch(form.action, {
                     method: 'POST',
                     body: formData,
@@ -392,10 +392,10 @@
                         window.location.href = response.url;
                         return Promise.reject('redirected'); // Use reject to skip further processing
                     }
-                    
+
                     // Check if the response is JSON
                     const contentType = response.headers.get('content-type');
-                    
+
                     if (contentType && contentType.includes('application/json')) {
                         return response.json().then(data => {
                             // If response is not ok, but we have JSON data, pass it along
@@ -418,9 +418,9 @@
                 .then(result => {
                     // Skip processing if we've already handled redirect or reload
                     if (!result) return;
-                    
+
                     const { ok, data, status } = result;
-                    
+
                     if (ok) {
                         // Success case
                         if (data.success) {
@@ -448,20 +448,20 @@
                                 data.errors[field].forEach(error => {
                                     showMessage(`${getFieldLabel(field)}: ${error}`, 'error');
                                 });
-                                
+
                                 // Highlight the field with error
                                 const fieldElement = document.getElementById(field);
                                 if (fieldElement) {
                                     fieldElement.classList.remove('border-gray-300');
                                     fieldElement.classList.add('field-error');
-                                    
+
                                     // Keep track of the first error field for scrolling
                                     if (!firstErrorField) {
                                         firstErrorField = fieldElement;
                                     }
                                 }
                             }
-                            
+
                             // Scroll to the first error field
                             if (firstErrorField) {
                                 firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });

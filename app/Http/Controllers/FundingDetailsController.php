@@ -125,20 +125,63 @@ class FundingDetailsController extends Controller
                 }
             }
 
-            // Validate funding details - Making all fields required
+            // Validate funding details - Making fields required except for Total row (index 6)
             $validator = Validator::make($request->all(), [
                 // Amount and Funding Information
                 'amount_requested_years' => 'required|string|max:255',
                 'tuition_fees_amount' => 'required|numeric|min:0',
 
-                // Funding Details Table (dynamic table)
+                // Funding Details Table (dynamic table) - excluding Total row validation
                 'funding_details_table' => 'required|array',
-                'funding_details_table.*.particulars' => 'required|string|max:255',
-                'funding_details_table.*.status' => 'required|string|max:255',
-                'funding_details_table.*.trust_institute_name' => 'required|string|max:255',
-                'funding_details_table.*.contact_person_name' => 'required|string|max:255',
-                'funding_details_table.*.contact_number' => 'required|string|max:20',
-                'funding_details_table.*.amount' => 'required|numeric|min:0',
+                'funding_details_table.0.particulars' => 'nullable|string|max:255',
+                'funding_details_table.0.status' => 'required|string|max:255',
+                'funding_details_table.0.trust_institute_name' => 'required|string|max:255',
+                'funding_details_table.0.contact_person_name' => 'required|string|max:255',
+                'funding_details_table.0.contact_number' => 'required|string|max:20',
+                'funding_details_table.0.amount' => 'required|numeric|min:0',
+
+                'funding_details_table.1.particulars' => 'nullable|string|max:255',
+                'funding_details_table.1.status' => 'required|string|max:255',
+                'funding_details_table.1.trust_institute_name' => 'required|string|max:255',
+                'funding_details_table.1.contact_person_name' => 'required|string|max:255',
+                'funding_details_table.1.contact_number' => 'required|string|max:20',
+                'funding_details_table.1.amount' => 'required|numeric|min:0',
+
+                'funding_details_table.2.particulars' => 'nullable|string|max:255',
+                'funding_details_table.2.status' => 'required|string|max:255',
+                'funding_details_table.2.trust_institute_name' => 'required|string|max:255',
+                'funding_details_table.2.contact_person_name' => 'required|string|max:255',
+                'funding_details_table.2.contact_number' => 'required|string|max:20',
+                'funding_details_table.2.amount' => 'required|numeric|min:0',
+
+                'funding_details_table.3.particulars' => 'nullable|string|max:255',
+                'funding_details_table.3.status' => 'required|string|max:255',
+                'funding_details_table.3.trust_institute_name' => 'required|string|max:255',
+                'funding_details_table.3.contact_person_name' => 'required|string|max:255',
+                'funding_details_table.3.contact_number' => 'required|string|max:20',
+                'funding_details_table.3.amount' => 'required|numeric|min:0',
+
+                'funding_details_table.4.particulars' => 'nullable|string|max:255',
+                'funding_details_table.4.status' => 'required|string|max:255',
+                'funding_details_table.4.trust_institute_name' => 'required|string|max:255',
+                'funding_details_table.4.contact_person_name' => 'required|string|max:255',
+                'funding_details_table.4.contact_number' => 'required|string|max:20',
+                'funding_details_table.4.amount' => 'required|numeric|min:0',
+
+                'funding_details_table.5.particulars' => 'nullable|string|max:255',
+                'funding_details_table.5.status' => 'required|string|max:255',
+                'funding_details_table.5.trust_institute_name' => 'required|string|max:255',
+                'funding_details_table.5.contact_person_name' => 'required|string|max:255',
+                'funding_details_table.5.contact_number' => 'required|string|max:20',
+                'funding_details_table.5.amount' => 'required|numeric|min:0',
+
+                // Total row (index 6) - Make fields optional/nullable since they're readonly
+                'funding_details_table.6.particulars' => 'nullable|string|max:255',
+                'funding_details_table.6.status' => 'nullable|string|max:255',
+                'funding_details_table.6.trust_institute_name' => 'nullable|string|max:255',
+                'funding_details_table.6.contact_person_name' => 'nullable|string|max:255',
+                'funding_details_table.6.contact_number' => 'nullable|string|max:20',
+                'funding_details_table.6.amount' => 'nullable|numeric|min:0',
 
                 // Previous Financial Assistance
                 'family_received_assistance' => 'required|string|max:255',
@@ -160,12 +203,50 @@ class FundingDetailsController extends Controller
                 'tuition_fees_amount.required' => 'Tuition fees amount is required.',
                 'tuition_fees_amount.numeric' => 'Tuition fees amount must be a number.',
                 'funding_details_table.required' => 'Funding details table is required.',
-                'funding_details_table.*.particulars.required' => 'Particulars field is required.',
-                'funding_details_table.*.status.required' => 'Status field is required.',
-                'funding_details_table.*.trust_institute_name.required' => 'Trust/Institute name field is required.',
-                'funding_details_table.*.contact_person_name.required' => 'Contact person name field is required.',
-                'funding_details_table.*.contact_number.required' => 'Contact number field is required.',
-                'funding_details_table.*.amount.required' => 'Amount field is required.',
+
+                // Row 1 (Own family funding)
+                'funding_details_table.0.status.required' => 'Status field is required for row 1.',
+                'funding_details_table.0.trust_institute_name.required' => 'Trust/Institute name field is required for row 1.',
+                'funding_details_table.0.contact_person_name.required' => 'Contact person name field is required for row 1.',
+                'funding_details_table.0.contact_number.required' => 'Contact number field is required for row 1.',
+                'funding_details_table.0.amount.required' => 'Amount field is required for row 1.',
+
+                // Row 2 (Bank Loan)
+                'funding_details_table.1.status.required' => 'Status field is required for row 2.',
+                'funding_details_table.1.trust_institute_name.required' => 'Trust/Institute name field is required for row 2.',
+                'funding_details_table.1.contact_person_name.required' => 'Contact person name field is required for row 2.',
+                'funding_details_table.1.contact_number.required' => 'Contact number field is required for row 2.',
+                'funding_details_table.1.amount.required' => 'Amount field is required for row 2.',
+
+                // Row 3 (Other Assistance 1)
+                'funding_details_table.2.status.required' => 'Status field is required for row 3.',
+                'funding_details_table.2.trust_institute_name.required' => 'Trust/Institute name field is required for row 3.',
+                'funding_details_table.2.contact_person_name.required' => 'Contact person name field is required for row 3.',
+                'funding_details_table.2.contact_number.required' => 'Contact number field is required for row 3.',
+                'funding_details_table.2.amount.required' => 'Amount field is required for row 3.',
+
+                // Row 4 (Other Assistance 2)
+                'funding_details_table.3.status.required' => 'Status field is required for row 4.',
+                'funding_details_table.3.trust_institute_name.required' => 'Trust/Institute name field is required for row 4.',
+                'funding_details_table.3.contact_person_name.required' => 'Contact person name field is required for row 4.',
+                'funding_details_table.3.contact_number.required' => 'Contact number field is required for row 4.',
+                'funding_details_table.3.amount.required' => 'Amount field is required for row 4.',
+
+                // Row 5 (Other Assistance 3)
+                'funding_details_table.4.status.required' => 'Status field is required for row 5.',
+                'funding_details_table.4.trust_institute_name.required' => 'Trust/Institute name field is required for row 5.',
+                'funding_details_table.4.contact_person_name.required' => 'Contact person name field is required for row 5.',
+                'funding_details_table.4.contact_number.required' => 'Contact number field is required for row 5.',
+                'funding_details_table.4.amount.required' => 'Amount field is required for row 5.',
+
+                // Row 6 (Local Assistance)
+                'funding_details_table.5.status.required' => 'Status field is required for row 6.',
+                'funding_details_table.5.trust_institute_name.required' => 'Trust/Institute name field is required for row 6.',
+                'funding_details_table.5.contact_person_name.required' => 'Contact person name field is required for row 6.',
+                'funding_details_table.5.contact_number.required' => 'Contact number field is required for row 6.',
+                'funding_details_table.5.amount.required' => 'Amount field is required for row 6.',
+
+                // Other fields
                 'family_received_assistance.required' => 'Family received assistance field is required.',
                 'ngo_name.required' => 'NGO name is required.',
                 'loan_status.required' => 'Loan status is required.',

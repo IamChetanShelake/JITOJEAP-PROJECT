@@ -11,6 +11,7 @@ use App\Models\Document;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 class FinalSubmissionController extends Controller
 {
@@ -92,6 +93,48 @@ class FinalSubmissionController extends Controller
     }
 
     /**
+     * Display the preview page with all details
+     */
+    public function preview(Request $request)
+    {
+        try {
+            // Get submission ID from session or request
+            $submissionId = $request->get('submission_id') ?? Session::get('submission_id');
+
+            if (!$submissionId) {
+                return redirect()->route('financial-assistance')
+                    ->with('error', 'Please complete previous steps first.');
+            }
+
+            // Get all related data with proper relationships
+            $application = FinancialAssistance::bySubmissionId($submissionId)->first();
+            $familyDetails = FamilyDetails::bySubmissionId($submissionId)->first();
+            $educationDetails = EducationDetails::bySubmissionId($submissionId)->first();
+            $fundingDetails = FundingDetails::bySubmissionId($submissionId)->first();
+            $guarantorDetails = GuarantorDetails::bySubmissionId($submissionId)->first();
+            $documents = Document::bySubmissionId($submissionId)->get();
+
+            return view('preview-submission', [
+                'application' => $application,
+                'familyDetails' => $familyDetails,
+                'educationDetails' => $educationDetails,
+                'fundingDetails' => $fundingDetails,
+                'guarantorDetails' => $guarantorDetails,
+                'documents' => $documents,
+                'submissionId' => $submissionId
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error loading preview page', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return redirect()->back()
+                ->with('error', 'An error occurred while loading the preview. Please try again.');
+        }
+    }
+
+    /**
      * Process the final submission
      */
     public function store(Request $request)
@@ -99,6 +142,24 @@ class FinalSubmissionController extends Controller
         try {
             // Get submission ID from session or request
             $submissionId = $request->get('submission_id') ?? Session::get('submission_id');
+
+            // Validate declaration checkboxes
+            $validator = Validator::make($request->all(), [
+                'declaration_checkbox_1' => 'required|accepted',
+                'declaration_checkbox_2' => 'required|accepted',
+            ], [
+                'declaration_checkbox_1.required' => 'Please agree to the first declaration.',
+                'declaration_checkbox_1.accepted' => 'Please agree to the first declaration.',
+                'declaration_checkbox_2.required' => 'Please agree to the second declaration.',
+                'declaration_checkbox_2.accepted' => 'Please agree to the second declaration.',
+            ]);
+
+            if ($validator->fails()) {
+                return redirect()->back()
+                    ->withErrors($validator)
+                    ->with('error', 'Please check the declaration checkboxes.')
+                    ->withInput();
+            }
 
             if (!$submissionId) {
                 return redirect()->back()

@@ -84,7 +84,7 @@
         *NOTE:- STUDENT HAS TO FILL ALL THE DETAILS IN 7 PAGES AND IN SUBMIT SECTION PLEASE CLICK
     </section>
 
-    @if(isset($submissionId))
+    {{-- @if(isset($submissionId))
     <!-- Session Info -->
     <section class="max-w-[1200px] mx-auto px-6 mb-4">
         <div class="bg-blue-50 border border-blue-200 rounded-md p-3 text-sm">
@@ -97,9 +97,49 @@
             </div>
         </div>
     </section>
-    @endif
+    @endif --}}
 
     <main class="max-w-[1200px] mx-auto px-6 py-8">
+        <!-- Display validation errors -->
+        @if ($errors->any())
+            <div class="bg-red-50 border border-red-200 rounded-md p-4 mb-6">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-exclamation-triangle text-red-400"></i>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-red-800">Please correct the following errors:</h3>
+                        <div class="mt-2 text-sm text-red-700">
+                            <ul class="list-disc pl-5 space-y-1">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        <!-- Display success/error messages -->
+        @if(session('success'))
+            <div class="bg-green-50 border border-green-200 rounded-md p-4 mb-6 text-sm text-green-700">
+                <div class="flex items-center">
+                    <i class="fas fa-check-circle mr-2"></i>
+                    {{ session('success') }}
+                </div>
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="bg-red-50 border border-red-200 rounded-md p-4 mb-6 text-sm text-red-700">
+                <div class="flex items-center">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    {{ session('error') }}
+                </div>
+            </div>
+        @endif
+
         <form method="POST" action="{{ route('documents.store') }}" id="documents-form" enctype="multipart/form-data">
             @csrf
             @if(isset($submissionId))
@@ -139,6 +179,37 @@
                     <strong>NOTE:</strong> Please download and upload the required documents. Only JPG, JPEG, PNG, and PDF files are allowed. Maximum file size is 2MB.
                 </div>
 
+                {{-- @if(isset($existingDocuments) && $existingDocuments->count() > 0)
+                    <div class="bg-blue-50 border border-blue-200 rounded-md p-4 mb-6">
+                        <h3 class="text-sm font-semibold text-blue-800 mb-3">
+                            <i class="fas fa-file-alt mr-2"></i>
+                            Uploaded Documents Summary ({{ $existingDocuments->count() }} of 4 possible)
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            @foreach($existingDocuments as $doc)
+                                <div class="bg-white border border-blue-200 rounded p-3">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <div class="text-sm font-medium text-gray-800">{{ ucfirst(str_replace('_', ' ', $doc->document_type)) }}</div>
+                                            <div class="text-xs text-gray-500">{{ $doc->uploaded_at ? $doc->uploaded_at->format('d M Y') : 'N/A' }}</div>
+                                        </div>
+                                        <div class="text-green-600">
+                                            <i class="fas fa-check-circle"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @else
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-md p-4 mb-6">
+                        <div class="flex items-center text-yellow-800">
+                            <i class="fas fa-info-circle mr-2"></i>
+                            <span class="text-sm font-medium">No documents uploaded yet. Please upload all required documents below.</span>
+                        </div>
+                    </div>
+                @endif --}}
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Step 1: Load Document List -->
                     <div class="border border-gray-300 rounded-md">
@@ -149,12 +220,12 @@
                             <p class="text-gray-700 mb-4">
                                 *If you want to upload document then click on Step 1 Load document list*
                             </p>
-                            
+
                             <!-- Recommendation Letter Button -->
                             <button type="button" class="document-btn" onclick="downloadPDF('Recommendation-Letter.pdf')">
                                 <i class="fas fa-upload"></i> Recommendation Letter
                             </button>
-                            
+
                             <!-- Jain Sangh Certification Button -->
                             <button type="button" class="document-btn" onclick="downloadPDF('SANGH-CERTIFICATE-FORM.pdf')">
                                 <i class="fas fa-upload"></i> Jain Sangh Certification
@@ -171,28 +242,75 @@
                             <p class="text-gray-700 mb-4">
                                 *The max file size can be 5 MB.** Only files with .PDF, .JPG, .JPEG will be allowed for upload.*Click on the file name to Upload File
                             </p>
-                            
+
                             <!-- File Upload Fields -->
                             <div class="space-y-4">
+                                @php
+                                    $documentTypes = [
+                                        'recommendation_letter' => 'Recommendation Letter',
+                                        'jain_sangh_certification' => 'Jain Sangh Certification',
+                                        'other_documents' => 'Other Required Documents',
+                                        'additional_documents' => 'Additional Documents'
+                                    ];
+                                    $requiredTypes = ['recommendation_letter', 'jain_sangh_certification', 'other_documents'];
+                                @endphp
+
+                                @foreach($documentTypes as $type => $label)
                                 <div>
-                                    <label class="block mb-1 text-sm text-gray-700">Upload Recommendation Letter *</label>
-                                    <input type="file" name="recommendation_letter" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" accept=".jpg,.jpeg,.png,.pdf" required />
+                                    @php
+                                        $existingDoc = isset($existingDocuments) ? $existingDocuments->where('document_type', $type)->first() : null;
+                                        $isRequired = in_array($type, $requiredTypes) && !$existingDoc;
+                                    @endphp
+
+                                    <label class="block mb-1 text-sm text-gray-700">
+                                        Upload {{ $label }}{{ $isRequired ? ' *' : '' }}
+                                        @if($existingDoc)
+                                            <span class="text-green-600 font-semibold">(Already Uploaded)</span>
+                                        @endif
+                                    </label>
+
+                                    @if($existingDoc)
+                                        <!-- Show existing document info -->
+                                        <div class="mb-2 p-3 bg-green-50 border border-green-200 rounded">
+                                            <div class="flex items-center justify-between">
+                                                <div>
+                                                    <div class="text-sm font-medium text-green-800">{{ $label }}</div>
+                                                    <div class="text-xs text-green-600">Uploaded: {{ $existingDoc->uploaded_at ? $existingDoc->uploaded_at->format('d M Y, h:i A') : 'N/A' }}</div>
+                                                </div>
+                                                <div class="flex gap-2">
+                                                    @if($existingDoc->file_path)
+                                                        @php
+                                                            $extension = pathinfo($existingDoc->file_path, PATHINFO_EXTENSION);
+                                                        @endphp
+                                                        @if(in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif']))
+                                                            <button type="button" onclick="viewImage('{{ asset('storage/' . $existingDoc->file_path) }}', '{{ $label }}')" class="text-blue-600 hover:underline text-xs">
+                                                                View Image
+                                                            </button>
+                                                        @else
+                                                            <a href="{{ asset('storage/' . $existingDoc->file_path) }}" target="_blank" class="text-blue-600 hover:underline text-xs">
+                                                                View Document
+                                                            </a>
+                                                        @endif
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Option to replace existing document -->
+                                        <div class="text-xs text-gray-600 mb-1">Choose a new file to replace the existing document:</div>
+                                    @endif
+
+                                    <input type="file"
+                                           name="{{ $type }}"
+                                           class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm"
+                                           accept=".jpg,.jpeg,.png,.pdf"
+                                           {{ $isRequired ? 'required' : '' }} />
+
+                                    @error($type)
+                                        <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                                    @enderror
                                 </div>
-                                
-                                <div>
-                                    <label class="block mb-1 text-sm text-gray-700">Upload Jain Sangh Certification *</label>
-                                    <input type="file" name="jain_sangh_certification" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" accept=".jpg,.jpeg,.png,.pdf" required />
-                                </div>
-                                
-                                <div>
-                                    <label class="block mb-1 text-sm text-gray-700">Upload Other Required Documents *</label>
-                                    <input type="file" name="other_documents" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" accept=".jpg,.jpeg,.png,.pdf" required />
-                                </div>
-                                
-                                <div>
-                                    <label class="block mb-1 text-sm text-gray-700">Upload Additional Documents</label>
-                                    <input type="file" name="additional_documents" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" accept=".jpg,.jpeg,.png,.pdf" />
-                                </div>
+                                @endforeach
                             </div>
                         </div>
                     </div>
@@ -200,7 +318,13 @@
 
                 <div class="flex justify-center mt-8">
                     <button id="submit-btn" type="submit" class="bg-project-primary hover:bg-project-primary text-white font-semibold text-sm px-6 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-600 transition-colors">
-                        <span id="submit-text">Save Documents 6/7</span>
+                        <span id="submit-text">
+                            @if(isset($existingDocuments) && $existingDocuments->count() > 0)
+                                Update Documents 6/7
+                            @else
+                                Save Documents 6/7
+                            @endif
+                        </span>
                         <span id="loading-text" class="hidden">Saving...</span>
                     </button>
                 </div>
@@ -209,6 +333,17 @@
     </main>
 
     <div id="message-container" class="fixed top-4 right-4 z-50"></div>
+
+    <!-- Image Modal -->
+    <div id="imageModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
+        <div class="bg-white p-4 rounded-lg max-w-4xl max-h-[90vh] overflow-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="imageModalTitle" class="text-lg font-semibold">Document Preview</h3>
+                <button onclick="closeImageModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+            </div>
+            <img id="imageModalImg" src="" alt="Document" class="max-w-full h-auto">
+        </div>
+    </div>
     <script>
         // Function to download PDF files
         function downloadPDF(filename) {
@@ -219,6 +354,30 @@
             link.click();
             document.body.removeChild(link);
         }
+
+        // Function to view images in modal
+        function viewImage(imageSrc, title) {
+            const modal = document.getElementById('imageModal');
+            const modalImg = document.getElementById('imageModalImg');
+            const modalTitle = document.getElementById('imageModalTitle');
+
+            modalImg.src = imageSrc;
+            modalTitle.textContent = title;
+            modal.classList.remove('hidden');
+        }
+
+        // Function to close image modal
+        function closeImageModal() {
+            const modal = document.getElementById('imageModal');
+            modal.classList.add('hidden');
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('imageModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeImageModal();
+            }
+        });
 
         document.addEventListener('DOMContentLoaded', function() {
             const form = document.getElementById('documents-form');
@@ -235,7 +394,7 @@
                 loadingText.classList.remove('hidden');
 
                 const formData = new FormData(form);
-                
+
                 fetch(form.action, {
                     method: 'POST',
                     body: formData,
@@ -251,10 +410,10 @@
                         window.location.href = response.url;
                         return;
                     }
-                    
+
                     // Check if the response is JSON
                     const contentType = response.headers.get('content-type');
-                    
+
                     if (contentType && contentType.includes('application/json')) {
                         if (!response.ok) {
                             throw new Error(`HTTP error! status: ${response.status}`);
@@ -268,12 +427,12 @@
                 })
                 .then(data => {
                     if (!data) return; // If redirected, data will be undefined
-                    
+
                     if (data.success) {
                         showMessage('Documents saved successfully!', 'success');
                         // Redirect to final submission page
                         setTimeout(() => {
-                            window.location.href = '{{ route("final-submission", ["submission_id" => $submissionId ?? ""]) }}';
+                            window.location.href = '{{ route("final-submission.index", ["submission_id" => $submissionId ?? ""]) }}';
                         }, 1500);
                     } else {
                         // Display validation errors if any

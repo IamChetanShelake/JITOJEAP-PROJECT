@@ -24,6 +24,8 @@
         .hover\:bg-project-primary:hover { background-color: #4c63d2; }
         .hover\:bg-project-success:hover { background-color: #008139; }
         .hover\:bg-project-warning:hover { background-color: #e6a800; }
+        .border-error { border-color: #ef4444; border-width: 2px; }
+        .field-error { border: 2px solid #ef4444 !important; }
     </style>
 </head>
 <body class="bg-white text-gray-900">
@@ -176,6 +178,7 @@
                            name="name"
                            type="text"
                            value="{{ old('name', $existingData->name ?? '') }}"
+                           placeholder="e.g. John Doe"
                            required/>
                     @error('name')
                         <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
@@ -191,6 +194,7 @@
                            name="applicant"
                            type="text"
                            value="{{ old('applicant', $existingData->applicant ?? '') }}"
+                           placeholder="e.g. Parent/Guardian Name"
                            required/>
                     @error('applicant')
                         <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
@@ -205,6 +209,7 @@
                            name="request_date"
                            type="date"
                            value="{{ old('request_date', $existingData && $existingData->request_date ? $existingData->request_date->format('Y-m-d') : '') }}"
+                           placeholder="Select date"
                            required/>
                     @error('request_date')
                         <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
@@ -237,6 +242,7 @@
                            name="financial_asst_for"
                            type="text"
                            value="{{ old('financial_asst_for', $existingData->financial_asst_for ?? '') }}"
+                           placeholder="e.g. Education/Books"
                            required/>
                     @error('financial_asst_for')
                         <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
@@ -251,7 +257,8 @@
                            name="paid_amount"
                            type="number"
                            step="0.01"
-                           value="{{ old('paid_amount', $existingData->paid_amount ?? '') }}"/>
+                           value="{{ old('paid_amount', $existingData->paid_amount ?? '') }}"
+                           placeholder="e.g. 5000"/>
                     @error('paid_amount')
                         <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
                     @enderror
@@ -264,7 +271,8 @@
                            id="approve_date"
                            name="approve_date"
                            type="date"
-                           value="{{ old('approve_date', $existingData && $existingData->approve_date ? $existingData->approve_date->format('Y-m-d') : '') }}"/>
+                           value="{{ old('approve_date', $existingData && $existingData->approve_date ? $existingData->approve_date->format('Y-m-d') : '') }}"
+                           placeholder="Select date"/>
                     @error('approve_date')
                         <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
                     @enderror
@@ -278,7 +286,8 @@
                            name="outstanding_amount"
                            type="number"
                            step="0.01"
-                           value="{{ old('outstanding_amount', $existingData->outstanding_amount ?? '') }}"/>
+                           value="{{ old('outstanding_amount', $existingData->outstanding_amount ?? '') }}"
+                           placeholder="e.g. 10000"/>
                     @error('outstanding_amount')
                         <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
                     @enderror
@@ -290,6 +299,7 @@
                     <select class="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600 @error('form_status') border-red-500 @enderror"
                             id="form_status"
                             name="form_status">
+                        <option value="">Select Status</option>
                         <option value="draft" {{ old('form_status', $existingData->form_status ?? '') == 'draft' ? 'selected' : '' }}>Draft</option>
                         <option value="submitted" {{ old('form_status', $existingData->form_status ?? '') == 'submitted' ? 'selected' : '' }}>Submitted</option>
                         <option value="under_review" {{ old('form_status', $existingData->form_status ?? '') == 'under_review' ? 'selected' : '' }}>Under Review</option>
@@ -337,6 +347,9 @@
                             </button>
                             <p class="text-gray-500 text-xs mt-2">Only JPEG/JPG format allowed</p>
                             <div id="file-name" class="text-xs text-gray-600 mt-2 hidden"></div>
+                            @error('profile_photo')
+                                <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                            @enderror
                             @if(isset($existingData) && $existingData->profile_photo_path)
                                 <div class="mt-4">
                                     <p class="text-xs text-gray-600 mb-1">Current Photo:</p>
@@ -390,6 +403,7 @@
                            type="text"
                            maxlength="12"
                            value="{{ old('aadhar_number', $existingData->aadhar_number ?? '') }}"
+                           placeholder="e.g. 123456789012"
                            required/>
                     @error('aadhar_number')
                         <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
@@ -404,6 +418,7 @@
                            name="date_of_birth"
                            type="date"
                            value="{{ old('date_of_birth', $existingData && $existingData->date_of_birth ? $existingData->date_of_birth->format('Y-m-d') : '') }}"
+                           placeholder="Select date"
                            required/>
                     @error('date_of_birth')
                         <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
@@ -418,6 +433,7 @@
                            name="birth_place"
                            type="text"
                            value="{{ old('birth_place', $existingData->birth_place ?? '') }}"
+                           placeholder="e.g. Mumbai"
                            required/>
                     @error('birth_place')
                         <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
@@ -432,6 +448,7 @@
                            name="student_first_name"
                            type="text"
                            value="{{ old('student_first_name', $existingData->student_first_name ?? '') }}"
+                           placeholder="e.g. John"
                            required/>
                     @error('student_first_name')
                         <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
@@ -445,7 +462,8 @@
                            id="middle_name"
                            name="middle_name"
                            type="text"
-                           value="{{ old('middle_name', $existingData->middle_name ?? '') }}"/>
+                           value="{{ old('middle_name', $existingData->middle_name ?? '') }}"
+                           placeholder="e.g. Michael"/>
                     @error('middle_name')
                         <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
                     @enderror
@@ -486,18 +504,21 @@
                     <label class="block mb-1" for="native_place">
                         Native Place <span class="text-red-500">*</span>
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 @error('native_place') border-red-500 @enderror"
                            id="native_place"
                            name="native_place"
                            type="text"
                            value="{{ old('native_place', $existingData->native_place ?? '') }}"
                            required/>
+                    @error('native_place')
+                        <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
                 <div>
                     <label class="block mb-1" for="age">
                         Age <span class="text-red-500">*</span>
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 @error('age') border-red-500 @enderror"
                            id="age"
                            name="age"
                            type="number"
@@ -505,12 +526,15 @@
                            max="120"
                            value="{{ old('age', $existingData->age ?? '') }}"
                            required/>
+                    @error('age')
+                        <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
                 <div>
                     <label class="block mb-1" for="gender">
                         Gender <span class="text-red-500">*</span>
                     </label>
-                    <select class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                    <select class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 @error('gender') border-red-500 @enderror"
                             id="gender"
                             name="gender"
                             required>
@@ -519,6 +543,9 @@
                         <option value="female" {{ old('gender', $existingData->gender ?? '') == 'female' ? 'selected' : '' }}>Female</option>
                         <option value="other" {{ old('gender', $existingData->gender ?? '') == 'other' ? 'selected' : '' }}>Other</option>
                     </select>
+                    @error('gender')
+                        <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
                 <div>
                     <label class="block mb-1" for="student_mobile">
@@ -539,29 +566,35 @@
                     <label class="block mb-1" for="religion">
                         Religion <span class="text-red-500">*</span>
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 @error('religion') border-red-500 @enderror"
                            id="religion"
                            name="religion"
                            type="text"
                            value="{{ old('religion', $existingData->religion ?? '') }}"
                            required/>
+                    @error('religion')
+                        <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
                 <div>
                     <label class="block mb-1" for="nationality">
                         Nationality
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 @error('nationality') border-red-500 @enderror"
                            id="nationality"
                            name="nationality"
                            type="text"
                            value="{{ old('nationality', $existingData->nationality ?? 'Indian') }}"
                            readonly/>
+                    @error('nationality')
+                        <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
                 <div>
                     <label class="block mb-1" for="blood_group">
                         Blood Group
                     </label>
-                    <select class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                    <select class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 @error('blood_group') border-red-500 @enderror"
                             id="blood_group"
                             name="blood_group">
                         <option value="">Select Blood Group</option>
@@ -574,29 +607,38 @@
                         <option value="O+" {{ old('blood_group', $existingData->blood_group ?? '') == 'O+' ? 'selected' : '' }}>O+</option>
                         <option value="O-" {{ old('blood_group', $existingData->blood_group ?? '') == 'O-' ? 'selected' : '' }}>O-</option>
                     </select>
+                    @error('blood_group')
+                        <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
                 <div>
                     <label class="block mb-1" for="student_email">
                         Student E-Mail <span class="text-red-500">*</span>
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 @error('student_email') border-red-500 @enderror"
                            id="student_email"
                            name="student_email"
                            type="email"
                            value="{{ old('student_email', $existingData->student_email ?? '') }}"
                            required/>
+                    @error('student_email')
+                        <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
                 <div>
                     <label class="block mb-1" for="specially_abled">
                         Specially Abled <span class="text-red-500">*</span>
                     </label>
-                    <select class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                    <select class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 @error('specially_abled') border-red-500 @enderror"
                             id="specially_abled"
                             name="specially_abled"
                             required>
                         <option value="no" {{ old('specially_abled', $existingData->specially_abled ?? 'no') == 'no' ? 'selected' : '' }}>No</option>
                         <option value="yes" {{ old('specially_abled', $existingData->specially_abled ?? 'no') == 'yes' ? 'selected' : '' }}>Yes</option>
                     </select>
+                    @error('specially_abled')
+                        <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
                 <div>
                     <label class="block mb-1" for="pan_no">
@@ -623,64 +665,88 @@
                     <label class="block mb-1" for="flat_no">
                         Flat No <span class="text-red-500">*</span>
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 @error('flat_no') border-red-500 @enderror"
                            id="flat_no"
                            name="flat_no"
                            type="text"
                            value="{{ old('flat_no', $existingData->flat_no ?? '') }}"
+                           placeholder="e.g. 123"
                            required/>
+                    @error('flat_no')
+                        <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
                 <div>
                     <label class="block mb-1" for="floor">
                         Floor
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 @error('floor') border-red-500 @enderror"
                            id="floor"
                            name="floor"
                            type="text"
-                           value="{{ old('floor', $existingData->floor ?? '') }}"/>
+                           value="{{ old('floor', $existingData->floor ?? '') }}"
+                           placeholder="e.g. 2nd Floor"/>
+                    @error('floor')
+                        <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
                 <div>
                     <label class="block mb-1" for="name_of_building">
                         Name of building <span class="text-red-500">*</span>
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 @error('name_of_building') border-red-500 @enderror"
                            id="name_of_building"
                            name="name_of_building"
                            type="text"
                            value="{{ old('name_of_building', $existingData->name_of_building ?? '') }}"
+                           placeholder="e.g. Apartment Name"
                            required/>
+                    @error('name_of_building')
+                        <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
                 <div>
                     <label class="block mb-1" for="area">
                         Area <span class="text-red-500">*</span>
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 @error('area') border-red-500 @enderror"
                            id="area"
                            name="area"
                            type="text"
                            value="{{ old('area', $existingData->area ?? '') }}"
+                           placeholder="e.g. Area Name"
                            required/>
+                    @error('area')
+                        <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
                 <div>
                     <label class="block mb-1" for="lane">
                         Lane
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 @error('lane') border-red-500 @enderror"
                            id="lane"
                            name="lane"
                            type="text"
-                           value="{{ old('lane', $existingData->lane ?? '') }}"/>
+                           value="{{ old('lane', $existingData->lane ?? '') }}"
+                           placeholder="e.g. Lane Name"/>
+                    @error('lane')
+                        <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
                 <div>
                     <label class="block mb-1" for="landmark">
                         Landmark
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 @error('landmark') border-red-500 @enderror"
                            id="landmark"
                            name="landmark"
                            type="text"
-                           value="{{ old('landmark', $existingData->landmark ?? '') }}"/>
+                           value="{{ old('landmark', $existingData->landmark ?? '') }}"
+                           placeholder="e.g. Near School"/>
+                    @error('landmark')
+                        <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
                 <div>
                     <label class="block mb-1" for="pincode">
@@ -692,6 +758,7 @@
                            type="text"
                            maxlength="6"
                            value="{{ old('pincode', $existingData->pincode ?? '') }}"
+                           placeholder="e.g. 400001"
                            required/>
                     @error('pincode')
                         <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
@@ -701,75 +768,103 @@
                     <label class="block mb-1" for="status">
                         Status <span class="text-red-500">*</span>
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 @error('status') border-red-500 @enderror"
                            id="status"
                            name="status"
                            type="text"
                            value="{{ old('status', $existingData->status ?? '') }}"
+                           placeholder="e.g. Maharashtra"
                            required/>
+                    @error('status')
+                        <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
                 <div>
                     <label class="block mb-1" for="city">
                         City <span class="text-red-500">*</span>
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 @error('city') border-red-500 @enderror"
                            id="city"
                            name="city"
                            type="text"
                            value="{{ old('city', $existingData->city ?? '') }}"
+                           placeholder="e.g. Mumbai"
                            required/>
+                    @error('city')
+                        <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
                 <div>
                     <label class="block mb-1 text-[9px]" for="chapter">
                         Chapter (Please select the nearest chapter according to your residentail mail) <span class="text-red-500">*</span>
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 @error('chapter') border-red-500 @enderror"
                            id="chapter"
                            name="chapter"
                            type="text"
                            value="{{ old('chapter', $existingData->chapter ?? '') }}"
+                           placeholder="e.g. Mumbai Chapter"
                            required/>
+                    @error('chapter')
+                        <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
                 <div>
                     <label class="block mb-1" for="new_zone">
                         New Zone
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 @error('new_zone') border-red-500 @enderror"
                            id="new_zone"
                            name="new_zone"
                            type="text"
-                           value="{{ old('new_zone', $existingData->new_zone ?? '') }}"/>
+                           value="{{ old('new_zone', $existingData->new_zone ?? '') }}"
+                           placeholder="e.g. Zone Name"/>
+                    @error('new_zone')
+                        <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
                 <div>
                     <label class="block mb-1" for="district">
                         District <span class="text-red-500">*</span>
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 @error('district') border-red-500 @enderror"
                            id="district"
                            name="district"
                            type="text"
                            value="{{ old('district', $existingData->district ?? '') }}"
+                           placeholder="e.g. Mumbai District"
                            required/>
+                    @error('district')
+                        <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
                 <div class="md:col-span-3">
                     <label class="block mb-1" for="postal_address">
                         Postal Address <span class="text-red-500">*</span>
                     </label>
-                    <textarea class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                    <textarea class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 @error('postal_address') border-red-500 @enderror"
                               id="postal_address"
                               name="postal_address"
                               rows="2"
+                              placeholder="e.g. Full postal address including all details"
                               required>{{ old('postal_address', $existingData->postal_address ?? '') }}</textarea>
+                    @error('postal_address')
+                        <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
                 <div>
                     <label class="block mb-1" for="alternate_mail_id">
                         Alternate Mail Id
                     </label>
-                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                    <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 @error('alternate_mail_id') border-red-500 @enderror"
                            id="alternate_mail_id"
                            name="alternate_mail_id"
                            type="email"
-                           value="{{ old('alternate_mail_id', $existingData->alternate_mail_id ?? '') }}"/>
+                           value="{{ old('alternate_mail_id', $existingData->alternate_mail_id ?? '') }}"
+                           placeholder="e.g. alternate@example.com"/>
+                    @error('alternate_mail_id')
+                        <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
                 <div>
                     <label class="block mb-1" for="alternate_mobile">
@@ -780,10 +875,8 @@
                            name="alternate_mobile"
                            type="tel"
                            maxlength="10"
-                           value="{{ old('alternate_mobile', $existingData->alternate_mobile ?? '') }}"/>
-                    @error('alternate_mobile')
-                        <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
-                    @enderror
+                           value="{{ old('alternate_mobile', $existingData->alternate_mobile ?? '') }}"
+                           placeholder="e.g. 9876543210"/>
                 </div>
             </div>
         </section>
@@ -793,7 +886,7 @@
             <h3 class="text-sm font-semibold mb-4 text-project-secondary">Correspondence Address</h3>
             <div class="text-xs text-gray-700">
                 <label class="inline-flex items-center mb-3 cursor-pointer">
-                    <input class="form-checkbox border border-gray-300 rounded text-blue-600 focus:ring-0"
+                    <input class="form-checkbox border border-gray-300 rounded text-blue-600 focus:ring-0 @error('same_as_permanent') border-red-500 @enderror"
                            type="checkbox"
                            id="same_as_permanent"
                            name="same_as_permanent"
@@ -803,66 +896,93 @@
                         Same as Permanent Address
                     </span>
                 </label>
+                @error('same_as_permanent')
+                    <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                @enderror
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-4">
                     <div>
                         <label class="block mb-1" for="corr_flat_no">
                             Flat No
                         </label>
-                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 @error('corr_flat_no') border-red-500 @enderror"
                                id="corr_flat_no"
                                name="corr_flat_no"
                                type="text"
-                               value="{{ old('corr_flat_no', $existingData->corr_flat_no ?? '') }}"/>
+                               value="{{ old('corr_flat_no', $existingData->corr_flat_no ?? '') }}"
+                               placeholder="e.g. 123"/>
+                        @error('corr_flat_no')
+                            <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div>
                         <label class="block mb-1" for="corr_floor">
                             Floor
                         </label>
-                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 @error('corr_floor') border-red-500 @enderror"
                                id="corr_floor"
                                name="corr_floor"
                                type="text"
-                               value="{{ old('corr_floor', $existingData->corr_floor ?? '') }}"/>
+                               value="{{ old('corr_floor', $existingData->corr_floor ?? '') }}"
+                               placeholder="e.g. 2nd Floor"/>
+                        @error('corr_floor')
+                            <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div>
                         <label class="block mb-1" for="corr_name_of_building">
                             Name of building
                         </label>
-                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 @error('corr_name_of_building') border-red-500 @enderror"
                                id="corr_name_of_building"
                                name="corr_name_of_building"
                                type="text"
-                               value="{{ old('corr_name_of_building', $existingData->corr_name_of_building ?? '') }}"/>
+                               value="{{ old('corr_name_of_building', $existingData->corr_name_of_building ?? '') }}"
+                               placeholder="e.g. Apartment Name"/>
+                        @error('corr_name_of_building')
+                            <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div>
                         <label class="block mb-1" for="corr_area">
                             Area
                         </label>
-                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 @error('corr_area') border-red-500 @enderror"
                                id="corr_area"
                                name="corr_area"
                                type="text"
-                               value="{{ old('corr_area', $existingData->corr_area ?? '') }}"/>
+                               value="{{ old('corr_area', $existingData->corr_area ?? '') }}"
+                               placeholder="e.g. Area Name"/>
+                        @error('corr_area')
+                            <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div>
                         <label class="block mb-1" for="corr_lane">
                             Lane
                         </label>
-                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 @error('corr_lane') border-red-500 @enderror"
                                id="corr_lane"
                                name="corr_lane"
                                type="text"
-                               value="{{ old('corr_lane', $existingData->corr_lane ?? '') }}"/>
+                               value="{{ old('corr_lane', $existingData->corr_lane ?? '') }}"
+                               placeholder="e.g. Lane Name"/>
+                        @error('corr_lane')
+                            <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div>
                         <label class="block mb-1" for="corr_landmark">
                             Landmark
                         </label>
-                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 @error('corr_landmark') border-red-500 @enderror"
                                id="corr_landmark"
                                name="corr_landmark"
                                type="text"
-                               value="{{ old('corr_landmark', $existingData->corr_landmark ?? '') }}"/>
+                               value="{{ old('corr_landmark', $existingData->corr_landmark ?? '') }}"
+                               placeholder="e.g. Near School"/>
+                        @error('corr_landmark')
+                            <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div>
                         <label class="block mb-1" for="corr_pincode">
@@ -873,90 +993,120 @@
                                name="corr_pincode"
                                type="text"
                                maxlength="6"
-                               value="{{ old('corr_pincode', $existingData->corr_pincode ?? '') }}"/>
-                        @error('corr_pincode')
-                            <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
-                        @enderror
+                               value="{{ old('corr_pincode', $existingData->corr_pincode ?? '') }}"
+                               placeholder="e.g. 400001"/>
                     </div>
                     <div>
                         <label class="block mb-1" for="corr_status">
                             Status
                         </label>
-                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 @error('corr_status') border-red-500 @enderror"
                                id="corr_status"
                                name="corr_status"
                                type="text"
-                               value="{{ old('corr_status', $existingData->corr_status ?? '') }}"/>
+                               value="{{ old('corr_status', $existingData->corr_status ?? '') }}"
+                               placeholder="e.g. Maharashtra"/>
+                        @error('corr_status')
+                            <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div>
                         <label class="block mb-1" for="corr_city">
                             City
                         </label>
-                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 @error('corr_city') border-red-500 @enderror"
                                id="corr_city"
                                name="corr_city"
                                type="text"
-                               value="{{ old('corr_city', $existingData->corr_city ?? '') }}"/>
+                               value="{{ old('corr_city', $existingData->corr_city ?? '') }}"
+                               placeholder="e.g. Mumbai"/>
+                        @error('corr_city')
+                            <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div>
                         <label class="block mb-1 text-[9px]" for="corr_chapter">
                             Chapter (Please select the nearest chapter according to your residentail mail)
                         </label>
-                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 @error('corr_chapter') border-red-500 @enderror"
                                id="corr_chapter"
                                name="corr_chapter"
                                type="text"
-                               value="{{ old('corr_chapter', $existingData->corr_chapter ?? '') }}"/>
+                               value="{{ old('corr_chapter', $existingData->corr_chapter ?? '') }}"
+                               placeholder="e.g. Mumbai Chapter"/>
+                        @error('corr_chapter')
+                            <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div>
                         <label class="block mb-1" for="corr_new_zone">
                             New Zone
                         </label>
-                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 @error('corr_new_zone') border-red-500 @enderror"
                                id="corr_new_zone"
                                name="corr_new_zone"
                                type="text"
-                               value="{{ old('corr_new_zone', $existingData->corr_new_zone ?? '') }}"/>
+                               value="{{ old('corr_new_zone', $existingData->corr_new_zone ?? '') }}"
+                               placeholder="e.g. Zone Name"/>
+                        @error('corr_new_zone')
+                            <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div>
                         <label class="block mb-1" for="corr_district">
                             District
                         </label>
-                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 @error('corr_district') border-red-500 @enderror"
                                id="corr_district"
                                name="corr_district"
                                type="text"
-                               value="{{ old('corr_district', $existingData->corr_district ?? '') }}"/>
+                               value="{{ old('corr_district', $existingData->corr_district ?? '') }}"
+                               placeholder="e.g. Mumbai District"/>
+                        @error('corr_district')
+                            <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div class="md:col-span-3">
                         <label class="block mb-1" for="corr_postal_address">
                             Postal Address
                         </label>
-                        <textarea class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                        <textarea class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 @error('corr_postal_address') border-red-500 @enderror"
                                   id="corr_postal_address"
                                   name="corr_postal_address"
-                                  rows="2">{{ old('corr_postal_address', $existingData->corr_postal_address ?? '') }}</textarea>
+                                  rows="2"
+                                  placeholder="e.g. Full postal address including all details">{{ old('corr_postal_address', $existingData->corr_postal_address ?? '') }}</textarea>
+                        @error('corr_postal_address')
+                            <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div>
                         <label class="block mb-1" for="corr_alternate_mail_id">
                             Alternate Mail Id
                         </label>
-                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 @error('corr_alternate_mail_id') border-red-500 @enderror"
                                id="corr_alternate_mail_id"
                                name="corr_alternate_mail_id"
                                type="email"
-                               value="{{ old('corr_alternate_mail_id', $existingData->corr_alternate_mail_id ?? '') }}"/>
+                               value="{{ old('corr_alternate_mail_id', $existingData->corr_alternate_mail_id ?? '') }}"
+                               placeholder="e.g. alternate@example.com"/>
+                        @error('corr_alternate_mail_id')
+                            <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div>
                         <label class="block mb-1" for="corr_alternate_mobile">
                             Alternate Mobile Number
                         </label>
-                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                        <input class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 @error('corr_alternate_mobile') border-red-500 @enderror"
                                id="corr_alternate_mobile"
                                name="corr_alternate_mobile"
                                type="tel"
                                maxlength="10"
-                               value="{{ old('corr_alternate_mobile', $existingData->corr_alternate_mobile ?? '') }}"/>
+                               value="{{ old('corr_alternate_mobile', $existingData->corr_alternate_mobile ?? '') }}"
+                               placeholder="e.g. 9876543210"/>
+                        @error('corr_alternate_mobile')
+                            <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
                 </div>
             </div>
@@ -1009,6 +1159,22 @@
                 localStorage.removeItem('jito_last_saved');
                 showMessage('Starting a new form...', 'info');
             }
+
+            // Add event listeners to remove error highlighting when user starts typing
+            const inputs = form.querySelectorAll("input, select, textarea");
+            inputs.forEach(input => {
+                input.addEventListener("input", function () {
+                    if (this.classList.contains("border-red-500")) {
+                        this.classList.remove("border-red-500");
+                        this.classList.add("border-gray-300");
+                        // Remove associated error message
+                        const errorDiv = this.parentNode.querySelector(".error-message");
+                        if (errorDiv) {
+                            errorDiv.remove();
+                        }
+                    }
+                });
+            });
 
             function checkExistingSession() {
                 const existingSubmissionId = localStorage.getItem('jito_submission_id');
@@ -1085,6 +1251,70 @@
                     el.classList.remove('border-red-500', 'border-red-400');
                     el.classList.add('border-gray-300');
                 });
+            }
+
+            // Function to get field label for better error messages
+            function getFieldLabel(fieldName) {
+                const labelMap = {
+                    'name': 'Name',
+                    'applicant': 'Applicant',
+                    'request_date': 'Request Date',
+                    'financial_asst_type': 'Financial Assistance Type',
+                    'financial_asst_for': 'Financial Assistance For',
+                    'aadhar_number': 'Aadhar Number',
+                    'date_of_birth': 'Date of Birth',
+                    'birth_place': 'Birth Place',
+                    'student_first_name': 'Student First Name',
+                    'middle_name': 'Middle Name',
+                    'last_name': 'Last Name',
+                    'marital_status': 'Marital Status',
+                    'native_place': 'Native Place',
+                    'age': 'Age',
+                    'nationality': 'Nationality',
+                    'gender': 'Gender',
+                    'religion': 'Religion',
+                    'specially_abled': 'Specially Abled',
+                    'blood_group': 'Blood Group',
+                    'student_email': 'Student Email',
+                    'student_mobile': 'Student Mobile',
+                    'pan_no': 'PAN Number',
+                    'flat_no': 'Flat Number',
+                    'floor': 'Floor',
+                    'name_of_building': 'Name of Building',
+                    'area': 'Area',
+                    'lane': 'Lane',
+                    'landmark': 'Landmark',
+                    'pincode': 'Pincode',
+                    'status': 'Status',
+                    'city': 'City',
+                    'postal_address': 'Postal Address',
+                    'new_zone': 'New Zone',
+                    'district': 'District',
+                    'chapter': 'Chapter',
+                    'alternate_mail_id': 'Alternate Mail Id',
+                    'alternate_mobile': 'Alternate Mobile',
+                    'corr_flat_no': 'Correspondence Flat Number',
+                    'corr_floor': 'Correspondence Floor',
+                    'corr_name_of_building': 'Correspondence Building Name',
+                    'corr_area': 'Correspondence Area',
+                    'corr_lane': 'Correspondence Lane',
+                    'corr_landmark': 'Correspondence Landmark',
+                    'corr_pincode': 'Correspondence Pincode',
+                    'corr_status': 'Correspondence Status',
+                    'corr_city': 'Correspondence City',
+                    'corr_postal_address': 'Correspondence Postal Address',
+                    'corr_new_zone': 'Correspondence New Zone',
+                    'corr_district': 'Correspondence District',
+                    'corr_chapter': 'Correspondence Chapter',
+                    'corr_alternate_mail_id': 'Correspondence Alternate Mail Id',
+                    'corr_alternate_mobile': 'Correspondence Alternate Mobile',
+                    'paid_amount': 'Paid Amount',
+                    'approve_date': 'Approve Date',
+                    'outstanding_amount': 'Outstanding Amount',
+                    'form_status': 'Form Status'
+                };
+
+                return labelMap[fieldName] || fieldName;
             }
 
             // Function to display validation errors
@@ -1249,9 +1479,31 @@
                     } else {
                         // Error case (including validation errors)
                         if (data.errors) {
-                            // Display individual field errors
-                            displayValidationErrors(data.errors);
-                            showMessage('Please correct the errors below and try again.', 'error');
+                            // Display individual field errors as separate toast messages
+                            let firstErrorField = null;
+                            for (const field in data.errors) {
+                                data.errors[field].forEach(error => {
+                                    showMessage(`${getFieldLabel(field)}: ${error}`, 'error');
+                                });
+
+                                // Highlight the field with error
+                                const fieldElement = document.getElementById(field);
+                                if (fieldElement) {
+                                    fieldElement.classList.remove('border-gray-300');
+                                    fieldElement.classList.add('border-red-500');
+
+                                    // Keep track of the first error field for scrolling
+                                    if (!firstErrorField) {
+                                        firstErrorField = fieldElement;
+                                    }
+                                }
+                            }
+
+                            // Scroll to the first error field
+                            if (firstErrorField) {
+                                firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                firstErrorField.focus();
+                            }
                         } else {
                             // Handle other types of errors
                             showMessage(data.message || `Error: ${status}`, 'error');
