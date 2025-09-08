@@ -82,6 +82,13 @@ class FinancialAssistance extends Model
         'corr_chapter',
         'alternate_mail_id',
         'alternate_mobile',
+        
+        // Signature fields
+        'signature_type',
+        'signature_image_path',
+        'signature_drawn_data',
+        'signature_typed_name',
+        'signature_date',
     ];
 
     protected $casts = [
@@ -95,12 +102,14 @@ class FinancialAssistance extends Model
         'paid_amount' => 'decimal:2',
         'outstanding_amount' => 'decimal:2',
         'age' => 'integer',
+        'signature_date' => 'datetime',
     ];
 
     protected $dates = [
         'request_date',
         'date_of_birth',
         'approve_date',
+        'signature_date',
         'created_at',
         'updated_at',
     ];

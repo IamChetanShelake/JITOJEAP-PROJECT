@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <style>
         body { 
@@ -26,6 +27,18 @@
         .hover\:bg-blue-700:hover { background-color: #007DFC; }
         .border-gray-300 { border-color: rgba(196, 196, 196, 0.55); }
         .shadow-box { box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25); }
+        .signature-pad {
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 100%;
+            height: 200px;
+        }
+        .signature-container {
+            display: none;
+        }
+        .signature-container.active {
+            display: block;
+        }
     </style>
 </head>
 <body class="bg-white text-gray-900">
@@ -120,7 +133,7 @@
     @endif
 
     <main class="max-w-[1200px] mx-auto px-6 py-8">
-        <form method="POST" action="{{ route('final-submission.store') }}" id="final-submission-form">
+        <form method="POST" action="{{ route('final-submission.store') }}" id="final-submission-form" enctype="multipart/form-data">
             @csrf
             @if(isset($submissionId))
                 <input type="hidden" name="submission_id" value="{{ $submissionId }}">
@@ -217,6 +230,48 @@
                     </div>
                 </div>
 
+                <!-- Signature Section -->
+                <div class="border border-gray-300 rounded-md mb-6">
+                    <div class="bg-blue-900 text-white text-sm font-bold px-4 py-2 rounded-t-md">
+                        Signature
+                    </div>
+                    <div class="p-6">
+                        <div class="mb-4">
+                            <label for="signature_type" class="block text-sm font-medium text-gray-700 mb-2">Select Signature Method</label>
+                            <select id="signature_type" name="signature_type" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">Select Signature Method</option>
+                                <option value="upload">Upload Signature Image</option>
+                                <option value="draw">Draw Signature</option>
+                                <option value="type">Type Signature Name</option>
+                            </select>
+                        </div>
+
+                        <!-- Upload Signature -->
+                        <div id="upload-signature-container" class="signature-container mb-4">
+                            <label for="signature_image" class="block text-sm font-medium text-gray-700 mb-2">Upload Signature Image</label>
+                            <input type="file" id="signature_image" name="signature_image" accept="image/*" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+
+                        <!-- Draw Signature -->
+                        <div id="draw-signature-container" class="signature-container mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Draw Signature</label>
+                            <canvas id="signature-pad" class="signature-pad border rounded"></canvas>
+                            <input type="hidden" id="signature_drawn_data" name="signature_drawn_data">
+                            <div class="mt-2">
+                                <button type="button" id="clear-signature" class="bg-gray-300 hover:bg-gray-400 text-gray-900 text-sm font-normal px-4 py-2 rounded transition-colors">
+                                    Clear Signature
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Type Signature -->
+                        <div id="type-signature-container" class="signature-container mb-4">
+                            <label for="signature_typed_name" class="block text-sm font-medium text-gray-700 mb-2">Type Signature Name</label>
+                            <input type="text" id="signature_typed_name" name="signature_typed_name" placeholder="Enter your full name as signature" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Action Buttons -->
                 <div class="flex justify-center gap-4 mt-8">
                     <button type="button" onclick="window.location.href='{{ route('preview-submission', ['submission_id' => $submissionId ?? '']) }}'" class="bg-gray-300 hover:bg-gray-400 text-gray-900 font-semibold text-sm px-6 py-2 rounded focus:outline-none focus:ring-2 focus:ring-gray-600 transition-colors">
@@ -234,6 +289,53 @@
     <div id="message-container" class="fixed top-4 right-4 z-50"></div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Signature type selection
+            const signatureTypeSelect = document.getElementById('signature_type');
+            const uploadContainer = document.getElementById('upload-signature-container');
+            const drawContainer = document.getElementById('draw-signature-container');
+            const typeContainer = document.getElementById('type-signature-container');
+            
+            // Signature pad
+            const canvas = document.getElementById('signature-pad');
+            const clearButton = document.getElementById('clear-signature');
+            const signatureDataInput = document.getElementById('signature_drawn_data');
+            
+            // Initialize signature pad if canvas exists
+            let signaturePad = null;
+            if (canvas) {
+                signaturePad = new SignaturePad(canvas);
+                
+                // Clear signature
+                clearButton.addEventListener('click', function() {
+                    signaturePad.clear();
+                    signatureDataInput.value = '';
+                });
+            }
+            
+            // Handle signature type selection
+            signatureTypeSelect.addEventListener('change', function() {
+                // Hide all containers
+                uploadContainer.classList.remove('active');
+                drawContainer.classList.remove('active');
+                typeContainer.classList.remove('active');
+                
+                // Show selected container
+                const selectedType = this.value;
+                if (selectedType === 'upload') {
+                    uploadContainer.classList.add('active');
+                } else if (selectedType === 'draw') {
+                    drawContainer.classList.add('active');
+                    // Resize canvas when container becomes visible
+                    if (canvas) {
+                        canvas.width = canvas.offsetWidth;
+                        canvas.height = canvas.offsetHeight;
+                        signaturePad.clear(); // Clear when resizing
+                    }
+                } else if (selectedType === 'type') {
+                    typeContainer.classList.add('active');
+                }
+            });
+            
             const form = document.getElementById('final-submission-form');
             const submitBtn = document.getElementById('submit-btn');
             const submitText = document.getElementById('submit-text');
@@ -251,6 +353,17 @@
                     showMessage('Please check both declaration checkboxes to proceed.', 'error');
                     return;
                 }
+                
+                // If drawing signature is selected, save the signature data
+                if (signatureTypeSelect.value === 'draw' && signaturePad) {
+                    if (!signaturePad.isEmpty()) {
+                        signatureDataInput.value = signaturePad.toDataURL();
+                    } else {
+                        e.preventDefault();
+                        showMessage('Please draw your signature or select another signature method.', 'error');
+                        return;
+                    }
+                }
 
                 e.preventDefault();
                 submitBtn.disabled = true;
@@ -265,23 +378,13 @@
                     headers: {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                         'X-Requested-With': 'XMLHttpRequest' // This header helps Laravel identify AJAX requests
-                    },
-                    redirect: 'follow' // Follow redirects
+                    }
                 })
                 .then(response => {
-                    // Handle redirects
-                    if (response.redirected) {
-                        window.location.href = response.url;
-                        return;
-                    }
-                    
                     // Check if the response is JSON
                     const contentType = response.headers.get('content-type');
                     
                     if (contentType && contentType.includes('application/json')) {
-                        if (!response.ok) {
-                            throw new Error(`HTTP error! status: ${response.status}`);
-                        }
                         return response.json();
                     } else {
                         // If not JSON, it's likely an HTML redirect or error page
@@ -290,16 +393,30 @@
                     }
                 })
                 .then(data => {
-                    if (!data) return; // If redirected, data will be undefined
-                    
                     if (data.success) {
-                        showMessage('Application submitted successfully!', 'success');
-                        // Redirect to main page
-                        setTimeout(() => {
-                            window.location.href = '{{ route("main") }}';
-                        }, 2000);
+                        showMessage(data.message || 'Application submitted successfully!', 'success');
+                        
+                        // If there's a redirect URL (for PDF download), open it in new tab and redirect to main page
+                        if (data.redirect_url) {
+                            // Open PDF download in new tab
+                            window.open(data.redirect_url, '_blank');
+                            
+                            // Redirect to main page after a short delay
+                            setTimeout(() => {
+                                window.location.href = '{{ route("main") }}';
+                            }, 3000);
+                        } else {
+                            // Fallback redirect to main page
+                            setTimeout(() => {
+                                window.location.href = '{{ route("main") }}';
+                            }, 2000);
+                        }
                     } else {
                         showMessage(data.message || 'Error submitting application', 'error');
+                        // Re-enable the submit button on error
+                        submitBtn.disabled = false;
+                        submitText.classList.remove('hidden');
+                        loadingText.classList.add('hidden');
                     }
                 })
                 .catch(error => {

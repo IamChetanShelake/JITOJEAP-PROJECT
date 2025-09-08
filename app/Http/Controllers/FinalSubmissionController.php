@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 
 class FinalSubmissionController extends Controller
 {
@@ -99,7 +100,7 @@ class FinalSubmissionController extends Controller
     {
         try {
             // Get submission ID from session or request
-            $submissionId = $request->get('submission_id') ?? Session::get('submission_id');
+            $submissionId = $request->get('submission_id') ?? Session::get('submissionId');
 
             if (!$submissionId) {
                 return redirect()->route('financial-assistance')
@@ -140,6 +141,9 @@ class FinalSubmissionController extends Controller
     public function store(Request $request)
     {
         try {
+            // Check if it's an AJAX request
+            $isAjax = $request->ajax() || $request->wantsJson();
+            
             // Get submission ID from session or request
             $submissionId = $request->get('submission_id') ?? Session::get('submission_id');
 
@@ -155,6 +159,12 @@ class FinalSubmissionController extends Controller
             ]);
 
             if ($validator->fails()) {
+                if ($isAjax) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Please check the declaration checkboxes.'
+                    ]);
+                }
                 return redirect()->back()
                     ->withErrors($validator)
                     ->with('error', 'Please check the declaration checkboxes.')
@@ -162,24 +172,60 @@ class FinalSubmissionController extends Controller
             }
 
             if (!$submissionId) {
+                if ($isAjax) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Session expired. Please start from the beginning.'
+                    ]);
+                }
                 return redirect()->back()
                     ->with('error', 'Session expired. Please start from the beginning.')
                     ->withInput();
             }
 
+            // Handle signature if provided
+            $signatureData = [];
+            if ($request->has('signature_type')) {
+                $signatureData['signature_type'] = $request->input('signature_type');
+                $signatureData['signature_date'] = now();
+                
+                switch ($request->input('signature_type')) {
+                    case 'upload':
+                        if ($request->hasFile('signature_image')) {
+                            $signaturePath = $request->file('signature_image')->store('signatures/' . $submissionId, 'public');
+                            $signatureData['signature_image_path'] = $signaturePath;
+                        }
+                        break;
+                    case 'draw':
+                        $signatureData['signature_drawn_data'] = $request->input('signature_drawn_data');
+                        break;
+                    case 'type':
+                        $signatureData['signature_typed_name'] = $request->input('signature_typed_name');
+                        break;
+                }
+            }
+
             // Log the final submission
             Log::info('Final submission processing', [
-                'submission_id' => $submissionId
+                'submission_id' => $submissionId,
+                'signature_type' => $signatureData['signature_type'] ?? 'none'
             ]);
 
-            // Update the application status to submitted
+            // Update the application with signature data and status
             $application = FinancialAssistance::bySubmissionId($submissionId)->first();
             
             if ($application) {
-                $application->update([
+                $updateData = [
                     'form_status' => 'submitted',
                     'current_step' => 7 // Final step
-                ]);
+                ];
+                
+                // Merge signature data if provided
+                if (!empty($signatureData)) {
+                    $updateData = array_merge($updateData, $signatureData);
+                }
+                
+                $application->update($updateData);
             }
 
             // Clear session data
@@ -190,7 +236,22 @@ class FinalSubmissionController extends Controller
                 'application_id' => $application->id ?? null
             ]);
 
-            // Redirect to main page with success message
+            // For AJAX requests, return success response with redirect URL
+            if ($isAjax && $application) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Application submitted successfully!',
+                    'redirect_url' => route('financial-assistance.pdf', ['id' => $application->id])
+                ]);
+            }
+            
+            // For non-AJAX requests, redirect to PDF download if application exists
+            if ($application) {
+                return redirect()->route('financial-assistance.pdf', ['id' => $application->id])
+                    ->with('success', 'Application submitted successfully! Downloading PDF...');
+            }
+
+            // Fallback redirect to main page with success message
             return redirect()->route('main')
                 ->with('success', 'Application submitted successfully!');
 
@@ -200,6 +261,13 @@ class FinalSubmissionController extends Controller
                 'trace' => $e->getTraceAsString(),
                 'submission_id' => $submissionId
             ]);
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'An error occurred while processing your submission. Please try again.'
+                ]);
+            }
 
             return redirect()->back()
                 ->with('error', 'An error occurred while processing your submission. Please try again.')

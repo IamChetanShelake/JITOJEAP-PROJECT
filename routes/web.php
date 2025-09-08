@@ -49,3 +49,38 @@ Route::post('/final-submission', [FinalSubmissionController::class, 'store'])->n
 Route::get('/financial-assistance/{id}/edit', [FinancialAssistanceController::class, 'edit'])->name('financial-assistance.edit');
 Route::get('/financial-assistance/{id}/print', [FinancialAssistanceController::class, 'print'])->name('financial-assistance.print');
 Route::post('/financial-assistance/draft', [FinancialAssistanceController::class, 'saveDraft'])->name('financial-assistance.draft');
+
+// PDF Generation Route
+Route::get('/financial-assistance/{id}/pdf', [App\Http\Controllers\PDFController::class, 'generatePDF'])->name('financial-assistance.pdf');
+
+// Test PDF Route
+Route::get('/test-pdf', function () {
+    try {
+        // Get a sample application (first one in the database)
+        $application = \App\Models\FinancialAssistance::first();
+        
+        if (!$application) {
+            return 'No applications found in the database. Please create an application first.';
+        }
+        
+        // Get related data
+        $familyDetails = \App\Models\FamilyDetails::bySubmissionId($application->submission_id)->first();
+        $educationDetails = \App\Models\EducationDetails::bySubmissionId($application->submission_id)->first();
+        $fundingDetails = \App\Models\FundingDetails::bySubmissionId($application->submission_id)->first();
+        $guarantorDetails = \App\Models\GuarantorDetails::bySubmissionId($application->submission_id)->first();
+        
+        // Prepare data for the PDF view
+        $data = [
+            'application' => $application,
+            'familyDetails' => $familyDetails ?? new \App\Models\FamilyDetails(),
+            'educationDetails' => $educationDetails ?? new \App\Models\EducationDetails(),
+            'fundingDetails' => $fundingDetails ?? new \App\Models\FundingDetails(),
+            'guarantorDetails' => $guarantorDetails ?? new \App\Models\GuarantorDetails(),
+        ];
+        
+        // Return the PDF view directly to preview in browser
+        return view('pdf.application-form', $data);
+    } catch (\Exception $e) {
+        return 'Error: ' . $e->getMessage();
+    }
+})->name('test-pdf');
