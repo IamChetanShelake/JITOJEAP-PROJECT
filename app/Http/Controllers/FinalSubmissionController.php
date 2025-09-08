@@ -101,11 +101,9 @@ class FinalSubmissionController extends Controller
             $submissionId = $request->get('submission_id') ?? Session::get('submission_id');
 
             if (!$submissionId) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Session expired. Please start from the beginning.',
-                    'redirect_url' => route('financial-assistance')
-                ], 400);
+                return redirect()->back()
+                    ->with('error', 'Session expired. Please start from the beginning.')
+                    ->withInput();
             }
 
             // Log the final submission
@@ -132,14 +130,8 @@ class FinalSubmissionController extends Controller
             ]);
 
             // Redirect to main page with success message
-            return response()->json([
-                'success' => true,
-                'message' => 'Application submitted successfully!',
-                'data' => [
-                    'submission_id' => $submissionId,
-                    'redirect_url' => route('main')
-                ]
-            ], 200);
+            return redirect()->route('main')
+                ->with('success', 'Application submitted successfully!');
 
         } catch (\Exception $e) {
             Log::error('Error processing final submission', [
@@ -148,11 +140,9 @@ class FinalSubmissionController extends Controller
                 'submission_id' => $submissionId
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred while processing your submission. Please try again.',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
-            ], 500);
+            return redirect()->back()
+                ->with('error', 'An error occurred while processing your submission. Please try again.')
+                ->withInput();
         }
     }
 }

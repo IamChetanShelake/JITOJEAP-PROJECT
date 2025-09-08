@@ -99,6 +99,18 @@ class FinancialAssistanceController extends Controller
                 $submissionId = FinancialAssistance::generateSubmissionId();
                 Session::put('submission_id', $submissionId);
             }
+            
+            // Handle profile photo upload
+            $profilePhotoPath = null;
+            if ($request->hasFile('profile_photo')) {
+                $profilePhoto = $request->file('profile_photo');
+                // Validate file type
+                if ($profilePhoto->getClientOriginalExtension() === 'jpg' || $profilePhoto->getClientOriginalExtension() === 'jpeg') {
+                    // Store the file in the public/profile_photos directory
+                    $profilePhotoPath = $profilePhoto->store('profile_photos', 'public');
+                }
+            }
+
             // Validation rules as per Figma form requirements
             $validator = Validator::make($request->all(), [
                 // Basic Information
@@ -126,6 +138,7 @@ class FinancialAssistanceController extends Controller
                 'student_email' => 'required|email|max:255',
                 'student_mobile' => 'required|string|regex:/^[0-9]{10}$/',
                 'pan_no' => 'nullable|string|regex:/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/',
+                'profile_photo' => 'nullable|image|mimes:jpeg,jpg|max:2048', // 2MB max
 
                 // Permanent Address
                 'flat_no' => 'required|string|max:50',
@@ -173,11 +186,10 @@ class FinancialAssistanceController extends Controller
                     'request_data' => $request->all()
                 ]);
 
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Validation failed',
-                    'errors' => $validator->errors()
-                ], 422);
+                return redirect()->back()
+                    ->withErrors($validator)
+                    ->with('error', 'Validation failed')
+                    ->withInput();
             }
 
             $validatedData = $validator->validated();
@@ -188,6 +200,11 @@ class FinancialAssistanceController extends Controller
             $validatedData['nationality'] = $validatedData['nationality'] ?? 'Indian';
             $validatedData['form_status'] = $validatedData['form_status'] ?? 'draft';
             $validatedData['specially_abled'] = $validatedData['specially_abled'] ?? 'no';
+            
+            // Add profile photo path if uploaded
+            if ($profilePhotoPath) {
+                $validatedData['profile_photo_path'] = $profilePhotoPath;
+            }
 
             // Convert checkbox value
             $validatedData['same_as_permanent'] = isset($validatedData['same_as_permanent']) ? true : false;
@@ -239,18 +256,8 @@ class FinancialAssistanceController extends Controller
                 'request_date' => $validatedData['request_date']
             ]);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Personal details saved successfully!',
-                'data' => [
-                    'id' => $application->id,
-                    'submission_id' => $submissionId,
-                    'step' => 2,
-                    'next_step' => 'family-details',
-                    'completion_percentage' => 28.6, // 2/7 steps
-                    'redirect_url' => route('family-details', ['submission_id' => $submissionId])
-                ]
-            ], 200);
+            return redirect()->route('family-details', ['submission_id' => $submissionId])
+                ->with('success', 'Personal details saved successfully!');
 
         } catch (\Exception $e) {
             Log::error('Error processing financial assistance application', [
@@ -259,11 +266,9 @@ class FinancialAssistanceController extends Controller
                 'request_data' => $request->all()
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred while processing your application. Please try again.',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
-            ], 500);
+            return redirect()->back()
+                ->with('error', 'An error occurred while processing your application. Please try again.')
+                ->withInput();
         }
     }
 
@@ -326,15 +331,8 @@ class FinancialAssistanceController extends Controller
                 'timestamp' => now()
             ]);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Draft saved successfully!',
-                'data' => [
-                    'id' => $application->id,
-                    'status' => 'draft',
-                    'saved_at' => now()->toISOString()
-                ]
-            ], 200);
+            return redirect()->back()
+                ->with('success', 'Draft saved successfully!');
 
         } catch (\Exception $e) {
             Log::error('Error saving draft', [
@@ -342,10 +340,9 @@ class FinancialAssistanceController extends Controller
                 'request_data' => $request->all()
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Error saving draft. Please try again.'
-            ], 500);
+            return redirect()->back()
+                ->with('error', 'Error saving draft. Please try again.')
+                ->withInput();
         }
     }
 
@@ -356,11 +353,9 @@ class FinancialAssistanceController extends Controller
             $submissionId = $request->get('submission_id') ?? Session::get('submission_id');
 
             if (!$submissionId) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Session expired. Please start from the beginning.',
-                    'redirect_url' => route('financial-assistance')
-                ], 400);
+                return redirect()->back()
+                    ->with('error', 'Session expired. Please start from the beginning.')
+                    ->withInput();
             }
 
             // Validate family details
@@ -409,11 +404,10 @@ class FinancialAssistanceController extends Controller
             ]);
 
             if ($validator->fails()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Please check the form for errors.',
-                    'errors' => $validator->errors()
-                ], 422);
+                return redirect()->back()
+                    ->withErrors($validator)
+                    ->with('error', 'Please check the form for errors.')
+                    ->withInput();
             }
 
             $validatedData = $validator->validated();
@@ -444,17 +438,8 @@ class FinancialAssistanceController extends Controller
                 'family_name' => $validatedData['family_name']
             ]);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Family details saved successfully!',
-                'data' => [
-                    'submission_id' => $submissionId,
-                    'step' => 3,
-                    'next_step' => 'education-details',
-                    'completion_percentage' => 42.9, // 3/7 steps
-                    'redirect_url' => route('education-details', ['submission_id' => $submissionId])
-                ]
-            ], 200);
+            return redirect()->route('education-details', ['submission_id' => $submissionId])
+                ->with('success', 'Family details saved successfully!');
 
         } catch (\Exception $e) {
             Log::error('Error processing family details', [
@@ -463,11 +448,9 @@ class FinancialAssistanceController extends Controller
                 'request_data' => $request->except(['_token'])
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred while processing family details. Please try again.',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
-            ], 500);
+            return redirect()->back()
+                ->with('error', 'An error occurred while processing family details. Please try again.')
+                ->withInput();
         }
     }
 
@@ -478,11 +461,9 @@ class FinancialAssistanceController extends Controller
             $submissionId = $request->get('submission_id') ?? Session::get('submission_id');
 
             if (!$submissionId) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Session expired. Please start from the beginning.',
-                    'redirect_url' => route('financial-assistance')
-                ], 400);
+                return redirect()->back()
+                    ->with('error', 'Session expired. Please start from the beginning.')
+                    ->withInput();
             }
 
             // Validate education details
@@ -529,11 +510,10 @@ class FinancialAssistanceController extends Controller
             ]);
 
             if ($validator->fails()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Please check the form for errors.',
-                    'errors' => $validator->errors()
-                ], 422);
+                return redirect()->back()
+                    ->withErrors($validator)
+                    ->with('error', 'Please check the form for errors.')
+                    ->withInput();
             }
 
             $validatedData = $validator->validated();
@@ -564,17 +544,8 @@ class FinancialAssistanceController extends Controller
                 'course_name_current' => $validatedData['course_name_current'] ?? 'Not specified'
             ]);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Education details saved successfully!',
-                'data' => [
-                    'submission_id' => $submissionId,
-                    'step' => 4,
-                    'next_step' => 'funding-details',
-                    'completion_percentage' => 57.1, // 4/7 steps
-                    'redirect_url' => route('funding-details', ['submission_id' => $submissionId])
-                ]
-            ], 200);
+            return redirect()->route('funding-details', ['submission_id' => $submissionId])
+                ->with('success', 'Education details saved successfully!');
 
         } catch (\Exception $e) {
             Log::error('Error processing education details', [
@@ -583,11 +554,9 @@ class FinancialAssistanceController extends Controller
                 'request_data' => $request->except(['_token'])
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred while processing education details. Please try again.',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
-            ], 500);
+            return redirect()->back()
+                ->with('error', 'An error occurred while processing education details. Please try again.')
+                ->withInput();
         }
     }
 

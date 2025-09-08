@@ -22,10 +22,6 @@ Route::get('/welcome', function () {
     return view('welcome');
 })->name('welcome');
 
-// Demo Form Routes
-Route::get('/demo', [DemoController::class, 'index'])->name('demo');
-Route::post('/demo/submit', [DemoController::class, 'submit'])->name('demo.submit');
-
 // Financial Assistance Routes
 Route::get('/financial-assistance', [FinancialAssistanceController::class, 'index'])->name('financial-assistance');
 Route::get('/family-details', [FinancialAssistanceController::class, 'familyDetails'])->name('family-details');
@@ -53,15 +49,3 @@ Route::get('/financial-assistance/{id}/edit', [FinancialAssistanceController::cl
 Route::get('/financial-assistance/{id}/print', [FinancialAssistanceController::class, 'print'])->name('financial-assistance.print');
 Route::post('/financial-assistance/draft', [FinancialAssistanceController::class, 'saveDraft'])->name('financial-assistance.draft');
 
-// API Routes for Demo Form
-Route::prefix('api')->group(function () {
-    Route::post('/demo/submit', [DemoController::class, 'apiSubmit'])->name('api.demo.submit');
-    Route::post('/resume-session', [FinancialAssistanceController::class, 'resumeSession'])->name('api.resume-session');
-    Route::post('/clear-session', [FinancialAssistanceController::class, 'clearSession'])->name('api.clear-session');
-});
-
-// Test route for debugging
-Route::get('/test-guarantor', function () {
-    return view('test-guarantor');
-});
-Route::post('/test-guarantor', [App\Http\Controllers\TestController::class, 'testGuarantor']);

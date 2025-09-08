@@ -82,9 +82,9 @@
             <button class="bg-gray-300 hover:bg-gray-400 text-gray-900 text-sm font-normal px-4 py-2 rounded transition-colors">
                 Save to Draft
             </button>
-            <button onclick="clearSession()" class="bg-red-500 hover:bg-red-600 text-white text-sm font-normal px-4 py-2 rounded transition-colors">
+            <!-- <button onclick="clearSession()" class="bg-red-500 hover:bg-red-600 text-white text-sm font-normal px-4 py-2 rounded transition-colors">
                 Clear Session
-            </button>
+            </button> -->
         </div>
     </section>
 
@@ -95,7 +95,7 @@
 
     @if(isset($submissionId))
     <!-- Session Info -->
-    <section class="max-w-[1200px] mx-auto px-6 mb-4">
+    <!-- <section class="max-w-[1200px] mx-auto px-6 mb-4">
         <div class="bg-blue-50 border border-blue-200 rounded-md p-3 text-sm">
             <div class="flex items-center justify-between">
                 <span class="text-blue-800">
@@ -107,7 +107,7 @@
                 </span>
             </div>
         </div>
-    </section>
+    </section> -->
     @endif
 
     <!-- Main Form Section -->
@@ -244,6 +244,36 @@
                 <li>FORM ONCE SUBMITTED WILL NOT BE EDITABLE; HENCE ENTER INFORMATION CORRECTLY.</li>
                 <li>"RED" COLOUR FIELD'S ARE MANDATORY IN THE FORM</li>
             </ul>
+        </section>
+
+        <!-- Profile Photo Upload Section -->
+        <section class="max-w-[1200px] mx-auto px-6 mb-8">
+            <h3 class="text-sm font-semibold mb-4 text-project-secondary">Profile Photo</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-4 text-xs text-gray-700">
+                <div class="md:col-span-3">
+                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center bg-gray-50">
+                        <div class="flex flex-col items-center justify-center">
+                            <div class="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mb-4">
+                                <i class="fas fa-camera text-gray-500 text-xl"></i>
+                            </div>
+                            <p class="text-gray-600 mb-2">Drag & Drop Image Here</p>
+                            <p class="text-gray-500 text-xs mb-4">or</p>
+                            <input type="file" id="profile_photo" name="profile_photo" accept="image/jpeg,image/jpg" class="hidden">
+                            <button type="button" id="upload-btn" class="bg-project-primary hover:bg-project-primary text-white px-4 py-2 rounded text-xs">
+                                Browse Files
+                            </button>
+                            <p class="text-gray-500 text-xs mt-2">Only JPEG/JPG format allowed</p>
+                            <div id="file-name" class="text-xs text-gray-600 mt-2 hidden"></div>
+                            @if(isset($existingData) && $existingData->profile_photo_path)
+                                <div class="mt-4">
+                                    <p class="text-xs text-gray-600 mb-1">Current Photo:</p>
+                                    <img src="{{ asset($existingData->profile_photo_path) }}" alt="Profile Photo" class="w-24 h-24 object-cover rounded">
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
         </section>
 
         <!-- Form Navigation Tabs -->
@@ -999,6 +1029,42 @@
                 });
             }
 
+            // Profile photo upload functionality
+            const uploadBtn = document.getElementById('upload-btn');
+            const fileInput = document.getElementById('profile_photo');
+            const fileName = document.getElementById('file-name');
+            
+            if (uploadBtn && fileInput) {
+                uploadBtn.addEventListener('click', function() {
+                    fileInput.click();
+                });
+                
+                fileInput.addEventListener('change', function() {
+                    if (this.files && this.files[0]) {
+                        const file = this.files[0];
+                        const fileType = file.type;
+                        const fileNameText = file.name;
+                        
+                        // Check if file is JPEG or JPG
+                        if (fileType === 'image/jpeg' || fileNameText.toLowerCase().endsWith('.jpg')) {
+                            fileName.textContent = 'Selected: ' + fileNameText;
+                            fileName.classList.remove('hidden');
+                            
+                            // Preview the image
+                            const reader = new FileReader();
+                            reader.onload = function(e) {
+                                // You can add image preview functionality here if needed
+                            }
+                            reader.readAsDataURL(file);
+                        } else {
+                            alert('Please select a JPEG or JPG file only.');
+                            this.value = ''; // Clear the input
+                            fileName.classList.add('hidden');
+                        }
+                    }
+                });
+            }
+
             // Form submission
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
@@ -1015,25 +1081,41 @@
                     method: 'POST',
                     body: formData,
                     headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'X-Requested-With': 'XMLHttpRequest' // This header helps Laravel identify AJAX requests
+                    },
+                    redirect: 'follow' // Follow redirects
+                })
+                .then(response => {
+                    // Handle redirects
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                        return;
+                    }
+                    
+                    // Check if the response is JSON
+                    const contentType = response.headers.get('content-type');
+                    
+                    if (contentType && contentType.includes('application/json')) {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json();
+                    } else {
+                        // If not JSON, it's likely an HTML redirect or error page
+                        window.location.reload();
+                        return;
                     }
                 })
-                .then(response => response.json())
                 .then(data => {
+                    if (!data) return; // If redirected, data will be undefined
+                    
                     if (data.success) {
                         clearValidationErrors();
-
-                        // Store submission_id in localStorage
-                        if (data.data.submission_id) {
-                            localStorage.setItem('jito_submission_id', data.data.submission_id);
-                            localStorage.setItem('jito_current_step', data.data.step);
-                            localStorage.setItem('jito_last_saved', new Date().toISOString());
-                        }
-
                         showMessage('Personal details saved successfully!', 'success');
-
+                        // Redirect to family details page
                         setTimeout(() => {
-                            window.location.href = data.data.redirect_url || '/family-details?submission_id=' + data.data.submission_id;
+                            window.location.href = '{{ route("family-details", ["submission_id" => $submissionId ?? ""]) }}';
                         }, 1500);
                     } else {
                         if (data.errors) {

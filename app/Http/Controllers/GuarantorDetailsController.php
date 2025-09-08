@@ -87,11 +87,9 @@ class GuarantorDetailsController extends Controller
             $submissionId = $request->get('submission_id') ?? Session::get('submission_id');
 
             if (!$submissionId) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Session expired. Please start from the beginning.',
-                    'redirect_url' => route('financial-assistance')
-                ], 400);
+                return redirect()->back()
+                    ->with('error', 'Session expired. Please start from the beginning.')
+                    ->withInput();
             }
 
             // Log the incoming request data for debugging
@@ -170,20 +168,20 @@ class GuarantorDetailsController extends Controller
                     'request_data' => $request->except(['_token'])
                 ]);
                 
-                // Return detailed error information
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Please check the form for errors.',
-                    'errors' => $validator->errors(),
-                    'debug_info' => [
-                        'first_guarantor_mobile' => $request->get('first_guarantor_mobile'),
-                        'first_guarantor_pan' => $request->get('first_guarantor_pan'),
-                        'first_guarantor_aadhar' => $request->get('first_guarantor_aadhar'),
-                        'second_guarantor_mobile' => $request->get('second_guarantor_mobile'),
-                        'second_guarantor_pan' => $request->get('second_guarantor_pan'),
-                        'second_guarantor_aadhar' => $request->get('second_guarantor_aadhar'),
-                    ]
-                ], 422);
+                // Check if this is an AJAX request
+                if ($request->wantsJson() || $request->ajax() || $request->headers->get('X-Requested-With') === 'XMLHttpRequest') {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $validator->errors(),
+                        'message' => 'Please check the form for errors.'
+                    ], 422);
+                }
+                
+                // Return with validation errors for non-AJAX requests
+                return redirect()->back()
+                    ->withErrors($validator)
+                    ->with('error', 'Please check the form for errors.')
+                    ->withInput();
             }
 
             $validatedData = $validator->validated();
@@ -215,18 +213,9 @@ class GuarantorDetailsController extends Controller
                 'second_guarantor_name' => $validatedData['second_guarantor_name']
             ]);
 
-            // Redirect to the documents page
-            return response()->json([
-                'success' => true,
-                'message' => 'Guarantor details saved successfully!',
-                'data' => [
-                    'submission_id' => $submissionId,
-                    'step' => 6,
-                    'next_step' => 'documents',
-                    'completion_percentage' => 85.7, // 6/7 steps
-                    'redirect_url' => route('documents', ['submission_id' => $submissionId])
-                ]
-            ], 200);
+            // Redirect to the documents page with success message
+            return redirect()->route('documents', ['submission_id' => $submissionId])
+                ->with('success', 'Guarantor details saved successfully!');
 
         } catch (\Exception $e) {
             Log::error('Error processing guarantor details', [
@@ -235,11 +224,9 @@ class GuarantorDetailsController extends Controller
                 'request_data' => $request->except(['_token'])
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred while processing guarantor details. Please try again.',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
-            ], 500);
+            return redirect()->back()
+                ->with('error', 'An error occurred while processing guarantor details. Please try again.')
+                ->withInput();
         }
     }
 
@@ -279,10 +266,8 @@ class GuarantorDetailsController extends Controller
             $guarantorDetails = GuarantorDetails::bySubmissionId($submissionId)->first();
 
             if (!$guarantorDetails) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Guarantor details not found.'
-                ], 404);
+                return redirect()->back()
+                    ->with('error', 'Guarantor details not found.');
             }
 
             $guarantorDetails->delete();
@@ -298,10 +283,8 @@ class GuarantorDetailsController extends Controller
                 'guarantor_details_id' => $guarantorDetails->id
             ]);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Guarantor details deleted successfully.'
-            ], 200);
+            return redirect()->back()
+                ->with('success', 'Guarantor details deleted successfully.');
 
         } catch (\Exception $e) {
             Log::error('Error deleting guarantor details', [
@@ -309,10 +292,8 @@ class GuarantorDetailsController extends Controller
                 'submission_id' => $submissionId
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred while deleting guarantor details.'
-            ], 500);
+            return redirect()->back()
+                ->with('error', 'An error occurred while deleting guarantor details.');
         }
     }
 }

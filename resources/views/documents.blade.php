@@ -236,57 +236,55 @@
 
                 const formData = new FormData(form);
                 
-                // Debug: Log form data
-                console.log('Form data being sent:');
-                for (let [key, value] of formData.entries()) {
-                    console.log(key, value);
-                }
-                
                 fetch(form.action, {
                     method: 'POST',
                     body: formData,
                     headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    }
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'X-Requested-With': 'XMLHttpRequest' // This header helps Laravel identify AJAX requests
+                    },
+                    redirect: 'follow' // Follow redirects
                 })
                 .then(response => {
-                    console.log('Response status:', response.status);
-                    console.log('Response headers:', [...response.headers.entries()]);
+                    // Handle redirects
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                        return;
+                    }
                     
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
+                    // Check if the response is JSON
                     const contentType = response.headers.get('content-type');
-                    console.log('Content type:', contentType);
-                    if (!contentType || !contentType.includes('application/json')) {
-                        throw new Error('Received non-JSON response from server');
+                    
+                    if (contentType && contentType.includes('application/json')) {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json();
+                    } else {
+                        // If not JSON, it's likely an HTML redirect or error page
+                        window.location.reload();
+                        return;
                     }
-                    return response.json();
                 })
                 .then(data => {
-                    console.log('Server response:', data);
+                    if (!data) return; // If redirected, data will be undefined
+                    
                     if (data.success) {
-                        if (data.data.submission_id) {
-                            localStorage.setItem('jito_submission_id', data.data.submission_id);
-                            localStorage.setItem('jito_current_step', data.data.step);
-                        }
                         showMessage('Documents saved successfully!', 'success');
-                        // Use the redirect URL from the server response
-                        if (data.data.redirect_url) {
-                            setTimeout(() => {
-                                window.location.href = data.data.redirect_url;
-                            }, 1500);
-                        }
+                        // Redirect to final submission page
+                        setTimeout(() => {
+                            window.location.href = '{{ route("final-submission", ["submission_id" => $submissionId ?? ""]) }}';
+                        }, 1500);
                     } else {
                         // Display validation errors if any
                         if (data.errors) {
-                            let errorMessages = 'Please correct the following errors:\n\n';
+                            let errorMessages = 'Please correct the following errors:\\n\\n';
                             for (const field in data.errors) {
-                                errorMessages += `${field}:\n`;
+                                errorMessages += `${field}:\\n`;
                                 data.errors[field].forEach(error => {
-                                    errorMessages += `  - ${error}\n`;
+                                    errorMessages += `  - ${error}\\n`;
                                 });
-                                errorMessages += '\n';
+                                errorMessages += '\\n';
                             }
                             showMessage(errorMessages, 'error');
                         } else {
@@ -296,16 +294,7 @@
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    // Check if it's a network error or a server error
-                    if (error.name === 'TypeError' && error.message.includes('fetch')) {
-                        showMessage('Network error. Please check your connection and try again.', 'error');
-                    } else if (error.message.includes('HTTP error')) {
-                        showMessage('Server error. Please try again later.', 'error');
-                    } else if (error.message.includes('JSON')) {
-                        showMessage('Invalid response from server. Please try again.', 'error');
-                    } else {
-                        showMessage('An error occurred. Please try again.', 'error');
-                    }
+                    showMessage('An error occurred. Please try again.', 'error');
                 })
                 .finally(() => {
                     submitBtn.disabled = false;

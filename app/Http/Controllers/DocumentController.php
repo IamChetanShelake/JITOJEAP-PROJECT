@@ -91,11 +91,9 @@ class DocumentController extends Controller
             $submissionId = $request->get('submission_id') ?? Session::get('submission_id');
 
             if (!$submissionId) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Session expired. Please start from the beginning.',
-                    'redirect_url' => route('financial-assistance')
-                ], 400);
+                return redirect()->back()
+                    ->with('error', 'Session expired. Please start from the beginning.')
+                    ->withInput();
             }
 
             // Log the incoming request data for debugging
@@ -120,11 +118,10 @@ class DocumentController extends Controller
             }
 
             if (!empty($errors)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Please upload all required documents.',
-                    'errors' => $errors
-                ], 422);
+                return redirect()->back()
+                    ->withErrors($errors)
+                    ->with('error', 'Please upload all required documents.')
+                    ->withInput();
             }
 
             // Process and store each document
@@ -142,11 +139,10 @@ class DocumentController extends Controller
                     ]);
 
                     if ($validator->fails()) {
-                        return response()->json([
-                            'success' => false,
-                            'message' => 'Please check the documents for errors.',
-                            'errors' => $validator->errors()
-                        ], 422);
+                        return redirect()->back()
+                            ->withErrors($validator)
+                            ->with('error', 'Please check the documents for errors.')
+                            ->withInput();
                     }
 
                     // Store file
@@ -178,18 +174,9 @@ class DocumentController extends Controller
                 'document_count' => count($requiredDocumentTypes)
             ]);
 
-            // Redirect to the final submit page
-            return response()->json([
-                'success' => true,
-                'message' => 'Documents saved successfully!',
-                'data' => [
-                    'submission_id' => $submissionId,
-                    'step' => 7,
-                    'next_step' => 'submit',
-                    'completion_percentage' => 100, // 7/7 steps
-                    'redirect_url' => route('final-submission', ['submission_id' => $submissionId])
-                ]
-            ], 200);
+            // Redirect to the final submit page with success message
+            return redirect()->route('final-submission', ['submission_id' => $submissionId])
+                ->with('success', 'Documents saved successfully!');
 
         } catch (\Exception $e) {
             Log::error('Error processing documents', [
@@ -198,11 +185,9 @@ class DocumentController extends Controller
                 'request_data' => $request->except(['_token'])
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred while processing documents. Please try again.',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
-            ], 500);
+            return redirect()->back()
+                ->with('error', 'An error occurred while processing documents. Please try again.')
+                ->withInput();
         }
     }
 
@@ -244,10 +229,8 @@ class DocumentController extends Controller
             $documents = Document::bySubmissionId($submissionId)->get();
 
             if ($documents->isEmpty()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Documents not found.'
-                ], 404);
+                return redirect()->back()
+                    ->with('error', 'Documents not found.');
             }
 
             // Delete document records
@@ -272,10 +255,8 @@ class DocumentController extends Controller
                 'document_count' => $documents->count()
             ]);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Documents deleted successfully.'
-            ], 200);
+            return redirect()->back()
+                ->with('success', 'Documents deleted successfully.');
 
         } catch (\Exception $e) {
             Log::error('Error deleting documents', [
@@ -283,10 +264,8 @@ class DocumentController extends Controller
                 'submission_id' => $submissionId
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred while deleting documents.'
-            ], 500);
+            return redirect()->back()
+                ->with('error', 'An error occurred while deleting documents.');
         }
     }
 }

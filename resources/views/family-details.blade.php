@@ -92,7 +92,7 @@
 
     @if(isset($submissionId))
     <!-- Session Info -->
-    <section class="max-w-[1200px] mx-auto px-6 mb-4">
+    <!-- <section class="max-w-[1200px] mx-auto px-6 mb-4">
         <div class="bg-blue-50 border border-blue-200 rounded-md p-3 text-sm">
             <div class="flex items-center justify-between">
                 <span class="text-blue-800">
@@ -104,7 +104,7 @@
                 </span>
             </div>
         </div>
-    </section>
+    </section> -->
     @endif
 
     <main class="max-w-[1200px] mx-auto px-6 py-8">
@@ -410,30 +410,41 @@
                     method: 'POST',
                     body: formData,
                     headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'X-Requested-With': 'XMLHttpRequest' // This header helps Laravel identify AJAX requests
+                    },
+                    redirect: 'follow' // Follow redirects
+                })
+                .then(response => {
+                    // Handle redirects
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                        return;
+                    }
+                    
+                    // Check if the response is JSON
+                    const contentType = response.headers.get('content-type');
+                    
+                    if (contentType && contentType.includes('application/json')) {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json();
+                    } else {
+                        // If not JSON, it's likely an HTML redirect or error page
+                        window.location.reload();
+                        return;
                     }
                 })
-                .then(response => response.json())
                 .then(data => {
+                    if (!data) return; // If redirected, data will be undefined
+                    
                     if (data.success) {
                         clearValidationErrors();
-
-                        // Update localStorage with new step info
-                        if (data.data.submission_id) {
-                            localStorage.setItem('jito_submission_id', data.data.submission_id);
-                            localStorage.setItem('jito_current_step', data.data.step);
-                            localStorage.setItem('jito_last_saved', new Date().toISOString());
-                        }
-
                         showMessage('Family details saved successfully!', 'success');
+                        // Redirect to education details page
                         setTimeout(() => {
-                            // For now, stay on same page until education-details is implemented
-                            if (data.data.redirect_url) {
-                                window.location.href = data.data.redirect_url;
-                            } else {
-                                // Fallback - reload current page
-                                window.location.reload();
-                            }
+                            window.location.href = '{{ route("education-details", ["submission_id" => $submissionId ?? ""]) }}';
                         }, 1500);
                     } else {
                         if (data.errors) {

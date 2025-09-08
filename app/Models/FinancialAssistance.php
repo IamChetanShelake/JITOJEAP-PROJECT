@@ -48,6 +48,7 @@ class FinancialAssistance extends Model
         'student_email',
         'student_mobile',
         'pan_no',
+        'profile_photo_path', // Add profile photo path field
 
         // Permanent Address
         'flat_no',

@@ -55,62 +55,93 @@ class EducationDetailsController extends Controller
             $submissionId = $request->get('submission_id') ?? Session::get('submission_id');
 
             if (!$submissionId) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Session expired. Please start from the beginning.',
-                    'redirect_url' => route('financial-assistance')
-                ], 400);
+                return redirect()->back()
+                    ->with('error', 'Session expired. Please start from the beginning.')
+                    ->withInput();
             }
 
-            // Validate education details
+            // Validate education details - Making all fields required
             $validator = Validator::make($request->all(), [
                 // Previous Education Details (dynamic table)
-                'previous_education' => 'nullable|array',
-                'previous_education.*.exam_name' => 'nullable|string|max:255',
-                'previous_education.*.course_name' => 'nullable|string|max:255',
-                'previous_education.*.exam_month' => 'nullable|string|max:50',
-                'previous_education.*.exam_year' => 'nullable|integer|min:1950|max:' . date('Y'),
-                'previous_education.*.out_of_marks' => 'nullable|numeric|min:0',
-                'previous_education.*.marks_obtained' => 'nullable|numeric|min:0',
-                'previous_education.*.percentage' => 'nullable|numeric|min:0|max:100',
+                'previous_education' => 'required|array',
+                'previous_education.*.exam_name' => 'required|string|max:255',
+                'previous_education.*.course_name' => 'required|string|max:255',
+                'previous_education.*.exam_month' => 'required|string|max:50',
+                'previous_education.*.exam_year' => 'required|integer|min:1950|max:' . date('Y'),
+                'previous_education.*.out_of_marks' => 'required|numeric|min:0',
+                'previous_education.*.marks_obtained' => 'required|numeric|min:0',
+                'previous_education.*.percentage' => 'required|numeric|min:0|max:100',
 
                 // Work Experience and Activities
-                'extracurricular_activities' => 'nullable|string',
-                'research_projects' => 'nullable|string',
-                'work_experience_years' => 'nullable|numeric|min:0',
-                'company_name' => 'nullable|string|max:255',
-                'remuneration' => 'nullable|numeric|min:0',
-                'ctc_yearly' => 'nullable|numeric|min:0',
-                'work_profile' => 'nullable|string',
+                'extracurricular_activities' => 'required|string',
+                'research_projects' => 'required|string',
+                'work_experience_years' => 'required|numeric|min:0',
+                'company_name' => 'required|string|max:255',
+                'remuneration' => 'required|numeric|min:0',
+                'ctc_yearly' => 'required|numeric|min:0',
+                'work_profile' => 'required|string',
 
                 // Current Education Details
-                'course_name_current' => 'nullable|string|max:255',
-                'pursuing_education' => 'nullable|string|max:255',
-                'university_college_name' => 'nullable|string|max:255',
-                'commencement_month_year' => 'nullable|string|max:50',
-                'completion_month_year' => 'nullable|string|max:50',
-                'city' => 'nullable|string|max:255',
-                'country' => 'nullable|string|max:255',
-                'qs_ranking_foreign' => 'nullable|string|max:255',
-                'nirf_ranking_domestic' => 'nullable|string|max:255',
+                'course_name_current' => 'required|string|max:255',
+                'pursuing_education' => 'required|string|max:255',
+                'university_college_name' => 'required|string|max:255',
+                'commencement_month_year' => 'required|string|max:50',
+                'completion_month_year' => 'required|string|max:50',
+                'city' => 'required|string|max:255',
+                'country' => 'required|string|max:255',
+                'qs_ranking_foreign' => 'required|string|max:255',
+                'nirf_ranking_domestic' => 'required|string|max:255',
             ], [
+                // Custom error messages for all fields
+                'previous_education.required' => 'Previous education details are required.',
+                'previous_education.*.exam_name.required' => 'Exam name is required.',
+                'previous_education.*.course_name.required' => 'Course name is required.',
+                'previous_education.*.exam_month.required' => 'Exam month is required.',
+                'previous_education.*.exam_year.required' => 'Exam year is required.',
                 'previous_education.*.exam_year.integer' => 'Exam year must be a valid year.',
                 'previous_education.*.exam_year.min' => 'Exam year must be 1950 or later.',
                 'previous_education.*.exam_year.max' => 'Exam year cannot be in the future.',
+                'previous_education.*.out_of_marks.required' => 'Out of marks is required.',
                 'previous_education.*.out_of_marks.numeric' => 'Out of marks must be a number.',
+                'previous_education.*.marks_obtained.required' => 'Marks obtained is required.',
                 'previous_education.*.marks_obtained.numeric' => 'Marks obtained must be a number.',
+                'previous_education.*.percentage.required' => 'Percentage is required.',
                 'previous_education.*.percentage.numeric' => 'Percentage must be a number.',
+                'extracurricular_activities.required' => 'Extracurricular activities field is required.',
+                'research_projects.required' => 'Research projects field is required.',
+                'work_experience_years.required' => 'Work experience years field is required.',
                 'work_experience_years.numeric' => 'Work experience must be a number.',
+                'company_name.required' => 'Company name is required.',
+                'remuneration.required' => 'Remuneration field is required.',
                 'remuneration.numeric' => 'Remuneration must be a number.',
+                'ctc_yearly.required' => 'CTC yearly field is required.',
                 'ctc_yearly.numeric' => 'CTC must be a number.',
+                'work_profile.required' => 'Work profile field is required.',
+                'course_name_current.required' => 'Course name is required.',
+                'pursuing_education.required' => 'Pursuing education field is required.',
+                'university_college_name.required' => 'University/college name is required.',
+                'commencement_month_year.required' => 'Commencement month/year is required.',
+                'completion_month_year.required' => 'Completion month/year is required.',
+                'city.required' => 'City is required.',
+                'country.required' => 'Country is required.',
+                'qs_ranking_foreign.required' => 'QS ranking field is required.',
+                'nirf_ranking_domestic.required' => 'NIRF ranking field is required.',
             ]);
 
             if ($validator->fails()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Please check the form for errors.',
-                    'errors' => $validator->errors()
-                ], 422);
+                // Check if this is an AJAX request
+                if ($request->wantsJson() || $request->ajax() || $request->headers->get('X-Requested-With') === 'XMLHttpRequest') {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $validator->errors(),
+                        'message' => 'Please check the form for errors.'
+                    ], 422);
+                }
+                
+                return redirect()->back()
+                    ->withErrors($validator)
+                    ->with('error', 'Please check the form for errors.')
+                    ->withInput();
             }
 
             $validatedData = $validator->validated();
@@ -141,17 +172,9 @@ class EducationDetailsController extends Controller
                 'course_name_current' => $validatedData['course_name_current'] ?? 'Not specified'
             ]);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Education details saved successfully!',
-                'data' => [
-                    'submission_id' => $submissionId,
-                    'step' => 4,
-                    'next_step' => 'funding-details',
-                    'completion_percentage' => 57.1, // 4/7 steps
-                    'redirect_url' => route('funding-details', ['submission_id' => $submissionId])
-                ]
-            ], 200);
+            // Redirect to the next step with success message
+            return redirect()->route('funding-details', ['submission_id' => $submissionId])
+                ->with('success', 'Education details saved successfully!');
 
         } catch (\Exception $e) {
             Log::error('Error processing education details', [
@@ -160,11 +183,9 @@ class EducationDetailsController extends Controller
                 'request_data' => $request->except(['_token'])
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred while processing education details. Please try again.',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
-            ], 500);
+            return redirect()->back()
+                ->with('error', 'An error occurred while processing education details. Please try again.')
+                ->withInput();
         }
     }
 
@@ -200,10 +221,8 @@ class EducationDetailsController extends Controller
             $educationDetails = EducationDetails::bySubmissionId($submissionId)->first();
 
             if (!$educationDetails) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Education details not found.'
-                ], 404);
+                return redirect()->back()
+                    ->with('error', 'Education details not found.');
             }
 
             $educationDetails->delete();
@@ -219,10 +238,8 @@ class EducationDetailsController extends Controller
                 'education_details_id' => $educationDetails->id
             ]);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Education details deleted successfully.'
-            ], 200);
+            return redirect()->back()
+                ->with('success', 'Education details deleted successfully.');
 
         } catch (\Exception $e) {
             Log::error('Error deleting education details', [
@@ -230,10 +247,8 @@ class EducationDetailsController extends Controller
                 'submission_id' => $submissionId
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred while deleting education details.'
-            ], 500);
+            return redirect()->back()
+                ->with('error', 'An error occurred while deleting education details.');
         }
     }
 }
