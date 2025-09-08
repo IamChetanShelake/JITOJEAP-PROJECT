@@ -355,8 +355,32 @@ class FinancialAssistanceController extends Controller
                 'request_data' => $request->all()
             ]);
 
+            // Handle specific database constraint violations
+            $errorMessage = 'An error occurred while processing your application. Please try again.';
+
+            if (str_contains($e->getMessage(), 'aadhar_number_unique')) {
+                $errorMessage = 'This Aadhar number is already registered. Please use a different Aadhar number or contact support if this is your correct Aadhar number.';
+            } elseif (str_contains($e->getMessage(), 'student_email_unique')) {
+                $errorMessage = 'This email address is already registered. Please use a different email address.';
+            } elseif (str_contains($e->getMessage(), 'Duplicate entry')) {
+                if (str_contains($e->getMessage(), 'aadhar_number')) {
+                    $errorMessage = 'This Aadhar number is already registered. Please use a different Aadhar number or contact support if this is your correct Aadhar number.';
+                } elseif (str_contains($e->getMessage(), 'student_email')) {
+                    $errorMessage = 'This email address is already registered. Please use a different email address.';
+                }
+            }
+
+            // Check if this is an AJAX request
+            if ($request->wantsJson() || $request->ajax() || $request->headers->get('X-Requested-With') === 'XMLHttpRequest') {
+                return response()->json([
+                    'success' => false,
+                    'message' => $errorMessage,
+                    'error_type' => 'database_constraint'
+                ], 422);
+            }
+
             return redirect()->back()
-                ->with('error', 'An error occurred while processing your application. Please try again.')
+                ->with('error', $errorMessage)
                 ->withInput();
         }
     }
@@ -548,7 +572,7 @@ class FinancialAssistanceController extends Controller
                         'message' => 'Please check the form for errors.'
                     ], 422);
                 }
-                
+
                 return redirect()->back()
                     ->withErrors($validator)
                     ->with('error', 'Please check the form for errors.')

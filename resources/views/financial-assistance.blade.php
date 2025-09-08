@@ -405,6 +405,7 @@
                            value="{{ old('aadhar_number', $existingData->aadhar_number ?? '') }}"
                            placeholder="e.g. 123456789012"
                            required/>
+                    <div class="text-xs text-gray-500 mt-1">Each Aadhar number can only be used once</div>
                     @error('aadhar_number')
                         <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
                     @enderror
@@ -620,7 +621,9 @@
                            name="student_email"
                            type="email"
                            value="{{ old('student_email', $existingData->student_email ?? '') }}"
+                           placeholder="e.g. student@example.com"
                            required/>
+                    <div class="text-xs text-gray-500 mt-1">Each email address can only be used once</div>
                     @error('student_email')
                         <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
                     @enderror
@@ -1503,6 +1506,31 @@
                             if (firstErrorField) {
                                 firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
                                 firstErrorField.focus();
+                            }
+                        } else if (data.error_type === 'database_constraint') {
+                            // Handle database constraint violations (like duplicate Aadhar number)
+                            showMessage(data.message || 'Database constraint violation', 'error');
+
+                            // If it's an Aadhar number issue, highlight that field
+                            if (data.message && data.message.includes('Aadhar number')) {
+                                const aadharField = document.getElementById('aadhar_number');
+                                if (aadharField) {
+                                    aadharField.classList.remove('border-gray-300');
+                                    aadharField.classList.add('border-red-500');
+                                    aadharField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                    aadharField.focus();
+                                }
+                            }
+
+                            // If it's an email issue, highlight that field
+                            if (data.message && data.message.includes('email')) {
+                                const emailField = document.getElementById('student_email');
+                                if (emailField) {
+                                    emailField.classList.remove('border-gray-300');
+                                    emailField.classList.add('border-red-500');
+                                    emailField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                    emailField.focus();
+                                }
                             }
                         } else {
                             // Handle other types of errors
