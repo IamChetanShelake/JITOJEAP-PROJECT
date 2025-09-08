@@ -216,6 +216,14 @@
                         <div class="detail-value">{{ $application->city ?? 'N/A' }}</div>
                     </div>
                     <div class="detail-row">
+                        <div class="detail-label">State:</div>
+                        <div class="detail-value">N/A</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Pincode:</div>
+                        <div class="detail-value">{{ $application->pincode ?? 'N/A' }}</div>
+                    </div>
+                    <div class="detail-row">
                         <div class="detail-label">Postal Address:</div>
                         <div class="detail-value">{{ $application->postal_address ?? 'N/A' }}</div>
                     </div>
@@ -349,6 +357,18 @@
                     <div class="detail-row">
                         <div class="detail-label">Occupation:</div>
                         <div class="detail-value">{{ $familyDetails->occupation ?? 'N/A' }}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Designation:</div>
+                        <div class="detail-value">N/A</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Organization Name:</div>
+                        <div class="detail-value">N/A</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Business Type:</div>
+                        <div class="detail-value">N/A</div>
                     </div>
                     <div class="detail-row">
                         <div class="detail-label">Mobile Number:</div>
@@ -594,91 +614,121 @@
                     <div class="detail-row">
                         <div class="detail-label">Own Contribution:</div>
                         <div class="detail-value">
-                            @if(isset($fundingDetails->funding_details_table) && is_array($fundingDetails->funding_details_table))
-                                @foreach($fundingDetails->funding_details_table as $funding)
-                                    @if(isset($funding['source']) && $funding['source'] === 'Own Contribution')
-                                        {{ $funding['amount'] ?? 'N/A' }}
-                                        @break
-                                    @endif
-                                @endforeach
-                            @else
-                                N/A
-                            @endif
+                            @php
+                                $ownContribution = 0;
+                                $fundingArray = $fundingDetails->funding_details_table ?? [];
+                                // Ensure it's decoded as an array if it's still JSON string
+                                if (is_string($fundingArray)) {
+                                    $fundingArray = json_decode($fundingArray, true) ?? [];
+                                }
+                                foreach($fundingArray as $funding) {
+                                    // Check for own family funding
+                                    if (isset($funding['particulars']) && stripos($funding['particulars'], 'own family funding') !== false) {
+                                        $ownContribution += floatval($funding['amount'] ?? 0);
+                                    }
+                                }
+                                echo $ownContribution > 0 ? number_format($ownContribution, 2) : 'N/A';
+                            @endphp
                         </div>
                     </div>
                     <div class="detail-row">
                         <div class="detail-label">Scholarship from Institute:</div>
                         <div class="detail-value">
-                            @if(isset($fundingDetails->funding_details_table) && is_array($fundingDetails->funding_details_table))
-                                @foreach($fundingDetails->funding_details_table as $funding)
-                                    @if(isset($funding['source']) && $funding['source'] === 'Scholarship from Institute')
-                                        {{ $funding['amount'] ?? 'N/A' }}
-                                        @break
-                                    @endif
-                                @endforeach
-                            @else
-                                N/A
-                            @endif
+                            @php
+                                $scholarshipInstitute = 0;
+                                $fundingArray = $fundingDetails->funding_details_table ?? [];
+                                // Ensure it's decoded as an array if it's still JSON string
+                                if (is_string($fundingArray)) {
+                                    $fundingArray = json_decode($fundingArray, true) ?? [];
+                                }
+                                foreach($fundingArray as $funding) {
+                                    // Check for scholarship from institute
+                                    if (isset($funding['particulars']) && (stripos($funding['particulars'], 'scholarship') !== false && stripos($funding['particulars'], 'institute') !== false)) {
+                                        $scholarshipInstitute += floatval($funding['amount'] ?? 0);
+                                    }
+                                }
+                                echo $scholarshipInstitute > 0 ? number_format($scholarshipInstitute, 2) : 'N/A';
+                            @endphp
                         </div>
                     </div>
                     <div class="detail-row">
                         <div class="detail-label">Scholarship from Other Source:</div>
                         <div class="detail-value">
-                            @if(isset($fundingDetails->funding_details_table) && is_array($fundingDetails->funding_details_table))
-                                @foreach($fundingDetails->funding_details_table as $funding)
-                                    @if(isset($funding['source']) && $funding['source'] === 'Scholarship from Other Source')
-                                        {{ $funding['amount'] ?? 'N/A' }}
-                                        @break
-                                    @endif
-                                @endforeach
-                            @else
-                                N/A
-                            @endif
+                            @php
+                                $scholarshipOther = 0;
+                                $fundingArray = $fundingDetails->funding_details_table ?? [];
+                                // Ensure it's decoded as an array if it's still JSON string
+                                if (is_string($fundingArray)) {
+                                    $fundingArray = json_decode($fundingArray, true) ?? [];
+                                }
+                                foreach($fundingArray as $funding) {
+                                    // Check for other assistance or local assistance
+                                    if (isset($funding['particulars']) && (stripos($funding['particulars'], 'other assistance') !== false || stripos($funding['particulars'], 'local assistance') !== false)) {
+                                        $scholarshipOther += floatval($funding['amount'] ?? 0);
+                                    }
+                                }
+                                echo $scholarshipOther > 0 ? number_format($scholarshipOther, 2) : 'N/A';
+                            @endphp
                         </div>
                     </div>
                     <div class="detail-row">
                         <div class="detail-label">Concession from Institute:</div>
                         <div class="detail-value">
-                            @if(isset($fundingDetails->funding_details_table) && is_array($fundingDetails->funding_details_table))
-                                @foreach($fundingDetails->funding_details_table as $funding)
-                                    @if(isset($funding['source']) && $funding['source'] === 'Concession from Institute')
-                                        {{ $funding['amount'] ?? 'N/A' }}
-                                        @break
-                                    @endif
-                                @endforeach
-                            @else
-                                N/A
-                            @endif
+                            @php
+                                $concessionInstitute = 0;
+                                $fundingArray = $fundingDetails->funding_details_table ?? [];
+                                // Ensure it's decoded as an array if it's still JSON string
+                                if (is_string($fundingArray)) {
+                                    $fundingArray = json_decode($fundingArray, true) ?? [];
+                                }
+                                foreach($fundingArray as $funding) {
+                                    // Check for concession from institute
+                                    if (isset($funding['particulars']) && stripos($funding['particulars'], 'concession') !== false) {
+                                        $concessionInstitute += floatval($funding['amount'] ?? 0);
+                                    }
+                                }
+                                echo $concessionInstitute > 0 ? number_format($concessionInstitute, 2) : 'N/A';
+                            @endphp
                         </div>
                     </div>
                     <div class="detail-row">
                         <div class="detail-label">Loan from Bank:</div>
                         <div class="detail-value">
-                            @if(isset($fundingDetails->funding_details_table) && is_array($fundingDetails->funding_details_table))
-                                @foreach($fundingDetails->funding_details_table as $funding)
-                                    @if(isset($funding['source']) && $funding['source'] === 'Loan from Bank')
-                                        {{ $funding['amount'] ?? 'N/A' }}
-                                        @break
-                                    @endif
-                                @endforeach
-                            @else
-                                N/A
-                            @endif
+                            @php
+                                $loanBank = 0;
+                                $fundingArray = $fundingDetails->funding_details_table ?? [];
+                                // Ensure it's decoded as an array if it's still JSON string
+                                if (is_string($fundingArray)) {
+                                    $fundingArray = json_decode($fundingArray, true) ?? [];
+                                }
+                                foreach($fundingArray as $funding) {
+                                    // Check for bank loan
+                                    if (isset($funding['particulars']) && stripos($funding['particulars'], 'bank loan') !== false) {
+                                        $loanBank += floatval($funding['amount'] ?? 0);
+                                    }
+                                }
+                                echo $loanBank > 0 ? number_format($loanBank, 2) : 'N/A';
+                            @endphp
                         </div>
                     </div>
                     <div class="detail-row">
                         <div class="detail-label">Loan from Other Source:</div>
                         <div class="detail-value">
-                            @if(isset($fundingDetails->funding_details_table) && is_array($fundingDetails->funding_details_table))
-                                @foreach($fundingDetails->funding_details_table as $funding)
-                                    @if(isset($funding['source']) && $funding['source'] === 'Loan from Other Source')
-                                        {{ $funding['amount'] ?? 'N/A' }}
-                                        @break
-                                    @endif
-                                @endforeach
-                            @else
-                                N/A
-                            @endif
+                            @php
+                                $loanOther = 0;
+                                $fundingArray = $fundingDetails->funding_details_table ?? [];
+                                // Ensure it's decoded as an array if it's still JSON string
+                                if (is_string($fundingArray)) {
+                                    $fundingArray = json_decode($fundingArray, true) ?? [];
+                                }
+                                foreach($fundingArray as $funding) {
+                                    // Check for other loans (not bank loan)
+                                    if (isset($funding['particulars']) && stripos($funding['particulars'], 'loan') !== false && stripos($funding['particulars'], 'bank') === false) {
+                                        $loanOther += floatval($funding['amount'] ?? 0);
+                                    }
+                                }
+                                echo $loanOther > 0 ? number_format($loanOther, 2) : 'N/A';
+                            @endphp
                         </div>
                     </div>
                     <div class="detail-row">
@@ -686,12 +736,15 @@
                         <div class="detail-value">
                             @php
                                 $totalFunding = 0;
-                                if(isset($fundingDetails->funding_details_table) && is_array($fundingDetails->funding_details_table)) {
-                                    foreach($fundingDetails->funding_details_table as $funding) {
-                                        $totalFunding += $funding['amount'] ?? 0;
-                                    }
+                                $fundingArray = $fundingDetails->funding_details_table ?? [];
+                                // Ensure it's decoded as an array if it's still JSON string
+                                if (is_string($fundingArray)) {
+                                    $fundingArray = json_decode($fundingArray, true) ?? [];
                                 }
-                                echo $totalFunding > 0 ? $totalFunding : 'N/A';
+                                foreach($fundingArray as $funding) {
+                                    $totalFunding += floatval($funding['amount'] ?? 0);
+                                }
+                                echo $totalFunding > 0 ? number_format($totalFunding, 2) : 'N/A';
                             @endphp
                         </div>
                     </div>
@@ -699,8 +752,17 @@
                         <div class="detail-label">Financial Assistance Required:</div>
                         <div class="detail-value">
                             @php
+                                $totalFunding = 0;
+                                $fundingArray = $fundingDetails->funding_details_table ?? [];
+                                // Ensure it's decoded as an array if it's still JSON string
+                                if (is_string($fundingArray)) {
+                                    $fundingArray = json_decode($fundingArray, true) ?? [];
+                                }
+                                foreach($fundingArray as $funding) {
+                                    $totalFunding += floatval($funding['amount'] ?? 0);
+                                }
                                 $required = ($fundingDetails->tuition_fees_amount ?? 0) - $totalFunding;
-                                echo $required > 0 ? $required : 'N/A';
+                                echo $required > 0 ? number_format($required, 2) : '0.00';
                             @endphp
                         </div>
                     </div>
@@ -732,9 +794,14 @@
                         <div class="detail-value">
                             @if($guarantorDetails->first_guarantor_dob)
                                 @php
-                                    $dob = new DateTime($guarantorDetails->first_guarantor_dob);
-                                    $age = $dob->diff(new DateTime())->y;
-                                    echo $age;
+                                    try {
+                                        $dob = new DateTime($guarantorDetails->first_guarantor_dob);
+                                        $today = new DateTime();
+                                        $age = $today->diff($dob)->y;
+                                        echo $age > 0 ? $age : 'N/A';
+                                    } catch (Exception $e) {
+                                        echo 'N/A';
+                                    }
                                 @endphp
                             @else
                                 N/A
@@ -743,15 +810,15 @@
                     </div>
                     <div class="detail-row">
                         <div class="detail-label">Marital Status:</div>
-                        <div class="detail-value">N/A</div>
+                        <div class="detail-value">{{ $guarantorDetails->first_guarantor_marital_status ?? 'N/A' }}</div>
                     </div>
                     <div class="detail-row">
                         <div class="detail-label">Qualification:</div>
-                        <div class="detail-value">N/A</div>
+                        <div class="detail-value">{{ $familyDetails->qualification ?? 'N/A' }}</div>
                     </div>
                     <div class="detail-row">
                         <div class="detail-label">Occupation:</div>
-                        <div class="detail-value">N/A</div>
+                        <div class="detail-value">{{ $familyDetails->occupation ?? 'N/A' }}</div>
                     </div>
                     <div class="detail-row">
                         <div class="detail-label">Designation:</div>
@@ -771,7 +838,7 @@
                     </div>
                     <div class="detail-row">
                         <div class="detail-label">City:</div>
-                        <div class="detail-value">N/A</div>
+                        <div class="detail-value">{{ $application->city ?? 'N/A' }}</div>
                     </div>
                     <div class="detail-row">
                         <div class="detail-label">State:</div>
@@ -779,7 +846,7 @@
                     </div>
                     <div class="detail-row">
                         <div class="detail-label">Pincode:</div>
-                        <div class="detail-value">N/A</div>
+                        <div class="detail-value">{{ $application->pincode ?? 'N/A' }}</div>
                     </div>
                     <div class="detail-row">
                         <div class="detail-label">Mobile Number:</div>
@@ -795,15 +862,15 @@
                     </div>
                     <div class="detail-row">
                         <div class="detail-label">Official Phone:</div>
-                        <div class="detail-value">N/A</div>
+                        <div class="detail-value">{{ $application->alternate_mobile ?? 'N/A' }}</div>
                     </div>
                     <div class="detail-row">
                         <div class="detail-label">Total Experience:</div>
-                        <div class="detail-value">N/A</div>
+                        <div class="detail-value">{{ $educationDetails->work_experience_years ?? 'N/A' }}</div>
                     </div>
                     <div class="detail-row">
                         <div class="detail-label">Annual Income:</div>
-                        <div class="detail-value">{{ $guarantorDetails->first_guarantor_income ?? 'N/A' }}</div>
+                        <div class="detail-value">{{ $guarantorDetails->first_guarantor_income ? number_format($guarantorDetails->first_guarantor_income, 2) : 'N/A' }}</div>
                     </div>
                     <div class="detail-row">
                         <div class="detail-label">Other Income Source:</div>
@@ -811,19 +878,19 @@
                     </div>
                     <div class="detail-row">
                         <div class="detail-label">Bank Name:</div>
-                        <div class="detail-value">{{ $guarantorDetails->bank_name ?? 'N/A' }}</div>
+                        <div class="detail-value">{{ $fundingDetails->bank_name ?? 'N/A' }}</div>
                     </div>
                     <div class="detail-row">
                         <div class="detail-label">Branch Name:</div>
-                        <div class="detail-value">{{ $guarantorDetails->branch_name ?? 'N/A' }}</div>
+                        <div class="detail-value">{{ $fundingDetails->branch_name ?? 'N/A' }}</div>
                     </div>
                     <div class="detail-row">
                         <div class="detail-label">Account Number:</div>
-                        <div class="detail-value">{{ $guarantorDetails->student_account_number ?? 'N/A' }}</div>
+                        <div class="detail-value">{{ $fundingDetails->student_account_number ?? 'N/A' }}</div>
                     </div>
                     <div class="detail-row">
                         <div class="detail-label">IFSC Code:</div>
-                        <div class="detail-value">{{ $guarantorDetails->ifsc_code ?? 'N/A' }}</div>
+                        <div class="detail-value">{{ $fundingDetails->ifsc_code ?? 'N/A' }}</div>
                     </div>
                 </div>
                 @else
@@ -869,19 +936,13 @@
 
         <!-- Action Buttons -->
         <div class="flex justify-center gap-4 mt-8">
-            <button class="bg-gray-300 hover:bg-gray-400 text-gray-900 font-semibold text-sm px-6 py-2 rounded focus:outline-none focus:ring-2 focus:ring-gray-600 transition-colors" onclick="window.location.href='{{ route('final-submission.index', ['submission_id' => $submissionId ?? '']) }}'">
-                Back to Submit
+            <button class="bg-gray-300 hover:bg-gray-400 text-gray-900 font-semibold text-sm px-6 py-2 rounded focus:outline-none focus:ring-2 focus:ring-gray-600 transition-colors" onclick="window.location.href='{{ route('documents', ['submission_id' => $submissionId ?? '']) }}'">
+                Back to Documents
             </button>
-            <button id="done-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm px-6 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-600 transition-colors" onclick="window.location.href='{{ route('final-submission.index', ['submission_id' => $submissionId ?? '']) }}'">
-                Done - Proceed to Submit
+            <button class="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm px-6 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-600 transition-colors" onclick="window.location.href='{{ route('final-submission.index', ['submission_id' => $submissionId ?? '']) }}'">
+                Done Preview
             </button>
         </div>
     </main>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Add any additional JavaScript functionality here if needed
-        });
-    </script>
 </body>
 </html>
