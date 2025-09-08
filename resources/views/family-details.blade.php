@@ -24,6 +24,8 @@
         .hover\:bg-project-primary:hover { background-color: #4c63d2; }
         .hover\:bg-project-success:hover { background-color: #008139; }
         .hover\:bg-project-warning:hover { background-color: #e6a800; }
+        .border-error { border-color: #ef4444; border-width: 2px; }
+        .field-error { border: 2px solid #ef4444 !important; }
     </style>
 </head>
 <body class="bg-white text-gray-900">
@@ -90,21 +92,48 @@
         *NOTE:- STUDENT HAS TO FILL ALL THE DETAILS IN 7 PAGES AND IN SUBMIT SECTION PLEASE CLICK
     </section>
 
-    @if(isset($submissionId))
-    <!-- Session Info -->
-    <!-- <section class="max-w-[1200px] mx-auto px-6 mb-4">
-        <div class="bg-blue-50 border border-blue-200 rounded-md p-3 text-sm">
-            <div class="flex items-center justify-between">
-                <span class="text-blue-800">
-                    <i class="fas fa-info-circle mr-2"></i>
-                    Session ID: <strong>{{ substr($submissionId, 0, 8) }}...</strong>
-                </span>
-                <span class="text-blue-600 font-semibold">
-                    Step 2/7 - Family Details
-                </span>
+    <!-- Toast Messages -->
+    @if(session('success'))
+    <div class="fixed top-4 right-4 z-50">
+        <div class="px-4 py-3 rounded mb-4 border bg-green-100 border-green-400 text-green-700">
+            <div class="flex">
+                <div class="flex-1">
+                    <p class="text-sm">{{ session('success') }}</p>
+                </div>
+                <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-lg font-bold">&times;</button>
             </div>
         </div>
-    </section> -->
+    </div>
+    @endif
+
+    @if(session('error'))
+    <div class="fixed top-4 right-4 z-50">
+        <div class="px-4 py-3 rounded mb-4 border bg-red-100 border-red-400 text-red-700">
+            <div class="flex">
+                <div class="flex-1">
+                    <p class="text-sm">{{ session('error') }}</p>
+                </div>
+                <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-lg font-bold">&times;</button>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    @if($errors->any())
+    <div class="fixed top-4 right-4 z-50">
+        <div class="px-4 py-3 rounded mb-4 border bg-red-100 border-red-400 text-red-700">
+            <div class="flex">
+                <div class="flex-1">
+                    <ul class="text-sm list-disc pl-5">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+                <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-lg font-bold">&times;</button>
+            </div>
+        </div>
+    </div>
     @endif
 
     <main class="max-w-[1200px] mx-auto px-6 py-8">
@@ -155,20 +184,22 @@
                         min="0"
                         value="{{ old('family_member_count', $existingData->family_member_count ?? '0') }}"
                         class="w-24 border border-gray-300 rounded px-2 py-1 mb-6 focus:outline-none focus:ring-1 focus:ring-blue-600"
+                        placeholder="e.g. 5"
+                        required
                     />
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-4 mb-6">
                         <div>
                             <label for="relation_student" class="block mb-1">Relation with Student <span class="text-red-500">*</span></label>
-                            <input id="relation_student" name="relation_student" type="text" value="{{ old('relation_student', $existingData->relation_student ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required />
+                            <input id="relation_student" name="relation_student" type="text" value="{{ old('relation_student', $existingData->relation_student ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required placeholder="e.g. Father" />
                         </div>
                         <div>
                             <label for="family_name" class="block mb-1">Name <span class="text-red-500">*</span></label>
-                            <input id="family_name" name="family_name" type="text" value="{{ old('family_name', $existingData->family_name ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required />
+                            <input id="family_name" name="family_name" type="text" value="{{ old('family_name', $existingData->family_name ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required placeholder="e.g. Rajesh Kumar" />
                         </div>
                         <div>
                             <label for="family_age" class="block mb-1">Age <span class="text-red-500">*</span></label>
-                            <input id="family_age" name="family_age" type="number" min="0" value="{{ old('family_age', $existingData->family_age ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required />
+                            <input id="family_age" name="family_age" type="number" min="0" value="{{ old('family_age', $existingData->family_age ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required placeholder="e.g. 45" />
                         </div>
 
                         <div>
@@ -182,34 +213,34 @@
                             </select>
                         </div>
                         <div>
-                            <label for="qualification" class="block mb-1">Qualification</label>
-                            <input id="qualification" name="qualification" type="text" value="{{ old('qualification', $existingData->qualification ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" />
+                            <label for="qualification" class="block mb-1">Qualification <span class="text-red-500">*</span></label>
+                            <input id="qualification" name="qualification" type="text" value="{{ old('qualification', $existingData->qualification ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required placeholder="e.g. B.Tech" />
                         </div>
                         <div>
-                            <label for="occupation" class="block mb-1">Occupation</label>
-                            <input id="occupation" name="occupation" type="text" value="{{ old('occupation', $existingData->occupation ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" />
-                        </div>
-
-                        <div>
-                            <label for="mobile_number" class="block mb-1">Mobile Number</label>
-                            <input id="mobile_number" name="mobile_number" type="tel" maxlength="10" value="{{ old('mobile_number', $existingData->mobile_number ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" />
-                        </div>
-                        <div>
-                            <label for="email_id" class="block mb-1">Email ID</label>
-                            <input id="email_id" name="email_id" type="email" value="{{ old('email_id', $existingData->email_id ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" />
-                        </div>
-                        <div>
-                            <label for="yearly_gross_income" class="block mb-1">Yearly Gross Income</label>
-                            <input id="yearly_gross_income" name="yearly_gross_income" type="number" step="0.01" value="{{ old('yearly_gross_income', $existingData->yearly_gross_income ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" />
+                            <label for="occupation" class="block mb-1">Occupation <span class="text-red-500">*</span></label>
+                            <input id="occupation" name="occupation" type="text" value="{{ old('occupation', $existingData->occupation ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required placeholder="e.g. Software Engineer" />
                         </div>
 
                         <div>
-                            <label for="insurance_coverage" class="block mb-1">Individual Insurance coverage value</label>
-                            <input id="insurance_coverage" name="insurance_coverage" type="number" step="0.01" value="{{ old('insurance_coverage', $existingData->insurance_coverage ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" />
+                            <label for="mobile_number" class="block mb-1">Mobile Number <span class="text-red-500">*</span></label>
+                            <input id="mobile_number" name="mobile_number" type="tel" maxlength="10" value="{{ old('mobile_number', $existingData->mobile_number ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required placeholder="e.g. 9876543210" />
                         </div>
                         <div>
-                            <label for="premium_paid" class="block mb-1">Individual Premium paid per year</label>
-                            <input id="premium_paid" name="premium_paid" type="number" step="0.01" value="{{ old('premium_paid', $existingData->premium_paid ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" />
+                            <label for="email_id" class="block mb-1">Email ID <span class="text-red-500">*</span></label>
+                            <input id="email_id" name="email_id" type="email" value="{{ old('email_id', $existingData->email_id ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required placeholder="e.g. example@email.com" />
+                        </div>
+                        <div>
+                            <label for="yearly_gross_income" class="block mb-1">Yearly Gross Income <span class="text-red-500">*</span></label>
+                            <input id="yearly_gross_income" name="yearly_gross_income" type="number" step="0.01" value="{{ old('yearly_gross_income', $existingData->yearly_gross_income ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required placeholder="e.g. 500000" />
+                        </div>
+
+                        <div>
+                            <label for="insurance_coverage" class="block mb-1">Individual Insurance coverage value <span class="text-red-500">*</span></label>
+                            <input id="insurance_coverage" name="insurance_coverage" type="number" step="0.01" value="{{ old('insurance_coverage', $existingData->insurance_coverage ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required placeholder="e.g. 5000000" />
+                        </div>
+                        <div>
+                            <label for="premium_paid" class="block mb-1">Individual Premium paid per year <span class="text-red-500">*</span></label>
+                            <input id="premium_paid" name="premium_paid" type="number" step="0.01" value="{{ old('premium_paid', $existingData->premium_paid ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm" required placeholder="e.g. 25000" />
                         </div>
                         <div></div>
                     </div>
@@ -225,29 +256,31 @@
                         min="0"
                         value="{{ old('total_family_members', $existingData->total_family_members ?? '') }}"
                         class="w-24 border border-gray-300 rounded px-2 py-1 mb-6 focus:outline-none focus:ring-1 focus:ring-blue-600 text-sm"
+                        placeholder="e.g. 5"
+                        required
                     />
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-4 mb-6 text-sm">
                         <div>
-                            <label for="total_student" class="block mb-1">Total No of Student</label>
-                            <input id="total_student" name="total_student" type="number" min="0" value="{{ old('total_student', $existingData->total_student ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" />
+                            <label for="total_student" class="block mb-1">Total No of Student <span class="text-red-500">*</span></label>
+                            <input id="total_student" name="total_student" type="number" min="0" value="{{ old('total_student', $existingData->total_student ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" required placeholder="e.g. 2" />
                         </div>
                         <div>
-                            <label for="total_family_income" class="block mb-1">Total Family Income</label>
-                            <input id="total_family_income" name="total_family_income" type="number" step="0.01" value="{{ old('total_family_income', $existingData->total_family_income ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" />
+                            <label for="total_family_income" class="block mb-1">Total Family Income <span class="text-red-500">*</span></label>
+                            <input id="total_family_income" name="total_family_income" type="number" step="0.01" value="{{ old('total_family_income', $existingData->total_family_income ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" required placeholder="e.g. 800000" />
                         </div>
                         <div>
-                            <label for="family_member_diksha" class="block mb-1">Family Member taken diksha</label>
-                            <input id="family_member_diksha" name="family_member_diksha" type="text" value="{{ old('family_member_diksha', $existingData->family_member_diksha ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" />
+                            <label for="family_member_diksha" class="block mb-1">Family Member taken diksha <span class="text-red-500">*</span></label>
+                            <input id="family_member_diksha" name="family_member_diksha" type="text" value="{{ old('family_member_diksha', $existingData->family_member_diksha ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" required placeholder="e.g. Yes/No" />
                         </div>
 
                         <div>
-                            <label for="total_insurance_coverage" class="block mb-1">Total Insurance Coverage of Family</label>
-                            <input id="total_insurance_coverage" name="total_insurance_coverage" type="number" step="0.01" value="{{ old('total_insurance_coverage', $existingData->total_insurance_coverage ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" />
+                            <label for="total_insurance_coverage" class="block mb-1">Total Insurance Coverage of Family <span class="text-red-500">*</span></label>
+                            <input id="total_insurance_coverage" name="total_insurance_coverage" type="number" step="0.01" value="{{ old('total_insurance_coverage', $existingData->total_insurance_coverage ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" required placeholder="e.g. 10000000" />
                         </div>
                         <div>
-                            <label for="total_premium_paid" class="block mb-1">Total Premium paid in rupees per/year</label>
-                            <input id="total_premium_paid" name="total_premium_paid" type="number" step="0.01" value="{{ old('total_premium_paid', $existingData->total_premium_paid ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" />
+                            <label for="total_premium_paid" class="block mb-1">Total Premium paid in rupees per/year <span class="text-red-500">*</span></label>
+                            <input id="total_premium_paid" name="total_premium_paid" type="number" step="0.01" value="{{ old('total_premium_paid', $existingData->total_premium_paid ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" required placeholder="e.g. 50000" />
                         </div>
                         <div></div>
                     </div>
@@ -257,64 +290,64 @@
                     <div class="mb-2 font-semibold text-sm">Parental Uncle</div>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-4 mb-6 text-sm">
                         <div>
-                            <label for="parental_uncle_name" class="block mb-1">Name</label>
-                            <input id="parental_uncle_name" name="parental_uncle_name" type="text" value="{{ old('parental_uncle_name', $existingData->parental_uncle_name ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" />
+                            <label for="parental_uncle_name" class="block mb-1">Name <span class="text-red-500">*</span></label>
+                            <input id="parental_uncle_name" name="parental_uncle_name" type="text" value="{{ old('parental_uncle_name', $existingData->parental_uncle_name ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" required placeholder="e.g. Uncle Name" />
                         </div>
                         <div>
-                            <label for="parental_uncle_mobile" class="block mb-1">Mobile Number</label>
-                            <input id="parental_uncle_mobile" name="parental_uncle_mobile" type="tel" maxlength="10" value="{{ old('parental_uncle_mobile', $existingData->parental_uncle_mobile ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" />
+                            <label for="parental_uncle_mobile" class="block mb-1">Mobile Number <span class="text-red-500">*</span></label>
+                            <input id="parental_uncle_mobile" name="parental_uncle_mobile" type="tel" maxlength="10" value="{{ old('parental_uncle_mobile', $existingData->parental_uncle_mobile ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" required placeholder="e.g. 9876543210" />
                         </div>
                         <div>
-                            <label for="parental_uncle_email" class="block mb-1">Email Id</label>
-                            <input id="parental_uncle_email" name="parental_uncle_email" type="email" value="{{ old('parental_uncle_email', $existingData->parental_uncle_email ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" />
+                            <label for="parental_uncle_email" class="block mb-1">Email Id <span class="text-red-500">*</span></label>
+                            <input id="parental_uncle_email" name="parental_uncle_email" type="email" value="{{ old('parental_uncle_email', $existingData->parental_uncle_email ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" required placeholder="e.g. uncle@email.com" />
                         </div>
                     </div>
 
                     <div class="mb-2 font-semibold text-sm">Maternal Uncle</div>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-4 mb-6 text-sm">
                         <div>
-                            <label for="maternal_uncle_name" class="block mb-1">Name</label>
-                            <input id="maternal_uncle_name" name="maternal_uncle_name" type="text" value="{{ old('maternal_uncle_name', $existingData->maternal_uncle_name ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" />
+                            <label for="maternal_uncle_name" class="block mb-1">Name <span class="text-red-500">*</span></label>
+                            <input id="maternal_uncle_name" name="maternal_uncle_name" type="text" value="{{ old('maternal_uncle_name', $existingData->maternal_uncle_name ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" required placeholder="e.g. Uncle Name" />
                         </div>
                         <div>
-                            <label for="maternal_uncle_mobile" class="block mb-1">Mobile Number</label>
-                            <input id="maternal_uncle_mobile" name="maternal_uncle_mobile" type="tel" maxlength="10" value="{{ old('maternal_uncle_mobile', $existingData->maternal_uncle_mobile ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" />
+                            <label for="maternal_uncle_mobile" class="block mb-1">Mobile Number <span class="text-red-500">*</span></label>
+                            <input id="maternal_uncle_mobile" name="maternal_uncle_mobile" type="tel" maxlength="10" value="{{ old('maternal_uncle_mobile', $existingData->maternal_uncle_mobile ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" required placeholder="e.g. 9876543210" />
                         </div>
                         <div>
-                            <label for="maternal_uncle_email" class="block mb-1">Email Id</label>
-                            <input id="maternal_uncle_email" name="maternal_uncle_email" type="email" value="{{ old('maternal_uncle_email', $existingData->maternal_uncle_email ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" />
+                            <label for="maternal_uncle_email" class="block mb-1">Email Id <span class="text-red-500">*</span></label>
+                            <input id="maternal_uncle_email" name="maternal_uncle_email" type="email" value="{{ old('maternal_uncle_email', $existingData->maternal_uncle_email ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" required placeholder="e.g. uncle@email.com" />
                         </div>
                     </div>
 
                     <div class="mb-2 font-semibold text-sm">Parental Aunty</div>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-4 mb-6 text-sm">
                         <div>
-                            <label for="parental_aunty_name" class="block mb-1">Name</label>
-                            <input id="parental_aunty_name" name="parental_aunty_name" type="text" value="{{ old('parental_aunty_name', $existingData->parental_aunty_name ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" />
+                            <label for="parental_aunty_name" class="block mb-1">Name <span class="text-red-500">*</span></label>
+                            <input id="parental_aunty_name" name="parental_aunty_name" type="text" value="{{ old('parental_aunty_name', $existingData->parental_aunty_name ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" required placeholder="e.g. Aunty Name" />
                         </div>
                         <div>
-                            <label for="parental_aunty_mobile" class="block mb-1">Mobile Number</label>
-                            <input id="parental_aunty_mobile" name="parental_aunty_mobile" type="tel" maxlength="10" value="{{ old('parental_aunty_mobile', $existingData->parental_aunty_mobile ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" />
+                            <label for="parental_aunty_mobile" class="block mb-1">Mobile Number <span class="text-red-500">*</span></label>
+                            <input id="parental_aunty_mobile" name="parental_aunty_mobile" type="tel" maxlength="10" value="{{ old('parental_aunty_mobile', $existingData->parental_aunty_mobile ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" required placeholder="e.g. 9876543210" />
                         </div>
                         <div>
-                            <label for="parental_aunty_email" class="block mb-1">Email Id</label>
-                            <input id="parental_aunty_email" name="parental_aunty_email" type="email" value="{{ old('parental_aunty_email', $existingData->parental_aunty_email ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" />
+                            <label for="parental_aunty_email" class="block mb-1">Email Id <span class="text-red-500">*</span></label>
+                            <input id="parental_aunty_email" name="parental_aunty_email" type="email" value="{{ old('parental_aunty_email', $existingData->parental_aunty_email ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" required placeholder="e.g. aunty@email.com" />
                         </div>
                     </div>
 
                     <div class="mb-2 font-semibold text-sm">Maternal Aunty</div>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-4 mb-6 text-sm">
                         <div>
-                            <label for="maternal_aunty_name" class="block mb-1">Name</label>
-                            <input id="maternal_aunty_name" name="maternal_aunty_name" type="text" value="{{ old('maternal_aunty_name', $existingData->maternal_aunty_name ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" />
+                            <label for="maternal_aunty_name" class="block mb-1">Name <span class="text-red-500">*</span></label>
+                            <input id="maternal_aunty_name" name="maternal_aunty_name" type="text" value="{{ old('maternal_aunty_name', $existingData->maternal_aunty_name ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" required placeholder="e.g. Aunty Name" />
                         </div>
                         <div>
-                            <label for="maternal_aunty_mobile" class="block mb-1">Mobile Number</label>
-                            <input id="maternal_aunty_mobile" name="maternal_aunty_mobile" type="tel" maxlength="10" value="{{ old('maternal_aunty_mobile', $existingData->maternal_aunty_mobile ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" />
+                            <label for="maternal_aunty_mobile" class="block mb-1">Mobile Number <span class="text-red-500">*</span></label>
+                            <input id="maternal_aunty_mobile" name="maternal_aunty_mobile" type="tel" maxlength="10" value="{{ old('maternal_aunty_mobile', $existingData->maternal_aunty_mobile ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" required placeholder="e.g. 9876543210" />
                         </div>
                         <div>
-                            <label for="maternal_aunty_email" class="block mb-1">Email Id</label>
-                            <input id="maternal_aunty_email" name="maternal_aunty_email" type="email" value="{{ old('maternal_aunty_email', $existingData->maternal_aunty_email ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" />
+                            <label for="maternal_aunty_email" class="block mb-1">Email Id <span class="text-red-500">*</span></label>
+                            <input id="maternal_aunty_email" name="maternal_aunty_email" type="email" value="{{ old('maternal_aunty_email', $existingData->maternal_aunty_email ?? '') }}" class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600" required placeholder="e.g. aunty@email.com" />
                         </div>
                     </div>
 
@@ -344,6 +377,17 @@
             const loadingText = document.getElementById('loading-text');
             const messageContainer = document.getElementById('message-container');
 
+            // Add event listeners to remove error highlighting when user starts typing
+            const inputs = form.querySelectorAll('input, select, textarea');
+            inputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    if (this.classList.contains('field-error')) {
+                        this.classList.remove('field-error');
+                        this.classList.add('border-gray-300');
+                    }
+                });
+            });
+
             // Check for existing submission_id and load data if available
             checkExistingSession();
 
@@ -361,111 +405,52 @@
                 }
             }
 
-            // Function to clear all validation errors
-            function clearValidationErrors() {
-                document.querySelectorAll('.error-message').forEach(el => el.remove());
-                document.querySelectorAll('.border-red-500').forEach(el => {
-                    el.classList.remove('border-red-500', 'border-red-400');
-                    el.classList.add('border-gray-300');
+            // Function to clear error highlights
+            function clearErrorHighlights() {
+                const errorFields = form.querySelectorAll('.field-error');
+                errorFields.forEach(field => {
+                    field.classList.remove('field-error');
+                    field.classList.add('border-gray-300');
                 });
             }
 
-            // Function to display validation errors
-            function displayValidationErrors(errors) {
-                clearValidationErrors();
-
-                Object.keys(errors).forEach(fieldName => {
-                    const field = document.getElementById(fieldName);
-                    if (field) {
-                        field.classList.remove('border-gray-300');
-                        field.classList.add('border-red-500');
-
-                        const errorDiv = document.createElement('div');
-                        errorDiv.className = 'error-message text-red-500 text-xs mt-1';
-                        errorDiv.textContent = errors[fieldName][0];
-
-                        field.parentNode.insertBefore(errorDiv, field.nextSibling);
-
-                        if (Object.keys(errors)[0] === fieldName) {
-                            field.focus();
-                            field.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        }
-                    }
-                });
+            // Function to get field label for better error messages
+            function getFieldLabel(fieldName) {
+                const labelMap = {
+                    'family_member_count': 'Family Member Count',
+                    'total_family_members': 'Total Family Members',
+                    'relation_student': 'Relation with Student',
+                    'family_name': 'Family Member Name',
+                    'family_age': 'Family Member Age',
+                    'marital_status': 'Marital Status',
+                    'qualification': 'Qualification',
+                    'occupation': 'Occupation',
+                    'mobile_number': 'Mobile Number',
+                    'email_id': 'Email ID',
+                    'yearly_gross_income': 'Yearly Gross Income',
+                    'insurance_coverage': 'Insurance Coverage',
+                    'premium_paid': 'Premium Paid',
+                    'total_student': 'Total Number of Students',
+                    'total_family_income': 'Total Family Income',
+                    'family_member_diksha': 'Family Member Taken Diksha',
+                    'total_insurance_coverage': 'Total Insurance Coverage',
+                    'total_premium_paid': 'Total Premium Paid',
+                    'parental_uncle_name': 'Parental Uncle Name',
+                    'parental_uncle_mobile': 'Parental Uncle Mobile',
+                    'parental_uncle_email': 'Parental Uncle Email',
+                    'maternal_uncle_name': 'Maternal Uncle Name',
+                    'maternal_uncle_mobile': 'Maternal Uncle Mobile',
+                    'maternal_uncle_email': 'Maternal Uncle Email',
+                    'parental_aunty_name': 'Parental Aunty Name',
+                    'parental_aunty_mobile': 'Parental Aunty Mobile',
+                    'parental_aunty_email': 'Parental Aunty Email',
+                    'maternal_aunty_name': 'Maternal Aunty Name',
+                    'maternal_aunty_mobile': 'Maternal Aunty Mobile',
+                    'maternal_aunty_email': 'Maternal Aunty Email'
+                };
+                
+                return labelMap[fieldName] || fieldName;
             }
-
-            // Form submission
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-
-                clearValidationErrors();
-
-                submitBtn.disabled = true;
-                submitText.classList.add('hidden');
-                loadingText.classList.remove('hidden');
-
-                const formData = new FormData(form);
-
-                fetch(form.action, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'X-Requested-With': 'XMLHttpRequest' // This header helps Laravel identify AJAX requests
-                    },
-                    redirect: 'follow' // Follow redirects
-                })
-                .then(response => {
-                    // Handle redirects
-                    if (response.redirected) {
-                        window.location.href = response.url;
-                        return;
-                    }
-                    
-                    // Check if the response is JSON
-                    const contentType = response.headers.get('content-type');
-                    
-                    if (contentType && contentType.includes('application/json')) {
-                        if (!response.ok) {
-                            throw new Error(`HTTP error! status: ${response.status}`);
-                        }
-                        return response.json();
-                    } else {
-                        // If not JSON, it's likely an HTML redirect or error page
-                        window.location.reload();
-                        return;
-                    }
-                })
-                .then(data => {
-                    if (!data) return; // If redirected, data will be undefined
-                    
-                    if (data.success) {
-                        clearValidationErrors();
-                        showMessage('Family details saved successfully!', 'success');
-                        // Redirect to education details page
-                        setTimeout(() => {
-                            window.location.href = '{{ route("education-details", ["submission_id" => $submissionId ?? ""]) }}';
-                        }, 1500);
-                    } else {
-                        if (data.errors) {
-                            displayValidationErrors(data.errors);
-                            showMessage('Please correct the errors below and try again.', 'error');
-                        } else {
-                            showMessage(data.message || 'Error saving details', 'error');
-                        }
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    clearValidationErrors();
-                    showMessage('An error occurred. Please try again.', 'error');
-                })
-                .finally(() => {
-                    submitBtn.disabled = false;
-                    submitText.classList.remove('hidden');
-                    loadingText.classList.add('hidden');
-                });
-            });
 
             function showMessage(message, type) {
                 const messageDiv = document.createElement('div');
@@ -489,8 +474,124 @@
                     if (messageDiv.parentNode) {
                         messageDiv.remove();
                     }
-                }, 5000);
+                }, 10000); // Increased timeout to 10 seconds for better visibility
             }
+
+            // Form submission
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                clearErrorHighlights();
+
+                submitBtn.disabled = true;
+                submitText.classList.add('hidden');
+                loadingText.classList.remove('hidden');
+
+                const formData = new FormData(form);
+
+                fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'X-Requested-With': 'XMLHttpRequest' // This header helps Laravel identify AJAX requests
+                    },
+                    redirect: 'follow' // Follow redirects
+                })
+                .then(response => {
+                    // Handle redirects
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                        return Promise.reject('redirected'); // Use reject to skip further processing
+                    }
+                    
+                    // Check if the response is JSON
+                    const contentType = response.headers.get('content-type');
+                    
+                    if (contentType && contentType.includes('application/json')) {
+                        return response.json().then(data => {
+                            // If response is not ok, but we have JSON data, pass it along
+                            // This handles validation errors (422) that still return JSON
+                            return { ok: response.ok, data: data, status: response.status };
+                        });
+                    } else {
+                        // If not JSON, it's likely an HTML redirect or error page
+                        if (response.ok) {
+                            window.location.reload();
+                            return Promise.reject('reload'); // Use reject to skip further processing
+                        } else {
+                            // Handle non-JSON error responses
+                            return response.text().then(text => {
+                                throw new Error(`HTTP error! status: ${response.status}, body: ${text}`);
+                            });
+                        }
+                    }
+                })
+                .then(result => {
+                    // Skip processing if we've already handled redirect or reload
+                    if (!result) return;
+                    
+                    const { ok, data, status } = result;
+                    
+                    if (ok) {
+                        // Success case
+                        if (data.success) {
+                            showMessage('Family details saved successfully!', 'success');
+                            // Redirect to education details page
+                            setTimeout(() => {
+                                window.location.href = data.redirect_url || '{{ route("education-details", ["submission_id" => $submissionId ?? ""]) }}';
+                            }, 1500);
+                        } else {
+                            // Handle unexpected success response format
+                            showMessage(data.message || 'Operation completed successfully!', 'success');
+                        }
+                    } else {
+                        // Error case (including validation errors)
+                        if (data.errors) {
+                            // Display individual field errors as separate toast messages
+                            let firstErrorField = null;
+                            for (const field in data.errors) {
+                                data.errors[field].forEach(error => {
+                                    showMessage(`${getFieldLabel(field)}: ${error}`, 'error');
+                                });
+                                
+                                // Highlight the field with error
+                                const fieldElement = document.getElementById(field);
+                                if (fieldElement) {
+                                    fieldElement.classList.remove('border-gray-300');
+                                    fieldElement.classList.add('field-error');
+                                    
+                                    // Keep track of the first error field for scrolling
+                                    if (!firstErrorField) {
+                                        firstErrorField = fieldElement;
+                                    }
+                                }
+                            }
+                            
+                            // Scroll to the first error field
+                            if (firstErrorField) {
+                                firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                firstErrorField.focus();
+                            }
+                        } else {
+                            // Handle other types of errors
+                            showMessage(data.message || `Error: ${status}`, 'error');
+                        }
+                    }
+                })
+                .catch(error => {
+                    // Handle network errors or other exceptions
+                    console.error('Error:', error);
+                    if (error !== 'redirected' && error !== 'reload') {
+                        showMessage('An error occurred. Please try again.', 'error');
+                    }
+                })
+                .finally(() => {
+                    submitBtn.disabled = false;
+                    submitText.classList.remove('hidden');
+                    loadingText.classList.add('hidden');
+                });
+            });
 
             // Navigation tab handlers
             const personalDetailsTab = document.getElementById('personal-details-tab');

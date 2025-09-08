@@ -24,6 +24,8 @@
         .hover\:bg-project-primary:hover { background-color: #4c63d2; }
         .hover\:bg-project-success:hover { background-color: #008139; }
         .hover\:bg-project-warning:hover { background-color: #e6a800; }
+        .border-error { border-color: #ef4444; border-width: 2px; }
+        .field-error { border: 2px solid #ef4444 !important; }
     </style>
 </head>
 <body class="bg-white text-gray-900">
@@ -130,6 +132,7 @@
                            name="name"
                            type="text"
                            value="{{ old('name', $existingData->name ?? '') }}"
+                           placeholder="e.g. John Doe"
                            required/>
                 </div>
                 <div></div>
@@ -142,6 +145,7 @@
                            name="applicant"
                            type="text"
                            value="{{ old('applicant', $existingData->applicant ?? '') }}"
+                           placeholder="e.g. Parent/Guardian Name"
                            required/>
                 </div>
                 <div>
@@ -153,6 +157,7 @@
                            name="request_date"
                            type="date"
                            value="{{ old('request_date', $existingData && $existingData->request_date ? $existingData->request_date->format('Y-m-d') : '') }}"
+                           placeholder="Select date"
                            required/>
                 </div>
                 <div>
@@ -179,6 +184,7 @@
                            name="financial_asst_for"
                            type="text"
                            value="{{ old('financial_asst_for', $existingData->financial_asst_for ?? '') }}"
+                           placeholder="e.g. Education/Books"
                            required/>
                 </div>
                 <div>
@@ -190,7 +196,8 @@
                            name="paid_amount"
                            type="number"
                            step="0.01"
-                           value="{{ old('paid_amount', $existingData->paid_amount ?? '') }}"/>
+                           value="{{ old('paid_amount', $existingData->paid_amount ?? '') }}"
+                           placeholder="e.g. 5000"/>
                 </div>
                 <div>
                     <label class="block text-xs text-gray-600 mb-1" for="approve_date">
@@ -200,7 +207,8 @@
                            id="approve_date"
                            name="approve_date"
                            type="date"
-                           value="{{ old('approve_date', $existingData && $existingData->approve_date ? $existingData->approve_date->format('Y-m-d') : '') }}"/>
+                           value="{{ old('approve_date', $existingData && $existingData->approve_date ? $existingData->approve_date->format('Y-m-d') : '') }}"
+                           placeholder="Select date"/>
                 </div>
                 <div>
                     <label class="block text-xs text-gray-600 mb-1" for="outstanding_amount">
@@ -211,7 +219,8 @@
                            name="outstanding_amount"
                            type="number"
                            step="0.01"
-                           value="{{ old('outstanding_amount', $existingData->outstanding_amount ?? '') }}"/>
+                           value="{{ old('outstanding_amount', $existingData->outstanding_amount ?? '') }}"
+                           placeholder="e.g. 10000"/>
                 </div>
                 <div>
                     <label class="block text-xs text-gray-600 mb-1" for="form_status">
@@ -220,6 +229,7 @@
                     <select class="w-full border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
                             id="form_status"
                             name="form_status">
+                        <option value="">Select Status</option>
                         <option value="draft" {{ old('form_status', $existingData->form_status ?? '') == 'draft' ? 'selected' : '' }}>Draft</option>
                         <option value="submitted" {{ old('form_status', $existingData->form_status ?? '') == 'submitted' ? 'selected' : '' }}>Submitted</option>
                         <option value="under_review" {{ old('form_status', $existingData->form_status ?? '') == 'under_review' ? 'selected' : '' }}>Under Review</option>
@@ -317,6 +327,7 @@
                            type="text"
                            maxlength="12"
                            value="{{ old('aadhar_number', $existingData->aadhar_number ?? '') }}"
+                           placeholder="e.g. 123456789012"
                            required/>
                 </div>
                 <div>
@@ -328,6 +339,7 @@
                            name="date_of_birth"
                            type="date"
                            value="{{ old('date_of_birth', $existingData && $existingData->date_of_birth ? $existingData->date_of_birth->format('Y-m-d') : '') }}"
+                           placeholder="Select date"
                            required/>
                 </div>
                 <div>
@@ -339,6 +351,7 @@
                            name="birth_place"
                            type="text"
                            value="{{ old('birth_place', $existingData->birth_place ?? '') }}"
+                           placeholder="e.g. Mumbai"
                            required/>
                 </div>
                 <div>
@@ -350,6 +363,7 @@
                            name="student_first_name"
                            type="text"
                            value="{{ old('student_first_name', $existingData->student_first_name ?? '') }}"
+                           placeholder="e.g. John"
                            required/>
                 </div>
                 <div>
@@ -360,7 +374,8 @@
                            id="middle_name"
                            name="middle_name"
                            type="text"
-                           value="{{ old('middle_name', $existingData->middle_name ?? '') }}"/>
+                           value="{{ old('middle_name', $existingData->middle_name ?? '') }}"
+                           placeholder="e.g. Michael"/>
                 </div>
                 <div>
                     <label class="block mb-1" for="last_name">
@@ -528,6 +543,7 @@
                            name="flat_no"
                            type="text"
                            value="{{ old('flat_no', $existingData->flat_no ?? '') }}"
+                           placeholder="e.g. 123"
                            required/>
                 </div>
                 <div>
@@ -538,7 +554,8 @@
                            id="floor"
                            name="floor"
                            type="text"
-                           value="{{ old('floor', $existingData->floor ?? '') }}"/>
+                           value="{{ old('floor', $existingData->floor ?? '') }}"
+                           placeholder="e.g. 2nd Floor"/>
                 </div>
                 <div>
                     <label class="block mb-1" for="name_of_building">
@@ -549,6 +566,7 @@
                            name="name_of_building"
                            type="text"
                            value="{{ old('name_of_building', $existingData->name_of_building ?? '') }}"
+                           placeholder="e.g. Apartment Name"
                            required/>
                 </div>
                 <div>
@@ -560,6 +578,7 @@
                            name="area"
                            type="text"
                            value="{{ old('area', $existingData->area ?? '') }}"
+                           placeholder="e.g. Area Name"
                            required/>
                 </div>
                 <div>
@@ -570,7 +589,8 @@
                            id="lane"
                            name="lane"
                            type="text"
-                           value="{{ old('lane', $existingData->lane ?? '') }}"/>
+                           value="{{ old('lane', $existingData->lane ?? '') }}"
+                           placeholder="e.g. Lane Name"/>
                 </div>
                 <div>
                     <label class="block mb-1" for="landmark">
@@ -580,7 +600,8 @@
                            id="landmark"
                            name="landmark"
                            type="text"
-                           value="{{ old('landmark', $existingData->landmark ?? '') }}"/>
+                           value="{{ old('landmark', $existingData->landmark ?? '') }}"
+                           placeholder="e.g. Near School"/>
                 </div>
                 <div>
                     <label class="block mb-1" for="pincode">
@@ -592,6 +613,7 @@
                            type="text"
                            maxlength="6"
                            value="{{ old('pincode', $existingData->pincode ?? '') }}"
+                           placeholder="e.g. 400001"
                            required/>
                 </div>
                 <div>
@@ -603,6 +625,7 @@
                            name="status"
                            type="text"
                            value="{{ old('status', $existingData->status ?? '') }}"
+                           placeholder="e.g. Maharashtra"
                            required/>
                 </div>
                 <div>
@@ -614,6 +637,7 @@
                            name="city"
                            type="text"
                            value="{{ old('city', $existingData->city ?? '') }}"
+                           placeholder="e.g. Mumbai"
                            required/>
                 </div>
                 <div>
@@ -625,6 +649,7 @@
                            name="chapter"
                            type="text"
                            value="{{ old('chapter', $existingData->chapter ?? '') }}"
+                           placeholder="e.g. Mumbai Chapter"
                            required/>
                 </div>
                 <div>
@@ -635,7 +660,8 @@
                            id="new_zone"
                            name="new_zone"
                            type="text"
-                           value="{{ old('new_zone', $existingData->new_zone ?? '') }}"/>
+                           value="{{ old('new_zone', $existingData->new_zone ?? '') }}"
+                           placeholder="e.g. Zone Name"/>
                 </div>
                 <div>
                     <label class="block mb-1" for="district">
@@ -646,6 +672,7 @@
                            name="district"
                            type="text"
                            value="{{ old('district', $existingData->district ?? '') }}"
+                           placeholder="e.g. Mumbai District"
                            required/>
                 </div>
                 <div class="md:col-span-3">
@@ -656,6 +683,7 @@
                               id="postal_address"
                               name="postal_address"
                               rows="2"
+                              placeholder="e.g. Full postal address including all details"
                               required>{{ old('postal_address', $existingData->postal_address ?? '') }}</textarea>
                 </div>
                 <div>
@@ -666,7 +694,8 @@
                            id="alternate_mail_id"
                            name="alternate_mail_id"
                            type="email"
-                           value="{{ old('alternate_mail_id', $existingData->alternate_mail_id ?? '') }}"/>
+                           value="{{ old('alternate_mail_id', $existingData->alternate_mail_id ?? '') }}"
+                           placeholder="e.g. alternate@example.com"/>
                 </div>
                 <div>
                     <label class="block mb-1" for="alternate_mobile">
@@ -677,7 +706,8 @@
                            name="alternate_mobile"
                            type="tel"
                            maxlength="10"
-                           value="{{ old('alternate_mobile', $existingData->alternate_mobile ?? '') }}"/>
+                           value="{{ old('alternate_mobile', $existingData->alternate_mobile ?? '') }}"
+                           placeholder="e.g. 9876543210"/>
                 </div>
             </div>
         </section>
@@ -706,7 +736,8 @@
                                id="corr_flat_no"
                                name="corr_flat_no"
                                type="text"
-                               value="{{ old('corr_flat_no', $existingData->corr_flat_no ?? '') }}"/>
+                               value="{{ old('corr_flat_no', $existingData->corr_flat_no ?? '') }}"
+                               placeholder="e.g. 123"/>
                     </div>
                     <div>
                         <label class="block mb-1" for="corr_floor">
@@ -716,7 +747,8 @@
                                id="corr_floor"
                                name="corr_floor"
                                type="text"
-                               value="{{ old('corr_floor', $existingData->corr_floor ?? '') }}"/>
+                               value="{{ old('corr_floor', $existingData->corr_floor ?? '') }}"
+                               placeholder="e.g. 2nd Floor"/>
                     </div>
                     <div>
                         <label class="block mb-1" for="corr_name_of_building">
@@ -726,7 +758,8 @@
                                id="corr_name_of_building"
                                name="corr_name_of_building"
                                type="text"
-                               value="{{ old('corr_name_of_building', $existingData->corr_name_of_building ?? '') }}"/>
+                               value="{{ old('corr_name_of_building', $existingData->corr_name_of_building ?? '') }}"
+                               placeholder="e.g. Apartment Name"/>
                     </div>
                     <div>
                         <label class="block mb-1" for="corr_area">
@@ -736,7 +769,8 @@
                                id="corr_area"
                                name="corr_area"
                                type="text"
-                               value="{{ old('corr_area', $existingData->corr_area ?? '') }}"/>
+                               value="{{ old('corr_area', $existingData->corr_area ?? '') }}"
+                               placeholder="e.g. Area Name"/>
                     </div>
                     <div>
                         <label class="block mb-1" for="corr_lane">
@@ -746,7 +780,8 @@
                                id="corr_lane"
                                name="corr_lane"
                                type="text"
-                               value="{{ old('corr_lane', $existingData->corr_lane ?? '') }}"/>
+                               value="{{ old('corr_lane', $existingData->corr_lane ?? '') }}"
+                               placeholder="e.g. Lane Name"/>
                     </div>
                     <div>
                         <label class="block mb-1" for="corr_landmark">
@@ -756,7 +791,8 @@
                                id="corr_landmark"
                                name="corr_landmark"
                                type="text"
-                               value="{{ old('corr_landmark', $existingData->corr_landmark ?? '') }}"/>
+                               value="{{ old('corr_landmark', $existingData->corr_landmark ?? '') }}"
+                               placeholder="e.g. Near School"/>
                     </div>
                     <div>
                         <label class="block mb-1" for="corr_pincode">
@@ -767,7 +803,8 @@
                                name="corr_pincode"
                                type="text"
                                maxlength="6"
-                               value="{{ old('corr_pincode', $existingData->corr_pincode ?? '') }}"/>
+                               value="{{ old('corr_pincode', $existingData->corr_pincode ?? '') }}"
+                               placeholder="e.g. 400001"/>
                     </div>
                     <div>
                         <label class="block mb-1" for="corr_status">
@@ -777,7 +814,8 @@
                                id="corr_status"
                                name="corr_status"
                                type="text"
-                               value="{{ old('corr_status', $existingData->corr_status ?? '') }}"/>
+                               value="{{ old('corr_status', $existingData->corr_status ?? '') }}"
+                               placeholder="e.g. Maharashtra"/>
                     </div>
                     <div>
                         <label class="block mb-1" for="corr_city">
@@ -787,7 +825,8 @@
                                id="corr_city"
                                name="corr_city"
                                type="text"
-                               value="{{ old('corr_city', $existingData->corr_city ?? '') }}"/>
+                               value="{{ old('corr_city', $existingData->corr_city ?? '') }}"
+                               placeholder="e.g. Mumbai"/>
                     </div>
                     <div>
                         <label class="block mb-1 text-[9px]" for="corr_chapter">
@@ -797,7 +836,8 @@
                                id="corr_chapter"
                                name="corr_chapter"
                                type="text"
-                               value="{{ old('corr_chapter', $existingData->corr_chapter ?? '') }}"/>
+                               value="{{ old('corr_chapter', $existingData->corr_chapter ?? '') }}"
+                               placeholder="e.g. Mumbai Chapter"/>
                     </div>
                     <div>
                         <label class="block mb-1" for="corr_new_zone">
@@ -807,7 +847,8 @@
                                id="corr_new_zone"
                                name="corr_new_zone"
                                type="text"
-                               value="{{ old('corr_new_zone', $existingData->corr_new_zone ?? '') }}"/>
+                               value="{{ old('corr_new_zone', $existingData->corr_new_zone ?? '') }}"
+                               placeholder="e.g. Zone Name"/>
                     </div>
                     <div>
                         <label class="block mb-1" for="corr_district">
@@ -817,7 +858,8 @@
                                id="corr_district"
                                name="corr_district"
                                type="text"
-                               value="{{ old('corr_district', $existingData->corr_district ?? '') }}"/>
+                               value="{{ old('corr_district', $existingData->corr_district ?? '') }}"
+                               placeholder="e.g. Mumbai District"/>
                     </div>
                     <div class="md:col-span-3">
                         <label class="block mb-1" for="corr_postal_address">
@@ -826,7 +868,8 @@
                         <textarea class="w-full border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
                                   id="corr_postal_address"
                                   name="corr_postal_address"
-                                  rows="2">{{ old('corr_postal_address', $existingData->corr_postal_address ?? '') }}</textarea>
+                                  rows="2"
+                                  placeholder="e.g. Full postal address including all details">{{ old('corr_postal_address', $existingData->corr_postal_address ?? '') }}</textarea>
                     </div>
                     <div>
                         <label class="block mb-1" for="corr_alternate_mail_id">
@@ -836,7 +879,8 @@
                                id="corr_alternate_mail_id"
                                name="corr_alternate_mail_id"
                                type="email"
-                               value="{{ old('corr_alternate_mail_id', $existingData->corr_alternate_mail_id ?? '') }}"/>
+                               value="{{ old('corr_alternate_mail_id', $existingData->corr_alternate_mail_id ?? '') }}"
+                               placeholder="e.g. alternate@example.com"/>
                     </div>
                     <div>
                         <label class="block mb-1" for="corr_alternate_mobile">
@@ -847,7 +891,8 @@
                                name="corr_alternate_mobile"
                                type="tel"
                                maxlength="10"
-                               value="{{ old('corr_alternate_mobile', $existingData->corr_alternate_mobile ?? '') }}"/>
+                               value="{{ old('corr_alternate_mobile', $existingData->corr_alternate_mobile ?? '') }}"
+                               placeholder="e.g. 9876543210"/>
                     </div>
                 </div>
             </div>
@@ -887,6 +932,22 @@
 
             // Check for existing submission_id in localStorage on page load
             checkExistingSession();
+
+            // Add event listeners to remove error highlighting when user starts typing
+            const inputs = form.querySelectorAll("input, select, textarea");
+            inputs.forEach(input => {
+                input.addEventListener("input", function () {
+                    if (this.classList.contains("border-red-500")) {
+                        this.classList.remove("border-red-500");
+                        this.classList.add("border-gray-300");
+                        // Remove associated error message
+                        const errorDiv = this.parentNode.querySelector(".error-message");
+                        if (errorDiv) {
+                            errorDiv.remove();
+                        }
+                    }
+                });
+            });
 
             function checkExistingSession() {
                 const existingSubmissionId = localStorage.getItem('jito_submission_id');
@@ -963,6 +1024,70 @@
                     el.classList.remove('border-red-500', 'border-red-400');
                     el.classList.add('border-gray-300');
                 });
+            }
+
+            // Function to get field label for better error messages
+            function getFieldLabel(fieldName) {
+                const labelMap = {
+                    'name': 'Name',
+                    'applicant': 'Applicant',
+                    'request_date': 'Request Date',
+                    'financial_asst_type': 'Financial Assistance Type',
+                    'financial_asst_for': 'Financial Assistance For',
+                    'aadhar_number': 'Aadhar Number',
+                    'date_of_birth': 'Date of Birth',
+                    'birth_place': 'Birth Place',
+                    'student_first_name': 'Student First Name',
+                    'middle_name': 'Middle Name',
+                    'last_name': 'Last Name',
+                    'marital_status': 'Marital Status',
+                    'native_place': 'Native Place',
+                    'age': 'Age',
+                    'nationality': 'Nationality',
+                    'gender': 'Gender',
+                    'religion': 'Religion',
+                    'specially_abled': 'Specially Abled',
+                    'blood_group': 'Blood Group',
+                    'student_email': 'Student Email',
+                    'student_mobile': 'Student Mobile',
+                    'pan_no': 'PAN Number',
+                    'flat_no': 'Flat Number',
+                    'floor': 'Floor',
+                    'name_of_building': 'Name of Building',
+                    'area': 'Area',
+                    'lane': 'Lane',
+                    'landmark': 'Landmark',
+                    'pincode': 'Pincode',
+                    'status': 'Status',
+                    'city': 'City',
+                    'postal_address': 'Postal Address',
+                    'new_zone': 'New Zone',
+                    'district': 'District',
+                    'chapter': 'Chapter',
+                    'alternate_mail_id': 'Alternate Mail Id',
+                    'alternate_mobile': 'Alternate Mobile',
+                    'corr_flat_no': 'Correspondence Flat Number',
+                    'corr_floor': 'Correspondence Floor',
+                    'corr_name_of_building': 'Correspondence Building Name',
+                    'corr_area': 'Correspondence Area',
+                    'corr_lane': 'Correspondence Lane',
+                    'corr_landmark': 'Correspondence Landmark',
+                    'corr_pincode': 'Correspondence Pincode',
+                    'corr_status': 'Correspondence Status',
+                    'corr_city': 'Correspondence City',
+                    'corr_postal_address': 'Correspondence Postal Address',
+                    'corr_new_zone': 'Correspondence New Zone',
+                    'corr_district': 'Correspondence District',
+                    'corr_chapter': 'Correspondence Chapter',
+                    'corr_alternate_mail_id': 'Correspondence Alternate Mail Id',
+                    'corr_alternate_mobile': 'Correspondence Alternate Mobile',
+                    'paid_amount': 'Paid Amount',
+                    'approve_date': 'Approve Date',
+                    'outstanding_amount': 'Outstanding Amount',
+                    'form_status': 'Form Status'
+                };
+
+                return labelMap[fieldName] || fieldName;
             }
 
             // Function to display validation errors
@@ -1119,8 +1244,31 @@
                         }, 1500);
                     } else {
                         if (data.errors) {
-                            displayValidationErrors(data.errors);
-                            showMessage('Please correct the errors below and try again.', 'error');
+                            // Display individual field errors as separate toast messages
+                            let firstErrorField = null;
+                            for (const field in data.errors) {
+                                data.errors[field].forEach(error => {
+                                    showMessage(`${getFieldLabel(field)}: ${error}`, 'error');
+                                });
+                                
+                                // Highlight the field with error
+                                const fieldElement = document.getElementById(field);
+                                if (fieldElement) {
+                                    fieldElement.classList.remove('border-gray-300');
+                                    fieldElement.classList.add('border-red-500');
+                                    
+                                    // Keep track of the first error field for scrolling
+                                    if (!firstErrorField) {
+                                        firstErrorField = fieldElement;
+                                    }
+                                }
+                            }
+                            
+                            // Scroll to the first error field
+                            if (firstErrorField) {
+                                firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                firstErrorField.focus();
+                            }
                         } else {
                             showMessage(data.message || 'Error saving details', 'error');
                         }

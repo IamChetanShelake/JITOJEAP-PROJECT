@@ -273,7 +273,7 @@
                         showMessage('Documents saved successfully!', 'success');
                         // Redirect to final submission page
                         setTimeout(() => {
-                            window.location.href = '{{ route("final-submission", ["submission_id" => $submissionId ?? ""]) }}';
+                            window.location.href = '{{ route("final-submission.index", ["submission_id" => $submissionId ?? ""]) }}';
                         }, 1500);
                     } else {
                         // Display validation errors if any

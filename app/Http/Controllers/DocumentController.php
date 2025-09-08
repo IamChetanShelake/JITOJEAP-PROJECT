@@ -175,7 +175,7 @@ class DocumentController extends Controller
             ]);
 
             // Redirect to the final submit page with success message
-            return redirect()->route('final-submission', ['submission_id' => $submissionId])
+            return redirect()->route('final-submission.index', ['submission_id' => $submissionId])
                 ->with('success', 'Documents saved successfully!');
 
         } catch (\Exception $e) {
