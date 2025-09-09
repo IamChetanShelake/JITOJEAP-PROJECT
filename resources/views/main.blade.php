@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JITO JEAP - Financial Assistance</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
     <style>
         .brand-logo {
             width: 144px;
@@ -388,7 +389,7 @@
             }
 
             /* Navigation Menu Mobile */
-            header .container > div:nth-child(2) {
+            header .container>div:nth-child(2) {
                 position: static !important;
                 text-align: center;
                 margin: 15px 0;
@@ -396,13 +397,14 @@
                 top: auto !important;
             }
 
-            header .container > div:nth-child(2) > div {
+            header .container>div:nth-child(2)>div {
                 justify-content: center;
                 flex-direction: column;
                 gap: 15px;
             }
 
-            .breadcrumb, .breadcrumb-normal {
+            .breadcrumb,
+            .breadcrumb-normal {
                 font-size: 14px !important;
                 padding: 8px 16px;
                 display: inline-block;
@@ -416,7 +418,7 @@
             }
 
             /* Navigation Icons Mobile */
-            header .container > div:nth-child(3) {
+            header .container>div:nth-child(3) {
                 position: static !important;
                 text-align: center;
                 margin: 15px 0;
@@ -424,7 +426,7 @@
                 top: auto !important;
             }
 
-            header .container > div:nth-child(3) > div {
+            header .container>div:nth-child(3)>div {
                 justify-content: center;
                 gap: 12px;
             }
@@ -454,7 +456,7 @@
                 margin-top: 20px;
             }
 
-            main .container > div {
+            main .container>div {
                 position: static !important;
                 text-align: center;
                 padding: 0 20px;
@@ -467,55 +469,63 @@
                 margin-bottom: 10px;
             }
 
-            .subtitle {
-                font-size: 14px !important;
-                margin-bottom: 20px;
-            }
-
-            .create-btn {
-                width: 100%;
-                max-width: 250px;
-                padding: 12px 20px;
-                font-size: 16px !important;
-            }
-
-            /* Table Mobile */
-            .applications-table {
-                width: calc(100% - 20px) !important;
-                margin: 30px 10px 50px !important;
-                font-size: 12px;
-                overflow-x: auto;
-            }
-
-            .table-cell {
-                padding: 6px 4px !important;
-                font-size: 10px !important;
-                min-width: 80px;
-            }
-
-            .table-header th {
-                padding: 8px 4px !important;
-                font-size: 11px !important;
-                min-width: 80px;
-            }
-
-            /* Action Buttons Mobile */
-            .action-buttons {
+            .absolute {
+                position: static !important;
+                display: flex;
                 flex-direction: column;
-                gap: 2px;
+                align-items: center;
             }
+        }
 
-            .action-btn {
-                width: 100%;
-                padding: 3px 6px;
-                font-size: 9px;
-                justify-content: center;
-            }
+        .subtitle {
+            font-size: 14px !important;
+            margin-bottom: 20px;
+        }
 
-            .actions-cell {
-                min-width: 80px !important;
-                padding: 4px 2px !important;
-            }
+        .create-btn {
+            width: 100%;
+            max-width: 250px;
+            padding: 12px 20px;
+            font-size: 16px !important;
+        }
+
+        /* Table Mobile */
+        .applications-table {
+            width: calc(100% - 20px) !important;
+            margin: 30px 10px 50px !important;
+            font-size: 12px;
+            overflow-x: auto;
+        }
+
+        .table-cell {
+            padding: 6px 4px !important;
+            font-size: 10px !important;
+            min-width: 80px;
+        }
+
+        .table-header th {
+            padding: 8px 4px !important;
+            font-size: 11px !important;
+            min-width: 80px;
+        }
+
+        /* Action Buttons Mobile */
+        .action-buttons {
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .action-btn {
+            width: 100%;
+            padding: 3px 6px;
+            font-size: 9px;
+            justify-content: center;
+        }
+
+        .actions-cell {
+            min-width: 80px !important;
+            padding: 4px 2px !important;
+        }
         }
 
         /* Mobile Large (481px to 767px) */
@@ -535,18 +545,19 @@
             }
 
             /* Navigation Menu Mobile Large */
-            header .container > div:nth-child(2) {
+            header .container>div:nth-child(2) {
                 position: static !important;
                 text-align: center;
                 margin: 20px 0;
             }
 
-            header .container > div:nth-child(2) > div {
+            header .container>div:nth-child(2)>div {
                 justify-content: center;
                 gap: 30px;
             }
 
-            .breadcrumb, .breadcrumb-normal {
+            .breadcrumb,
+            .breadcrumb-normal {
                 font-size: 16px !important;
             }
 
@@ -557,7 +568,7 @@
             }
 
             /* Navigation Icons Mobile Large */
-            header .container > div:nth-child(3) {
+            header .container>div:nth-child(3) {
                 position: static !important;
                 text-align: center;
                 margin: 15px 0;
@@ -574,7 +585,7 @@
             }
 
             /* Main Content Mobile Large */
-            main .container > div {
+            main .container>div {
                 position: static !important;
                 text-align: center;
                 padding: 0 30px;
@@ -611,16 +622,17 @@
             }
 
             /* Navigation Menu Tablet */
-            header .container > div:nth-child(2) {
+            header .container>div:nth-child(2) {
                 left: 250px !important;
                 top: 75px !important;
             }
 
-            header .container > div:nth-child(2) > div {
+            header .container>div:nth-child(2)>div {
                 gap: 25px;
             }
 
-            .breadcrumb, .breadcrumb-normal {
+            .breadcrumb,
+            .breadcrumb-normal {
                 font-size: 16px !important;
             }
 
@@ -630,7 +642,7 @@
             }
 
             /* Navigation Icons Tablet */
-            header .container > div:nth-child(3) {
+            header .container>div:nth-child(3) {
                 right: 60px !important;
                 top: 50px !important;
             }
@@ -643,7 +655,7 @@
             }
 
             /* Main Content Tablet */
-            main .container > div {
+            main .container>div {
                 left: 60px !important;
                 top: 60px !important;
             }
@@ -672,12 +684,12 @@
                 top: 58px !important;
             }
 
-            header .container > div:nth-child(2) {
+            header .container>div:nth-child(2) {
                 left: 280px !important;
                 top: 78px !important;
             }
 
-            header .container > div:nth-child(3) {
+            header .container>div:nth-child(3) {
                 right: 80px !important;
                 top: 80px !important;
             }
@@ -688,7 +700,7 @@
                 width: 320px !important;
             }
 
-            main .container > div {
+            main .container>div {
                 left: 100px !important;
                 top: 80px !important;
             }
@@ -706,11 +718,11 @@
                 left: 90px !important;
             }
 
-            header .container > div:nth-child(2) {
+            header .container>div:nth-child(2) {
                 left: 300px !important;
             }
 
-            header .container > div:nth-child(3) {
+            header .container>div:nth-child(3) {
                 right: 90px !important;
             }
 
@@ -719,7 +731,7 @@
                 width: 330px !important;
             }
 
-            main .container > div {
+            main .container>div {
                 left: 120px !important;
             }
 
@@ -755,11 +767,11 @@
                 top: 30px !important;
             }
 
-            header .container > div:nth-child(2) {
+            header .container>div:nth-child(2) {
                 top: 55px !important;
             }
 
-            header .container > div:nth-child(3) {
+            header .container>div:nth-child(3) {
                 top: 30px !important;
             }
 
@@ -767,7 +779,7 @@
                 top: 30px !important;
             }
 
-            main .container > div {
+            main .container>div {
                 top: 30px !important;
             }
         }
@@ -780,7 +792,8 @@
         }
 
         /* High DPI Display Adjustments */
-        @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+        @media (-webkit-min-device-pixel-ratio: 2),
+        (min-resolution: 192dpi) {
             .icon-image {
                 image-rendering: -webkit-optimize-contrast;
                 image-rendering: crisp-edges;
@@ -803,8 +816,10 @@
                 box-shadow: none !important;
             }
         }
+        
     </style>
 </head>
+
 <body class="bg-white min-h-screen">
     <!-- Header Section -->
     <header class="w-full bg-white" style="height: 153px;">
@@ -817,8 +832,10 @@
             <!-- Navigation Menu (Center) -->
             <div class="absolute" style="left: 328px; top: 82px;">
                 <div class="flex space-x-4 items-center">
-                    <span class="breadcrumb active" id="ef-assistance" onclick="switchTab('ef-assistance')" style="cursor: pointer;">EF Assistance</span>
-                    <span class="breadcrumb-normal" id="financial-assistance" onclick="switchTab('financial-assistance')" style="cursor: pointer;">Financial Assistance</span>
+                    <span class="breadcrumb active" id="ef-assistance" onclick="switchTab('ef-assistance')"
+                        style="cursor: pointer;">EF Assistance</span>
+                    <span class="breadcrumb-normal" id="financial-assistance"
+                        onclick="switchTab('financial-assistance')" style="cursor: pointer;">Financial Assistance</span>
                 </div>
                 <!-- Accent Line (properly aligned under active tab in navbar) -->
                 <div class="accent-line absolute" id="accent-line" style="left: 0px; top: 27px;"></div>
@@ -848,9 +865,13 @@
 
             <!-- Search Bar -->
             <div class="search-container absolute" style="right: -849px; top: 76px;">
-                <input type="text" class="search-input" id="search-input" placeholder="Search Applicant" onkeyup="performSearch()">
-                <svg class="search-icon" onclick="performSearch()" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M7 1C10.866 1 14 4.134 14 8C14 9.76667 13.3467 11.3917 12.2533 12.6267L14.8133 15.1867C15.0933 15.4667 15.0933 15.9267 14.8133 16.2067C14.5333 16.4867 14.0733 16.4867 13.7933 16.2067L11.2333 13.6467C9.99833 14.74 8.373 15.3933 6.60667 15.3933C2.74 15.3933 -0.393333 12.2593 -0.393333 8.393C-0.393333 4.527 2.74 1.393 6.60667 1.393L7 1Z" fill="black"/>
+                <input type="text" class="search-input" id="search-input" placeholder="Search Applicant"
+                    onkeyup="performSearch()">
+                <svg class="search-icon" onclick="performSearch()" width="16" height="16" viewBox="0 0 16 16"
+                    fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M7 1C10.866 1 14 4.134 14 8C14 9.76667 13.3467 11.3917 12.2533 12.6267L14.8133 15.1867C15.0933 15.4667 15.0933 15.9267 14.8133 16.2067C14.5333 16.4867 14.0733 16.4867 13.7933 16.2067L11.2333 13.6467C9.99833 14.74 8.373 15.3933 6.60667 15.3933C2.74 15.3933 -0.393333 12.2593 -0.393333 8.393C-0.393333 4.527 2.74 1.393 6.60667 1.393L7 1Z"
+                        fill="black" />
                 </svg>
             </div>
         </div>
@@ -885,53 +906,63 @@
                     </tr>
                 </thead>
                 <tbody class="table-body">
-                    @if(isset($applications) && $applications->count() > 0)
-                        @foreach($applications as $application)
-                        <tr class="table-row">
-                            <td class="table-cell">{{ $application->fullName ?? 'N/A' }}</td>
-                            <td class="table-cell">{{ $application->applicant ?? 'N/A' }}</td>
-                            <td class="table-cell">{{ $application->aadhar_number ?? 'N/A' }}</td>
-                            <td class="table-cell">{{ $application->financial_asst_type ?? 'N/A' }}</td>
-                            <td class="table-cell">{{ $application->financial_asst_for ?? 'N/A' }}</td>
-                            <td class="table-cell">
-                                <span class="status-badge
-                                    @if($application->form_status == 'draft') status-draft
+                    @if (isset($applications) && $applications->count() > 0)
+                        @foreach ($applications as $application)
+                            <tr class="table-row">
+                                <td class="table-cell">{{ $application->fullName ?? 'N/A' }}</td>
+                                <td class="table-cell">{{ $application->applicant ?? 'N/A' }}</td>
+                                <td class="table-cell">{{ $application->aadhar_number ?? 'N/A' }}</td>
+                                <td class="table-cell">{{ $application->financial_asst_type ?? 'N/A' }}</td>
+                                <td class="table-cell">{{ $application->financial_asst_for ?? 'N/A' }}</td>
+                                <td class="table-cell">
+                                    <span
+                                        class="status-badge
+                                    @if ($application->form_status == 'draft') status-draft
                                     @elseif($application->form_status == 'submitted') status-submitted
                                     @elseif($application->form_status == 'approved') status-approved
                                     @elseif($application->form_status == 'rejected') status-rejected
-                                    @else status-pending
-                                    @endif">
-                                    {{ ucfirst($application->form_status ?? 'pending') }}
-                                </span>
-                            </td>
-                            <td class="table-cell">{{ $application->created_at ? $application->created_at->format('d M Y') : 'N/A' }}</td>
-                            <td class="table-cell actions-cell">
-                                <div class="action-buttons">
-                                    @if($application->form_status == 'draft' || $application->current_step < 7)
-                                        <!-- Continue Button for incomplete forms -->
-                                        <button class="action-btn continue-btn" onclick="continueForm('{{ $application->submission_id }}', {{ $application->current_step ?? 1 }})" title="Continue Form">
-                                            <i class="fas fa-play"></i> Continue
-                                        </button>
-                                    @endif
+                                    @else status-pending @endif">
+                                        {{ ucfirst($application->form_status ?? 'pending') }}
+                                    </span>
+                                </td>
+                                <td class="table-cell">
+                                    {{ $application->created_at ? $application->created_at->format('d M Y') : 'N/A' }}
+                                </td>
+                                <td class="table-cell actions-cell">
+                                    <div class="action-buttons">
+                                        @if ($application->form_status == 'draft' || $application->current_step < 7)
+                                            <!-- Continue Button for incomplete forms -->
+                                            <button class="action-btn continue-btn"
+                                                onclick="continueForm('{{ $application->submission_id }}', {{ $application->current_step ?? 1 }})"
+                                                title="Continue Form">
+                                                <i class="fas fa-play"></i> Continue
+                                            </button>
+                                        @endif
 
-                                    @if($application->form_status == 'submitted' || $application->current_step >= 7)
-                                        <!-- View/Edit Button for completed forms -->
-                                        <button class="action-btn edit-btn" onclick="editForm('{{ $application->submission_id }}')" title="View/Edit Form">
-                                            <i class="fas fa-edit"></i> Edit
-                                        </button>
-                                        <!-- Print Button for completed forms -->
-                                        <button class="action-btn print-btn" onclick="printForm('{{ $application->submission_id }}')" title="Print Form">
-                                            <i class="fas fa-print"></i> Print
-                                        </button>
-                                    @endif
+                                        @if ($application->form_status == 'submitted' || $application->current_step >= 7)
+                                            <!-- View/Edit Button for completed forms -->
+                                            <button class="action-btn edit-btn"
+                                                onclick="editForm('{{ $application->submission_id }}')"
+                                                title="View/Edit Form">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </button>
+                                            <!-- Print Button for completed forms -->
+                                            <button class="action-btn print-btn"
+                                                onclick="printForm('{{ $application->submission_id }}')"
+                                                title="Print Form">
+                                                <i class="fas fa-print"></i> Print
+                                            </button>
+                                        @endif
 
-                                    <!-- Delete Button (always available) -->
-                                    <button class="action-btn delete-btn" onclick="deleteForm('{{ $application->submission_id }}', '{{ $application->fullName }}')" title="Delete Form">
-                                        <i class="fas fa-trash"></i> Delete
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
+                                        <!-- Delete Button (always available) -->
+                                        <button class="action-btn delete-btn"
+                                            onclick="deleteForm('{{ $application->submission_id }}', '{{ $application->fullName }}')"
+                                            title="Delete Form">
+                                            <i class="fas fa-trash"></i> Delete
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
                         @endforeach
                     @else
                         <tr class="table-row">
@@ -1000,7 +1031,8 @@
             console.log('Deleting form:', submissionId);
 
             // Confirm deletion
-            const confirmMessage = `Are you sure you want to delete the application for "${studentName}"?\n\nThis action cannot be undone.`;
+            const confirmMessage =
+                `Are you sure you want to delete the application for "${studentName}"?\n\nThis action cannot be undone.`;
 
             if (confirm(confirmMessage)) {
                 // Show loading state
@@ -1015,45 +1047,75 @@
                 // Make delete request
                 console.log('Making DELETE request to:', `/delete-application/${submissionId}`);
                 fetch(`/delete-application/${submissionId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(response => {
-                    console.log('Response status:', response.status);
-                    console.log('Response headers:', response.headers);
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(response => {
+                        console.log('Response status:', response.status);
+                        console.log('Response headers:', response.headers);
 
-                    // Check if response is JSON
-                    const contentType = response.headers.get('content-type');
-                    if (!contentType || !contentType.includes('application/json')) {
-                        return response.text().then(text => {
-                            console.log('Non-JSON response:', text);
-                            throw new Error('Server returned non-JSON response: ' + text.substring(0, 200));
+                        // Check if response is JSON
+                        const contentType = response.headers.get('content-type');
+                        if (!contentType || !contentType.includes('application/json')) {
+                            return response.text().then(text => {
+                                console.log('Non-JSON response:', text);
+                                throw new Error('Server returned non-JSON response: ' + text.substring(0, 200));
+                            });
+                        }
+
+                        if (!response.ok) {
+                            return response.json().then(data => {
+                                console.log('Error response data:', data);
+                                throw new Error(data.message || `HTTP error! status: ${response.status}`);
+                            }).catch(() => {
+                                throw new Error(`HTTP error! status: ${response.status}`);
+                            });
+                        }
+
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            // Show success message
+                            alert('Application deleted successfully!');
+                            // Reload page to refresh the list
+                            window.location.reload();
+                        } else {
+                            alert('Error deleting application: ' + (data.message || 'Unknown error'));
+                            // Restore button state
+                            deleteButtons.forEach(btn => {
+                                if (btn.classList.contains('delete-btn')) {
+                                    btn.disabled = false;
+                                    btn.innerHTML = '<i class="fas fa-trash"></i> Delete';
+                                }
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Delete error details:', {
+                            name: error.name,
+                            message: error.message,
+                            stack: error.stack
                         });
-                    }
 
-                    if (!response.ok) {
-                        return response.json().then(data => {
-                            console.log('Error response data:', data);
-                            throw new Error(data.message || `HTTP error! status: ${response.status}`);
-                        }).catch(() => {
-                            throw new Error(`HTTP error! status: ${response.status}`);
-                        });
-                    }
+                        let errorMessage = 'Error deleting application. ';
+                        if (error.message.includes('Non-JSON')) {
+                            errorMessage += 'Server returned invalid response. ';
+                        } else if (error.message.includes('HTTP error')) {
+                            errorMessage += 'Server error occurred. ';
+                        } else if (error.name === 'TypeError') {
+                            errorMessage += 'Network connection error. ';
+                        } else {
+                            errorMessage += error.message + ' ';
+                        }
+                        errorMessage += 'Please try again.';
 
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        // Show success message
-                        alert('Application deleted successfully!');
-                        // Reload page to refresh the list
-                        window.location.reload();
-                    } else {
-                        alert('Error deleting application: ' + (data.message || 'Unknown error'));
+                        alert(errorMessage);
+
                         // Restore button state
                         deleteButtons.forEach(btn => {
                             if (btn.classList.contains('delete-btn')) {
@@ -1061,37 +1123,7 @@
                                 btn.innerHTML = '<i class="fas fa-trash"></i> Delete';
                             }
                         });
-                    }
-                })
-                .catch(error => {
-                    console.error('Delete error details:', {
-                        name: error.name,
-                        message: error.message,
-                        stack: error.stack
                     });
-
-                    let errorMessage = 'Error deleting application. ';
-                    if (error.message.includes('Non-JSON')) {
-                        errorMessage += 'Server returned invalid response. ';
-                    } else if (error.message.includes('HTTP error')) {
-                        errorMessage += 'Server error occurred. ';
-                    } else if (error.name === 'TypeError') {
-                        errorMessage += 'Network connection error. ';
-                    } else {
-                        errorMessage += error.message + ' ';
-                    }
-                    errorMessage += 'Please try again.';
-
-                    alert(errorMessage);
-
-                    // Restore button state
-                    deleteButtons.forEach(btn => {
-                        if (btn.classList.contains('delete-btn')) {
-                            btn.disabled = false;
-                            btn.innerHTML = '<i class="fas fa-trash"></i> Delete';
-                        }
-                    });
-                });
             }
         }
 
@@ -1172,21 +1204,21 @@
 
                 // Make AJAX request to search endpoint
                 fetch(`{{ route('main.search') }}?search=${encodeURIComponent(searchTerm)}`, {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Search results:', data);
-                    // Handle search results here
-                    // You can display results in a dropdown or modal
-                })
-                .catch(error => {
-                    console.error('Search error:', error);
-                });
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Search results:', data);
+                        // Handle search results here
+                        // You can display results in a dropdown or modal
+                    })
+                    .catch(error => {
+                        console.error('Search error:', error);
+                    });
             }
         }
 
@@ -1201,24 +1233,24 @@
 
             // Clear server session and redirect to new form
             fetch('/api/clear-session', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Session cleared, redirecting to new form');
-                // Redirect to financial assistance with new form parameter
-                window.location.href = '{{ route('financial-assistance') }}?new=1';
-            })
-            .catch(error => {
-                console.error('Error clearing session:', error);
-                // Still redirect even if clearing failed
-                console.log('Proceeding with redirect despite session clear error');
-                window.location.href = '{{ route('financial-assistance') }}?new=1';
-            });
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Session cleared, redirecting to new form');
+                    // Redirect to financial assistance with new form parameter
+                    window.location.href = '{{ route('financial-assistance') }}?new=1';
+                })
+                .catch(error => {
+                    console.error('Error clearing session:', error);
+                    // Still redirect even if clearing failed
+                    console.log('Proceeding with redirect despite session clear error');
+                    window.location.href = '{{ route('financial-assistance') }}?new=1';
+                });
         }
 
         // Initialize default state (Financial Assistance active)
@@ -1228,7 +1260,8 @@
             // Add resize event listener for responsive adjustments
             window.addEventListener('resize', function() {
                 // Re-trigger tab switching to adjust positioning on resize
-                const activeTab = document.querySelector('.breadcrumb.active') ? 'ef-assistance' : 'financial-assistance';
+                const activeTab = document.querySelector('.breadcrumb.active') ? 'ef-assistance' :
+                    'financial-assistance';
                 switchTab(activeTab);
             });
 
@@ -1245,4 +1278,5 @@
         });
     </script>
 </body>
+
 </html>
