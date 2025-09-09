@@ -10,35 +10,84 @@
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <style>
-        body { 
-            font-family: "Inter", sans-serif; 
+        body {
+            font-family: "Inter", sans-serif;
         }
-        .project-primary { color: #556EE6; }
-        .project-success { color: #009846; }
-        .project-warning { color: #FBBA00; }
-        .bg-project-primary { background-color: #556EE6; }
-        .bg-project-success { background-color: #009846; }
-        .bg-project-warning { background-color: #FBBA00; }
-        .bg-blue-600 { background-color: #007DFC; }
-        .hover\:bg-project-primary:hover { background-color: #4c63d2; }
-        .hover\:bg-project-success:hover { background-color: #008139; }
-        .hover\:bg-project-warning:hover { background-color: #e6a800; }
-        .hover\:bg-blue-600:hover { background-color: #007DFC; }
-        .hover\:bg-blue-700:hover { background-color: #007DFC; }
-        .border-gray-300 { border-color: rgba(196, 196, 196, 0.55); }
-        .shadow-box { box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25); }
-        .signature-pad {
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            width: 100%;
-            height: 200px;
+        .project-primary {
+            color: #556EE6;
         }
-        .signature-container {
-            display: none;
+        .project-success {
+            color: #009846;
         }
-        .signature-container.active {
-            display: block;
+        .project-warning {
+            color: #FBBA00;
         }
+        .project-secondary {
+            color: #393185;
+        }
+        .project-light {
+            background-color: #FFF7D3;
+        }
+        .bg-project-primary {
+            background-color: #556EE6 !important;
+        }
+        .bg-project-success {
+            background-color: #009846 !important;
+        }
+        .bg-project-warning {
+            background-color: #FBBA00 !important;
+        }
+        .bg-project-secondary {
+            background-color: #393185;
+        }
+        .hover\:bg-project-primary:hover {
+            background-color: #4c63d2;
+        }
+        .hover\:bg-project-success:hover {
+            background-color: #008139;
+        }
+        .hover\:bg-project-warning:hover {
+            background-color: #e6a800;
+        }
+        .border-error {
+            border-color: #ef4444;
+            border-width: 2px;
+        }
+        .field-error {
+            border: 2px solid #ef4444 !important;
+        }
+        
+        nav {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        .step-arrow {
+            position: relative;
+            display: flex;
+            align-items: center;
+            padding: 12px 48px 12px 24px;
+            font-size: 13px;
+            cursor: default;
+            user-select: none;
+            white-space: nowrap;
+            clip-path: polygon(0 0,
+                    calc(100% - 20px) 0,
+                    100% 50%,
+                    calc(100% - 20px) 100%,
+                    0 100%,
+                    20px 50%);
+            /* background-color: #FBBA00 !important; */ /* Removed hardcoded color to allow class-based colors */
+        }
+
+        .step-arrow:not(:last-child) {
+            margin-right: 20px;
+        }
+
+        /* Remove the conflicting specific tab styles */
     </style>
 </head>
 <body class="bg-white text-gray-900">
@@ -142,25 +191,26 @@
             <!-- Form Navigation Tabs -->
             <section class="max-w-[1200px] mx-auto px-6 mb-8">
                 <nav class="flex flex-wrap gap-1 text-[11px] font-semibold text-gray-600">
-                    <button id="personal-details-tab" class="flex items-center gap-1 bg-project-success text-white rounded px-3 py-1 hover:bg-green-600 transition-colors cursor-pointer">
-                        ✓ Personal Details
+                    <button
+                        class="flex items-center gap-1 bg-project-success px-6 py-1 step-arrow">
+                        Personal Details
                     </button>
-                    <button id="family-details-tab" class="flex items-center gap-1 bg-project-success text-white rounded px-3 py-1 hover:bg-green-600 transition-colors cursor-pointer">
-                        ✓ Family Details
+                    <button class="flex items-center gap-1 bg-project-success px-6 py-1 step-arrow">
+                        Family Details
                     </button>
-                    <button id="education-details-tab" class="flex items-center gap-1 bg-project-success text-white rounded px-3 py-1 hover:bg-green-600 transition-colors cursor-pointer">
-                        ✓ Education Details
+                    <button class="flex items-center gap-1 bg-project-success px-6 py-1 step-arrow">
+                        Education Details
                     </button>
-                    <button id="funding-details-tab" class="flex items-center gap-1 bg-project-success text-white rounded px-3 py-1 hover:bg-green-600 transition-colors cursor-pointer">
-                        ✓ Funding Details
+                    <button class="flex items-center gap-1 bg-project-success px-6 py-1 step-arrow">
+                        Funding Details
                     </button>
-                    <button id="guarantor-details-tab" class="flex items-center gap-1 bg-project-success text-white rounded px-3 py-1 hover:bg-green-600 transition-colors cursor-pointer">
-                        ✓ Guarantor Details
+                    <button class="flex items-center gap-1 bg-project-success px-6 py-1 step-arrow">
+                        Guarantor Details
                     </button>
-                    <button id="documents-tab" class="flex items-center gap-1 bg-project-success text-white rounded px-3 py-1 hover:bg-green-600 transition-colors cursor-pointer">
-                        ✓ Documents
+                    <button class="flex items-center gap-1 bg-project-success px-6 py-1 step-arrow">
+                        Documents
                     </button>
-                    <button aria-current="step" class="flex items-center gap-1 bg-project-primary text-white rounded px-3 py-1">
+                    <button aria-current="step" class="flex items-center gap-1 bg-project-primary px-6 py-1 step-arrow font-bold">
                         Submit
                     </button>
                 </nav>

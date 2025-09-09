@@ -17,15 +17,47 @@
         .project-warning { color: #FBBA00; }
         .project-secondary { color: #393185; }
         .project-light { background-color: #FFF7D3; }
-        .bg-project-primary { background-color: #556EE6; }
-        .bg-project-success { background-color: #009846; }
-        .bg-project-warning { background-color: #FBBA00; }
+        .bg-project-primary { background-color: #556EE6 !important; }
+        .bg-project-success { background-color: #009846 !important; }
+        .bg-project-warning { background-color: #FBBA00 !important; }
         .bg-project-secondary { background-color: #393185; }
         .hover\:bg-project-primary:hover { background-color: #4c63d2; }
         .hover\:bg-project-success:hover { background-color: #008139; }
         .hover\:bg-project-warning:hover { background-color: #e6a800; }
         .border-error { border-color: #ef4444; border-width: 2px; }
         .field-error { border: 2px solid #ef4444 !important; }
+        
+        nav {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        .step-arrow {
+            position: relative;
+            display: flex;
+            align-items: center;
+            padding: 12px 48px 12px 24px;
+            font-size: 13px;
+            cursor: default;
+            user-select: none;
+            white-space: nowrap;
+            clip-path: polygon(0 0,
+                    calc(100% - 20px) 0,
+                    100% 50%,
+                    calc(100% - 20px) 100%,
+                    0 100%,
+                    20px 50%);
+            /* background-color: #FBBA00 !important; */ /* Removed hardcoded color to allow class-based colors */
+        }
+
+        .step-arrow:not(:last-child) {
+            margin-right: 20px;
+        }
+
+        /* Remove the conflicting specific tab styles */
     </style>
 </head>
 <body class="bg-white text-gray-900">
@@ -147,25 +179,26 @@
             <!-- Form Navigation Tabs -->
             <section class="max-w-[1200px] mx-auto px-6 mb-8">
                 <nav class="flex flex-wrap gap-1 text-[11px] font-semibold text-gray-600">
-                    <button id="personal-details-tab" class="flex items-center gap-1 bg-project-success text-white rounded px-3 py-1 hover:bg-green-600 transition-colors cursor-pointer">
-                        ✓ Personal Details
+                    <button
+                        class="flex items-center gap-1 bg-project-success px-6 py-1 step-arrow">
+                        Personal Details
                     </button>
-                    <button aria-current="step" class="flex items-center gap-1 bg-project-primary text-white rounded px-3 py-1">
+                    <button aria-current="step" class="flex items-center gap-1 bg-project-primary px-6 py-1 step-arrow font-bold">
                         Family Details
                     </button>
-                    <button class="flex items-center gap-1 border border-gray-300 rounded px-3 py-1 text-gray-400 cursor-not-allowed">
+                    <button class="flex items-center gap-1 bg-project-warning px-6 py-1 step-arrow">
                         Education Details
                     </button>
-                    <button class="flex items-center gap-1 border border-gray-300 rounded px-3 py-1 text-gray-400 cursor-not-allowed">
+                    <button class="flex items-center gap-1 bg-project-warning px-6 py-1 step-arrow">
                         Funding Details
                     </button>
-                    <button class="flex items-center gap-1 border border-gray-300 rounded px-3 py-1 text-gray-400 cursor-not-allowed">
+                    <button class="flex items-center gap-1 bg-project-warning px-6 py-1 step-arrow">
                         Guarantor Details
                     </button>
-                    <button class="flex items-center gap-1 border border-gray-300 rounded px-3 py-1 text-gray-400 cursor-not-allowed">
+                    <button class="flex items-center gap-1 bg-project-warning px-6 py-1 step-arrow">
                         Documents
                     </button>
-                    <button class="flex items-center gap-1 border border-gray-300 rounded px-3 py-1 text-gray-400 cursor-not-allowed">
+                    <button class="flex items-center gap-1 bg-project-warning px-6 py-1 step-arrow">
                         Submit
                     </button>
                 </nav>

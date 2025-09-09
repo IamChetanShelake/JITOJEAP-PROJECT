@@ -35,15 +35,15 @@
         }
 
         .bg-project-primary {
-            background-color: #556EE6;
+            background-color: #556EE6 !important;
         }
 
         .bg-project-success {
-            background-color: #009846;
+            background-color: #009846 !important;
         }
 
         .bg-project-warning {
-            background-color: #FBBA00;
+            background-color: #FBBA00 !important;
         }
 
         .bg-project-secondary {
@@ -94,37 +94,14 @@
                     calc(100% - 20px) 100%,
                     0 100%,
                     20px 50%);
+            background-color: #FBBA00 !important; /* Default to warning color */
         }
 
         .step-arrow:not(:last-child) {
             margin-right: 20px;
         }
 
-        .personal {
-            background-color: #add8ff;
-            color: #000;
-            font-weight: 400;
-            z-index: 3;
-        }
-
-        .family {
-            background-color: #008a3b;
-            color: #fff;
-            font-weight: 700;
-            z-index: 3;
-        }
-
-        .education,
-        .funding,
-        .guarantor,
-        .documents,
-        .submit {
-            background-color: #e9e9e9;
-            color: #000;
-            font-weight: 400;
-            /* border: 1px solid #f7c6c6; */
-            z-index: 3;
-        }
+        /* Remove the conflicting specific tab styles */
     </style>
 </head>
 
@@ -475,25 +452,25 @@
         <section class="max-w-[1200px] mx-auto px-6 mb-8">
             <nav class="flex flex-wrap gap-1 text-[11px] font-semibold text-gray-600">
                 <button aria-current="step"
-                    class="flex items-center gap-1 bg-project-success px-6 py-1 step-arrow personal">
+                    class="flex items-center gap-1 bg-project-primary px-6 py-1 step-arrow font-bold">
                     Personal Details
                 </button>
-                <button class="flex items-center gap-1  px-6 py-1 step-arrow family">
+                <button class="flex items-center gap-1 bg-project-warning px-6 py-1 step-arrow">
                     Family Details
                 </button>
-                <button class="flex items-center gap-1  px-6 py-1 step-arrow education">
+                <button class="flex items-center gap-1 bg-project-warning px-6 py-1 step-arrow">
                     Education Details
                 </button>
-                <button class="flex items-center gap-1  px-6 py-1 step-arrow funding">
+                <button class="flex items-center gap-1 bg-project-warning px-6 py-1 step-arrow">
                     Funding Details
                 </button>
-                <button class="flex items-center gap-1 px-6 py-1 step-arrow guarantor">
+                <button class="flex items-center gap-1 bg-project-warning px-6 py-1 step-arrow">
                     Guarantor Details
                 </button>
-                <button class="flex items-center gap-1  px-6 py-1 step-arrow documents">
+                <button class="flex items-center gap-1 bg-project-warning px-6 py-1 step-arrow">
                     Documents
                 </button>
-                <button class="flex items-center gap-1   px-6 py-1 step-arrow submit">
+                <button class="flex items-center gap-1 bg-project-warning px-6 py-1 step-arrow">
                     Submit
                 </button>
             </nav>
